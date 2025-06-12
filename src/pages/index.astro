@@ -185,35 +185,30 @@ import {
               <a href="#" data-menu="react" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
                 <Code2 className="mr-3 h-5 w-5 text-blue-500" />
                 <span class="flex-1">React</span>
-                <span class="expand-icon text-xs transition-transform duration-200">▶</span>
               </a>
               
               <!-- Vue -->
               <a href="#" data-menu="vue" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
                 <Triangle className="mr-3 h-5 w-5 text-green-500" />
                 <span class="flex-1">Vue</span>
-                <span class="expand-icon text-xs transition-transform duration-200">▶</span>
               </a>
               
               <!-- Next.js -->
               <a href="#" data-menu="next" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
                 <ArrowRight className="mr-3 h-5 w-5 text-gray-900 dark:text-gray-100" />
                 <span class="flex-1">Next</span>
-                <span class="expand-icon text-xs transition-transform duration-200">▶</span>
               </a>
               
               <!-- Nest.js -->
               <a href="#" data-menu="nest" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
                 <Database className="mr-3 h-5 w-5 text-red-500" />
                 <span class="flex-1">Nest</span>
-                <span class="expand-icon text-xs transition-transform duration-200">▶</span>
               </a>
               
               <!-- Rust -->
               <a href="#" data-menu="rust" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
                 <Cog className="mr-3 h-5 w-5 text-orange-600" />
                 <span class="flex-1">Rust</span>
-                <span class="expand-icon text-xs transition-transform duration-200">▶</span>
               </a>
             </nav>
           </div>
@@ -357,66 +352,155 @@ import {
         react: {
           label: 'React',
           submenus: [
-            { id: 'react-basics', label: '基础教程', url: '/react/basics' },
-            { id: 'react-hooks', label: 'Hooks 详解', url: '/react/hooks' },
-            { id: 'react-router', label: '路由管理', url: '/react/router' },
-            { id: 'react-state', label: '状态管理', url: '/react/state' },
-            { id: 'react-testing', label: '测试指南', url: '/react/testing' },
-            { id: 'react-performance', label: '性能优化', url: '/react/performance' },
-            { id: 'react-patterns', label: '设计模式', url: '/react/patterns' },
-            { id: 'react-ecosystem', label: '生态系统', url: '/react/ecosystem' }
+            { 
+              id: 'react-welcome', 
+              label: '欢迎，世界！', 
+              type: 'section',
+              children: [
+                { id: 'react-intro', label: '为什么是 React?', url: '/react/intro', type: 'item' },
+                { id: 'react-tutorial', label: '教程：待办事项应用', url: '/react/tutorial', type: 'item' },
+                { id: 'react-thinking', label: 'React 哲学', url: '/react/thinking', type: 'item' }
+              ]
+            },
+            { 
+              id: 'react-installation', 
+              label: '安装', 
+              type: 'section',
+              children: [
+                { id: 'react-start-new-project', label: '启动新的 React 项目', url: '/react/start-new-project', type: 'item' },
+                { id: 'react-add-to-existing', label: '添加到现有项目', url: '/react/add-to-existing', type: 'item' },
+                { id: 'react-editor-setup', label: '编辑器设置', url: '/react/editor-setup', type: 'item' },
+                { id: 'react-typescript', label: '使用 TypeScript', url: '/react/typescript', type: 'item' },
+                { id: 'react-dev-tools', label: 'React 开发者工具', url: '/react/dev-tools', type: 'item' }
+              ]
+            },
+            { 
+              id: 'react-learn', 
+              label: '学习 React', 
+              type: 'section',
+              children: [
+                { id: 'react-quick-start', label: '快速入门', url: '/react/quick-start', type: 'item' },
+                { id: 'react-tic-tac-toe', label: '教程：井字棋', url: '/react/tic-tac-toe', type: 'item' },
+                { id: 'react-concepts', label: 'React 思维', url: '/react/concepts', type: 'item' }
+              ]
+            },
+            { 
+              id: 'react-api-reference', 
+              label: 'API 参考', 
+              type: 'section',
+              children: [
+                { id: 'react-apis', label: 'React APIs', url: '/react/apis', type: 'item' },
+                { id: 'react-dom-apis', label: 'React DOM APIs', url: '/react/dom-apis', type: 'item' },
+                { id: 'react-dom-server', label: 'React DOM Server APIs', url: '/react/dom-server', type: 'item' },
+                { id: 'react-rules', label: 'React 规则', url: '/react/rules', type: 'item' }
+              ]
+            },
+            { 
+              id: 'react-community', 
+              label: '社区', 
+              type: 'section',
+              children: [
+                { id: 'react-code-of-conduct', label: '行为准则', url: '/react/code-of-conduct', type: 'item' },
+                { id: 'react-meet-team', label: '认识团队', url: '/react/meet-team', type: 'item' },
+                { id: 'react-docs-contributors', label: '文档贡献者', url: '/react/docs-contributors', type: 'item' },
+                { id: 'react-acknowledgements', label: '致谢', url: '/react/acknowledgements', type: 'item' }
+              ]
+            }
           ]
         },
         vue: {
           label: 'Vue',
           submenus: [
-            { id: 'vue-basics', label: '基础入门', url: '/vue/basics' },
-            { id: 'vue-composition', label: 'Composition API', url: '/vue/composition' },
-            { id: 'vue-router', label: 'Vue Router', url: '/vue/router' },
-            { id: 'vue-vuex', label: 'Vuex/Pinia', url: '/vue/state' },
-            { id: 'vue-components', label: '组件开发', url: '/vue/components' },
-            { id: 'vue-directives', label: '指令详解', url: '/vue/directives' },
-            { id: 'vue-ssr', label: '服务端渲染', url: '/vue/ssr' },
-            { id: 'vue-nuxt', label: 'Nuxt.js', url: '/vue/nuxt' }
+            { 
+              id: 'vue-welcome', 
+              label: '欢迎，世界！', 
+              type: 'section',
+              children: [
+                { id: 'vue-intro', label: '为什么是 Vue?', url: '/vue/intro', type: 'item' },
+                { id: 'vue-tutorial', label: '教程：构建应用', url: '/vue/tutorial', type: 'item' }
+              ]
+            },
+            { 
+              id: 'vue-start', 
+              label: '开始新项目', 
+              type: 'section',
+              children: [
+                { id: 'vue-installation', label: '安装', url: '/vue/installation', type: 'item' },
+                { id: 'vue-project-setup', label: '项目设置', url: '/vue/project-setup', type: 'item' }
+              ]
+            }
           ]
         },
         next: {
           label: 'Next.js',
           submenus: [
-            { id: 'next-basics', label: '快速开始', url: '/next/basics' },
-            { id: 'next-routing', label: '路由系统', url: '/next/routing' },
-            { id: 'next-ssr', label: '服务端渲染', url: '/next/ssr' },
-            { id: 'next-api', label: 'API Routes', url: '/next/api' },
-            { id: 'next-deployment', label: '部署指南', url: '/next/deployment' },
-            { id: 'next-optimization', label: '性能优化', url: '/next/optimization' },
-            { id: 'next-middleware', label: '中间件', url: '/next/middleware' },
-            { id: 'next-auth', label: '身份验证', url: '/next/auth' }
+            { 
+              id: 'next-welcome', 
+              label: '欢迎，世界！', 
+              type: 'section',
+              children: [
+                { id: 'next-intro', label: '为什么是 Next.js?', url: '/next/intro', type: 'item' },
+                { id: 'next-tutorial', label: '教程：Dashboard 应用', url: '/next/tutorial', type: 'item' }
+              ]
+            },
+            { 
+              id: 'next-start', 
+              label: '开始新项目', 
+              type: 'section',
+              children: [
+                { id: 'next-installation', label: '安装', url: '/next/installation', type: 'item' },
+                { id: 'next-routing', label: '路由', url: '/next/routing', type: 'item' },
+                { id: 'next-rendering', label: '渲染', url: '/next/rendering', type: 'item' }
+              ]
+            }
           ]
         },
         nest: {
           label: 'Nest.js',
           submenus: [
-            { id: 'nest-basics', label: '基础概念', url: '/nest/basics' },
-            { id: 'nest-controllers', label: '控制器', url: '/nest/controllers' },
-            { id: 'nest-providers', label: '提供者', url: '/nest/providers' },
-            { id: 'nest-modules', label: '模块系统', url: '/nest/modules' },
-            { id: 'nest-database', label: '数据库集成', url: '/nest/database' },
-            { id: 'nest-auth', label: '身份验证', url: '/nest/auth' },
-            { id: 'nest-testing', label: '测试', url: '/nest/testing' },
-            { id: 'nest-microservices', label: '微服务', url: '/nest/microservices' }
+            { 
+              id: 'nest-welcome', 
+              label: '欢迎，世界！', 
+              type: 'section',
+              children: [
+                { id: 'nest-intro', label: '为什么是 Nest.js?', url: '/nest/intro', type: 'item' },
+                { id: 'nest-tutorial', label: '教程：API 构建', url: '/nest/tutorial', type: 'item' }
+              ]
+            },
+            { 
+              id: 'nest-start', 
+              label: '开始新项目', 
+              type: 'section',
+              children: [
+                { id: 'nest-installation', label: '安装', url: '/nest/installation', type: 'item' },
+                { id: 'nest-controllers', label: '控制器', url: '/nest/controllers', type: 'item' },
+                { id: 'nest-providers', label: '提供者', url: '/nest/providers', type: 'item' }
+              ]
+            }
           ]
         },
         rust: {
           label: 'Rust',
           submenus: [
-            { id: 'rust-basics', label: '语言基础', url: '/rust/basics' },
-            { id: 'rust-ownership', label: '所有权系统', url: '/rust/ownership' },
-            { id: 'rust-structs', label: '结构体与枚举', url: '/rust/structs' },
-            { id: 'rust-traits', label: 'Traits 特征', url: '/rust/traits' },
-            { id: 'rust-error', label: '错误处理', url: '/rust/error' },
-            { id: 'rust-concurrency', label: '并发编程', url: '/rust/concurrency' },
-            { id: 'rust-web', label: 'Web 开发', url: '/rust/web' },
-            { id: 'rust-async', label: '异步编程', url: '/rust/async' }
+            { 
+              id: 'rust-welcome', 
+              label: '欢迎，世界！', 
+              type: 'section',
+              children: [
+                { id: 'rust-intro', label: '为什么是 Rust?', url: '/rust/intro', type: 'item' },
+                { id: 'rust-tutorial', label: '教程：猜数字游戏', url: '/rust/tutorial', type: 'item' }
+              ]
+            },
+            { 
+              id: 'rust-start', 
+              label: '开始新项目', 
+              type: 'section',
+              children: [
+                { id: 'rust-installation', label: '安装', url: '/rust/installation', type: 'item' },
+                { id: 'rust-cargo', label: 'Cargo 包管理', url: '/rust/cargo', type: 'item' },
+                { id: 'rust-syntax', label: '语法基础', url: '/rust/syntax', type: 'item' }
+              ]
+            }
           ]
         }
       };
@@ -424,7 +508,8 @@ import {
       // 当前选中的菜单和子菜单
       let currentMenu = 'home';
       let currentSubmenu = null;
-      let expandedMenus = new Set(); // 展开的菜单
+      let selectedMenuItem = null;
+      let expandedSections = new Set(); // 展开的一级菜单
 
       // 主题切换功能
       const themeToggle = document.getElementById('theme-toggle');
@@ -461,18 +546,64 @@ import {
           return;
         }
 
-        const submenuHtml = menuInfo.submenus.map(submenu => `
-          <div class="submenu-item ${currentSubmenu === submenu.id ? 'active' : ''}" data-submenu="${submenu.id}">
-            <a href="${submenu.url}" class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors duration-200 group">
-              <div class="submenu-indicator w-3 h-px bg-gray-300 dark:bg-gray-600 mr-3 group-hover:bg-orange-500 dark:group-hover:bg-orange-400 transition-all duration-200"></div>
-              <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
-                ${submenu.label}
-              </span>
-            </a>
-          </div>
-        `).join('');
+        const submenuHtml = menuInfo.submenus.map(section => {
+          if (section.type === 'section') {
+            // 检查当前分组是否展开
+            const isExpanded = expandedSections.has(section.id);
+            
+            // 渲染一级标题和二级子项
+            const childrenHtml = section.children && isExpanded ? section.children.map((child, index) => `
+              <div class="submenu-item ${selectedMenuItem === child.id ? 'active' : ''}" data-submenu="${child.id}">
+                <a href="${child.url}" class="flex items-center py-2 text-sm group cursor-pointer">
+                  <div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 mr-4 ml-6 transition-all duration-200 ${selectedMenuItem === child.id ? 'bg-orange-500 dark:bg-orange-400' : 'group-hover:bg-orange-400 dark:group-hover:bg-orange-500'}"></div>
+                  <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ${selectedMenuItem === child.id ? 'text-orange-700 dark:text-orange-300 font-medium' : ''}">
+                    ${child.label}
+                  </span>
+                </a>
+              </div>
+            `).join('') : '';
+
+            return `
+              <div class="submenu-section mb-6 relative">
+                <div class="section-header flex items-center px-3 py-2 mb-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" data-section="${section.id}">
+                  <span class="expand-arrow text-xs text-gray-500 dark:text-gray-400 transition-transform duration-200 mr-3 ${isExpanded ? 'rotate-90' : ''}">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
+                      <path d="M2 1.5 L6 4 L2 6.5 Z" />
+                    </svg>
+                  </span>
+                  <span class="text-sm font-medium text-gray-900 dark:text-gray-100">${section.label}</span>
+                </div>
+                <div class="section-children relative ${isExpanded ? 'block' : 'hidden'}">
+                  <!-- 连续的竖线背景，对准箭头位置 -->
+                  <div class="absolute left-6 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+                  ${childrenHtml}
+                </div>
+              </div>
+            `;
+          } else {
+            // 简单项目（没有子项的）
+            return `
+              <div class="submenu-item ${selectedMenuItem === section.id ? 'active' : ''}" data-submenu="${section.id}">
+                <a href="${section.url}" class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors duration-200 group">
+                  <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
+                    ${section.label}
+                  </span>
+                </a>
+              </div>
+            `;
+          }
+        }).join('');
 
         container.innerHTML = submenuHtml;
+
+        // 绑定一级菜单展开收起事件
+        container.querySelectorAll('.section-header').forEach(header => {
+          header.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionId = header.dataset.section;
+            toggleSection(sectionId);
+          });
+        });
 
         // 绑定子菜单点击事件
         container.querySelectorAll('.submenu-item').forEach(item => {
@@ -484,9 +615,21 @@ import {
         });
       }
 
+      // 切换一级菜单展开收起
+      function toggleSection(sectionId) {
+        if (expandedSections.has(sectionId)) {
+          expandedSections.delete(sectionId);
+        } else {
+          expandedSections.add(sectionId);
+        }
+        
+        // 重新渲染当前菜单的子菜单
+        renderSubmenu(currentMenu);
+      }
+
       // 选择子菜单
       function selectSubmenu(submenuId) {
-        currentSubmenu = submenuId;
+        selectedMenuItem = submenuId;
         
         // 更新子菜单样式
         document.querySelectorAll('.submenu-item').forEach(item => {
@@ -497,59 +640,53 @@ import {
         if (selectedItem) {
           selectedItem.classList.add('active');
         }
+
+        // 更新单个竖线样式
+        document.querySelectorAll('.submenu-vertical-line').forEach(line => {
+          line.classList.remove('bg-orange-500', 'dark:bg-orange-400');
+          line.classList.add('bg-gray-300', 'dark:bg-gray-600');
+        });
+
+        const selectedLine = selectedItem?.querySelector('.submenu-vertical-line');
+        if (selectedLine) {
+          selectedLine.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+          selectedLine.classList.add('bg-orange-500', 'dark:bg-orange-400');
+        }
       }
 
       // 选择主菜单
       function selectMainMenu(menuKey) {
         // 更新当前菜单
         currentMenu = menuKey;
-        currentSubmenu = null;
+        selectedMenuItem = null;
+        
+        // 切换菜单时，重置展开状态，默认展开第一个分组
+        expandedSections.clear();
+        if (menuData[menuKey] && menuData[menuKey].submenus.length > 0) {
+          const firstSection = menuData[menuKey].submenus[0];
+          if (firstSection.type === 'section') {
+            expandedSections.add(firstSection.id);
+          }
+        }
 
         // 更新主菜单样式
         document.querySelectorAll('.menu-item').forEach(item => {
           item.classList.remove('active');
         });
         
-        const selectedMenuItem = document.querySelector(`[data-menu="${menuKey}"]`);
-        if (selectedMenuItem) {
-          selectedMenuItem.classList.add('active');
+        const selectedMenuElement = document.querySelector(`[data-menu="${menuKey}"]`);
+        if (selectedMenuElement) {
+          selectedMenuElement.classList.add('active');
         }
 
-        // 处理展开/收起逻辑
+        // 根据选择的菜单渲染子菜单
         if (menuKey === 'home') {
-          // 首页没有子菜单，清空子菜单区域
-          expandedMenus.clear();
+          // 首页没有子菜单，显示默认提示
           document.getElementById('submenu-container').innerHTML = '<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
         } else {
-          // 切换展开状态
-          if (expandedMenus.has(menuKey)) {
-            expandedMenus.delete(menuKey);
-            document.getElementById('submenu-container').innerHTML = '<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">选择上方菜单查看子选项</div>';
-          } else {
-            expandedMenus.clear(); // 只保持一个菜单展开
-            expandedMenus.add(menuKey);
-            renderSubmenu(menuKey);
-          }
+          // 渲染对应的子菜单
+          renderSubmenu(menuKey);
         }
-
-        // 更新展开图标
-        updateExpandIcons();
-      }
-
-      // 更新展开图标
-      function updateExpandIcons() {
-        document.querySelectorAll('.menu-item').forEach(item => {
-          const menuKey = item.dataset.menu;
-          const expandIcon = item.querySelector('.expand-icon');
-          
-          if (expandIcon) {
-            if (expandedMenus.has(menuKey)) {
-              expandIcon.style.transform = 'rotate(90deg)';
-            } else {
-              expandIcon.style.transform = 'rotate(0deg)';
-            }
-          }
-        });
       }
 
       // 初始化菜单
@@ -665,16 +802,7 @@ import {
 
       /* 子菜单样式 */
       .submenu-item {
-        @apply transition-all duration-200;
-      }
-
-      .submenu-item:hover .submenu-indicator {
-        @apply bg-orange-500 dark:bg-orange-400 scale-x-150;
-      }
-
-      .submenu-item.active .submenu-indicator {
-        @apply bg-orange-600 dark:bg-orange-300 scale-x-200 h-0.5;
-        box-shadow: 0 0 8px rgba(251, 146, 60, 0.4);
+        @apply transition-all duration-200 relative;
       }
 
       .submenu-item.active a {
@@ -685,20 +813,62 @@ import {
         @apply text-gray-900 dark:text-gray-100;
       }
 
-      /* 展开图标动画 */
-      .expand-icon {
-        @apply transition-transform duration-200 ease-in-out;
+      /* 一级菜单标题样式 */
+      .section-header {
+        @apply transition-all duration-200;
       }
 
-      /* 子菜单容器动画 */
-      #submenu-container {
+      .section-header:hover {
+        @apply bg-gray-50 dark:bg-gray-800;
+      }
+
+      /* 展开箭头动画 */
+      .expand-arrow {
+        @apply transition-transform duration-200 ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .expand-arrow.rotate-90 {
+        transform: rotate(90deg);
+      }
+
+      .expand-arrow svg {
+        @apply transition-transform duration-200;
+      }
+
+      /* 分组内容显示/隐藏动画 */
+      .section-children {
         @apply transition-all duration-300 ease-in-out;
       }
 
-      /* 子菜单指示器动画 */
-      .submenu-indicator {
-        @apply transition-all duration-200 ease-in-out;
-        transform-origin: left center;
+      .section-children.hidden {
+        @apply opacity-0;
+        max-height: 0;
+        overflow: hidden;
+      }
+
+      .section-children.block {
+        @apply opacity-100;
+        max-height: none;
+      }
+
+      /* 子菜单竖线样式 - 覆盖背景线 */
+      .submenu-vertical-line {
+        @apply transition-all duration-200 ease-in-out relative z-10;
+        transform-origin: center;
+      }
+
+      .submenu-item:hover .submenu-vertical-line {
+        @apply bg-orange-400 dark:bg-orange-500;
+        transform: scaleX(2);
+      }
+
+      .submenu-item.active .submenu-vertical-line {
+        @apply bg-orange-500 dark:bg-orange-400;
+        transform: scaleX(3);
+        filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.6));
       }
 
       /* 文本截断工具类 */
