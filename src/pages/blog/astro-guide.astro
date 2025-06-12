@@ -1,0 +1,109 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+
+const postData = {
+  title: "Astro 入门指南",
+  description: "学习如何使用 Astro 构建现代化的静态网站，掌握组件化开发和性能优化技巧。",
+  pubDate: new Date('2024-06-05'),
+  heroImage: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&h=400&fit=crop",
+  tags: ["Astro", "教程", "前端", "静态网站"],
+  category: "技术",
+  author: "博主",
+  readingTime: 8
+};
+---
+
+<BlogPost {...postData}>
+  <h2>什么是 Astro？</h2>
+  <p>Astro 是一个现代的静态网站生成器，专为构建快速、以内容为中心的网站而设计。它的核心理念是"岛屿架构"（Islands Architecture），让你能够在主要使用静态 HTML 的网站中，选择性地添加交互性。</p>
+
+  <h3>核心特性</h3>
+  <ul>
+    <li><strong>零 JavaScript 默认</strong>：默认情况下，Astro 生成零 JavaScript 的静态 HTML</li>
+    <li><strong>组件岛屿</strong>：可以选择性地在需要的地方添加交互性</li>
+    <li><strong>多框架支持</strong>：支持 React、Vue、Svelte 等多种前端框架</li>
+    <li><strong>性能优先</strong>：内置性能优化，自动代码分割</li>
+  </ul>
+
+  <h2>开始使用 Astro</h2>
+
+  <h3>安装和初始化</h3>
+  <p>首先，让我们创建一个新的 Astro 项目。</p>
+
+  <h3>项目结构</h3>
+  <p>Astro 项目有清晰的文件夹结构，便于组织代码。</p>
+
+  <h2>Astro 组件</h2>
+  <p>Astro 组件是 <code>.astro</code> 文件，结合了组件脚本、模板和样式。</p>
+
+  <h3>组件属性</h3>
+  <p>你可以通过 <code>Astro.props</code> 接收属性。</p>
+
+  <h2>页面和路由</h2>
+  <p>Astro 使用基于文件的路由系统。<code>src/pages/</code> 目录中的每个文件都会成为一个路由：</p>
+
+  <ul>
+    <li><code>src/pages/index.astro</code> → <code>/</code></li>
+    <li><code>src/pages/about.astro</code> → <code>/about</code></li>
+    <li><code>src/pages/blog/post.astro</code> → <code>/blog/post</code></li>
+  </ul>
+
+  <h3>动态路由</h3>
+  <p>使用方括号创建动态路由，支持参数传递。</p>
+
+  <h2>样式处理</h2>
+  <p>Astro 支持多种样式方案：</p>
+
+  <h3>1. 组件样式</h3>
+  <p>在组件内部定义样式，作用域限制在当前组件。</p>
+
+  <h3>2. 全局样式</h3>
+  <p>使用全局样式影响整个应用。</p>
+
+  <h3>3. CSS 预处理器</h3>
+  <p>支持 Sass、Less 等预处理器。</p>
+
+  <h2>集成和插件</h2>
+  <p>Astro 有丰富的集成生态系统，可以轻松添加各种功能。</p>
+
+  <h2>性能优化</h2>
+
+  <h3>图片优化</h3>
+  <p>Astro 内置了图片优化功能，自动压缩和格式转换。</p>
+
+  <h3>代码分割</h3>
+  <p>Astro 自动进行代码分割，只加载当前页面需要的 JavaScript。</p>
+
+  <h3>预加载</h3>
+  <p>使用 <code>prefetch</code> 属性预加载关键页面。</p>
+
+  <h2>部署</h2>
+  <p>Astro 可以部署到多个平台：</p>
+
+  <h3>Vercel</h3>
+  <p>安装 Vercel 适配器并配置部署。</p>
+
+  <h3>Netlify</h3>
+  <p>安装 Netlify 适配器并配置部署。</p>
+
+  <h2>最佳实践</h2>
+  <ol>
+    <li><strong>使用内容集合</strong>管理博客文章和数据</li>
+    <li><strong>利用岛屿架构</strong>只在需要的地方添加交互性</li>
+    <li><strong>优化图片</strong>使用 Astro 的内置图片优化</li>
+    <li><strong>代码分割</strong>保持组件小而专注</li>
+    <li><strong>SEO 优化</strong>使用适当的元标签和结构化数据</li>
+  </ol>
+
+  <h2>总结</h2>
+  <p>Astro 是构建现代静态网站的优秀选择，它结合了：</p>
+
+  <ul>
+    <li>🚀 出色的性能</li>
+    <li>🧩 灵活的组件系统</li>
+    <li>🎨 丰富的样式选项</li>
+    <li>🔧 强大的集成生态</li>
+  </ul>
+
+  <p>开始你的 Astro 之旅，构建更快、更好的网站！</p>
+</BlogPost>
