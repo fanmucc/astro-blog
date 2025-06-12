@@ -149,8 +149,13 @@ import {
             <!-- 主题切换按钮 -->
             <button 
               id="theme-toggle" 
-              class="text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200 border-none bg-none"
-              style="border: none; background: none; padding: 0; margin: 0;"
+              class="text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200"
+              style={{
+                border: 'none',
+                background: 'none',
+                padding: '0',
+                margin: '0'
+              }}
               aria-label="切换主题"
             >
               <!-- 太阳图标 (暗色模式下显示) -->
@@ -168,10 +173,10 @@ import {
     </header>
 
     <!-- 主要内容区域 -->
-    <div class="flex" style="height: calc(100vh - 4rem);">
-      <!-- 左侧边栏 -->
+    <div class="flex" style={{ height: 'calc(100vh - 4rem)' }}>
+      <!-- 左侧边栏 - 应用侧边栏滚动条样式 -->
       <aside class="w-64 flex-shrink-0 border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 flex flex-col h-full">
-        <div class="flex-1 overflow-y-auto px-4 py-6">
+        <div class="flex-1 overflow-y-auto px-4 py-6 sidebar-scroll scroll-smooth-enhanced">
           <!-- 主菜单区域 -->
           <div class="mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
             <nav class="space-y-1">
@@ -254,8 +259,8 @@ import {
         </div>
       </aside>
 
-      <!-- 主内容区 -->
-      <main class="flex-1 overflow-y-auto h-full">
+      <!-- 主内容区 - 应用主内容滚动条样式 -->
+      <main class="flex-1 overflow-y-auto h-full main-content scroll-smooth-enhanced">
         <div class="px-6 py-6 lg:px-8">
           <!-- 欢迎区域 -->
           <div class="mb-8">
@@ -314,7 +319,7 @@ import {
               
               <!-- 模拟更多文章 -->
               {Array.from({ length: 8 }, (_, i) => (
-                <article key={i} class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow mb-6">
+                <article class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow mb-6">
                   <div class="flex items-start justify-between mb-4">
                     <div>
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
@@ -333,7 +338,7 @@ import {
                   </h2>
                   
                   <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    这是一篇示例文章，用于展示页面滚动效果。左侧菜单栏保持固定，只有右侧内容区域会滚动。当内容足够多时，可以测试滚动的流畅性和边界处理。
+                    这是一篇示例文章，用于展示页面滚动效果。左侧菜单栏保持固定，只有右侧内容区域会滚动。当内容足够多时，可以测试滚动的流畅性和边界处理。现在你可以看到美化的滚动条效果！
                   </p>
                   
                   <div class="flex items-center justify-between">
@@ -356,7 +361,7 @@ import {
               <div class="mt-12 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-2">滚动测试完成</h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                  如果您能看到这个内容，说明右侧滚动功能正常工作，且底部内容没有被遮挡。
+                  如果您能看到这个内容，说明右侧滚动功能正常工作，且底部内容没有被遮挡。现在滚动条已经美化，提供更好的视觉体验！
                 </p>
               </div>
             </div>
@@ -433,10 +438,232 @@ import {
           }
         }
       });
+
+      // 滚动增强功能
+      document.addEventListener('DOMContentLoaded', function() {
+        const mainContent = document.querySelector('.main-content');
+        const sidebar = document.querySelector('.sidebar-scroll');
+        
+        // 平滑滚动到顶部功能
+        function scrollToTop(element) {
+          element.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+        
+        // 双击滚动条区域回到顶部
+        if (mainContent) {
+          mainContent.addEventListener('dblclick', (e) => {
+            // 只在点击滚动条区域时触发
+            if (e.target === mainContent) {
+              scrollToTop(mainContent);
+            }
+          });
+        }
+        
+        // 键盘快捷键：Home键回到顶部
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Home' && e.ctrlKey) {
+            e.preventDefault();
+            if (mainContent) scrollToTop(mainContent);
+          }
+        });
+      });
     </script>
 
     <style>
+      /* 导入全局样式 */
       @import '../styles/global.css';
+      
+      /* 滚动条基础样式 - 确保优先级 */
+      html, body {
+        scroll-behavior: smooth;
+      }
+      
+      /* 全局滚动条样式 - 使用更细的宽度 */
+      ::-webkit-scrollbar {
+        width: 4px !important;
+        height: 4px !important;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgb(249 250 251) !important;
+        border-radius: 3px !important;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgb(209 213 219) !important;
+        border-radius: 3px !important;
+        border: none !important;
+        background-clip: content-box !important;
+        transition: background-color 0.2s ease !important;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgb(156 163 175) !important;
+      }
+
+      ::-webkit-scrollbar-thumb:active {
+        background: rgb(107 114 128) !important;
+      }
+
+      /* 暗色模式滚动条 */
+      .dark ::-webkit-scrollbar-track {
+        background: rgb(17 24 39) !important;
+      }
+
+      .dark ::-webkit-scrollbar-thumb {
+        background: rgb(75 85 99) !important;
+      }
+
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: rgb(107 114 128) !important;
+      }
+
+      .dark ::-webkit-scrollbar-thumb:active {
+        background: rgb(156 163 175) !important;
+      }
+      
+      /* 侧边栏滚动条 - 非常细 */
+      .sidebar-scroll::-webkit-scrollbar {
+        width: 3px !important;
+      }
+
+      .sidebar-scroll::-webkit-scrollbar-track {
+        background: transparent !important;
+      }
+
+      .sidebar-scroll::-webkit-scrollbar-thumb {
+        background: rgb(209 213 219 / 0.7) !important;
+        border-radius: 2px !important;
+        border: none !important;
+        background-clip: content-box !important;
+      }
+
+      .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgb(156 163 175 / 0.9) !important;
+      }
+
+      .dark .sidebar-scroll::-webkit-scrollbar-thumb {
+        background: rgb(75 85 99 / 0.7) !important;
+      }
+
+      .dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgb(107 114 128 / 0.9) !important;
+      }
+
+      /* 主内容区滚动条 - 橙色主题，细线条 */
+      .main-content::-webkit-scrollbar {
+        width: 5px !important;
+      }
+
+      .main-content::-webkit-scrollbar-track {
+        background: rgb(243 244 246 / 0.5) !important;
+        border-radius: 3px !important;
+        margin: 4px 0 !important;
+      }
+
+      .main-content::-webkit-scrollbar-thumb {
+        background: rgb(251 146 60 / 0.7) !important;
+        border-radius: 3px !important;
+        border: none !important;
+        background-clip: content-box !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .main-content::-webkit-scrollbar-thumb:hover {
+        background: rgb(251 146 60 / 0.9) !important;
+        transform: scaleX(1.1) !important;
+      }
+
+      .main-content::-webkit-scrollbar-thumb:active {
+        background: rgb(249 115 22) !important;
+      }
+
+      .dark .main-content::-webkit-scrollbar-track {
+        background: rgb(31 41 55 / 0.5) !important;
+      }
+
+      .dark .main-content::-webkit-scrollbar-thumb {
+        background: rgb(234 88 12 / 0.7) !important;
+      }
+
+      .dark .main-content::-webkit-scrollbar-thumb:hover {
+        background: rgb(234 88 12 / 0.9) !important;
+      }
+
+      .dark .main-content::-webkit-scrollbar-thumb:active {
+        background: rgb(194 65 12) !important;
+      }
+
+      /* Firefox 滚动条支持 */
+      html {
+        scrollbar-width: thin !important;
+        scrollbar-color: rgb(209 213 219) rgb(249 250 251) !important;
+      }
+
+      .dark html {
+        scrollbar-color: rgb(75 85 99) rgb(17 24 39) !important;
+      }
+
+      .main-content {
+        scrollbar-width: thin !important;
+        scrollbar-color: rgb(251 146 60) rgb(243 244 246) !important;
+        scroll-behavior: smooth !important;
+        scroll-padding-top: 2rem !important;
+      }
+
+      .dark .main-content {
+        scrollbar-color: rgb(234 88 12) rgb(31 41 55) !important;
+      }
+
+      .sidebar-scroll {
+        scrollbar-width: thin !important;
+        scrollbar-color: rgb(209 213 219) transparent !important;
+        scroll-behavior: smooth !important;
+        scroll-padding-top: 1rem !important;
+      }
+
+      .dark .sidebar-scroll {
+        scrollbar-color: rgb(75 85 99) transparent !important;
+      }
+      
+      /* 文本截断工具类 */
+      .line-clamp-2 {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+      }
+
+      .line-clamp-3 {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+      }
+
+      /* 确保滚动容器正确设置 */
+      .scroll-smooth-enhanced {
+        scroll-behavior: smooth !important;
+        scroll-padding-top: 2rem !important;
+      }
+
+      /* 响应式滚动条 - 移动端保持相同或更细 */
+      @media (max-width: 768px) {
+        ::-webkit-scrollbar {
+          width: 3px !important;
+        }
+        
+        .main-content::-webkit-scrollbar {
+          width: 4px !important;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar {
+          width: 2px !important;
+        }
+      }
     </style>
   </body>
 </html>
