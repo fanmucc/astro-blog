@@ -85,18 +85,14 @@ const { Content: DefaultContent } = defaultPage
 	</script>
 
 	<div class='h-screen bg-white dark:bg-gray-900 m-0 overflow-hidden'>
-		<!-- 顶部导航 -->
-		<header
-			class='sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80'
-		>
-			<div class='px-4 lg:px-6'>
-				<div class='flex h-16 items-center justify-between'>
-					<!-- Logo -->
-					<div class='flex items-center space-x-3'>
+		<!-- 顶部导航栏 -->
+		<header class='header-nav fixed top-0 left-0 right-0 z-50 border-b'>
+			<div class='max-w-full mx-auto px-4 sm:px-6 lg:px-8'>
+				<div class='flex items-center justify-between h-16'>
+					<!-- 左侧：Logo -->
+					<div class='flex items-center'>
 						<a href='/' class='flex items-center space-x-3 group'>
-							<div
-								class='flex h-10 w-10 items-center justify-center rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200'
-							>
+							<div class='relative'>
 								<svg viewBox='0 0 120 120' class='h-10 w-10'>
 									<defs>
 										<linearGradient
@@ -160,12 +156,13 @@ const { Content: DefaultContent } = defaultPage
 							</div>
 							<div class='flex flex-col'>
 								<span
-									class='text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight'
+									class='header-nav-text text-xl font-bold group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight'
 								>
 									Fanmu
 								</span>
 								<span
-									class='text-xs text-gray-500 dark:text-gray-400 font-medium leading-none'
+									class='text-xs font-medium leading-none'
+									style='color: var(--g-text-tertiary)'
 								>
 									yancode.life
 								</span>
@@ -179,7 +176,10 @@ const { Content: DefaultContent } = defaultPage
 						<div class='hidden md:flex items-center space-x-2'>
 							<button
 								onclick="window.open('/github', '_blank')"
-								class='p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-0 border-none'
+								class='p-2 rounded-lg transition-colors duration-200 focus:outline-none'
+								style='color: var(--g-text-secondary); background-color: transparent;'
+								onmouseover="this.style.color='var(--h-nav-text-hover)'; this.style.backgroundColor='var(--a-main-item-bg-hover)'"
+								onmouseout="this.style.color='var(--g-text-secondary)'; this.style.backgroundColor='transparent'"
 								title='GitHub'
 							>
 								<svg class='h-5 w-5' fill='currentColor' viewBox='0 0 24 24'>
@@ -197,13 +197,14 @@ const { Content: DefaultContent } = defaultPage
 									type='search'
 									placeholder='搜索'
 									id='global-search'
-									class='w-64 pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:ring-orange-600'
+									class='search-input w-64 pl-10 pr-4 py-2.5 text-sm rounded-lg focus:outline-none transition-all duration-200'
 								/>
 								<div
 									class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'
 								>
 									<svg
-										class='h-4 w-4 text-gray-400 dark:text-gray-500'
+										class='h-4 w-4'
+										style='color: var(--s-input-placeholder)'
 										fill='none'
 										stroke='currentColor'
 										viewBox='0 0 24 24'
@@ -217,7 +218,8 @@ const { Content: DefaultContent } = defaultPage
 								</div>
 								<div class='absolute inset-y-0 right-0 pr-3 flex items-center'>
 									<kbd
-										class='hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-gray-200 bg-gray-100 px-1.5 font-mono text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'
+										class='hidden sm:inline-flex h-5 select-none items-center gap-1 rounded px-1.5 font-mono text-xs'
+										style='border: 1px solid var(--g-border); background-color: var(--g-bg-tertiary); color: var(--g-text-tertiary)'
 									>
 										<span class='text-xs'>⌘</span>K
 									</kbd>
@@ -228,7 +230,10 @@ const { Content: DefaultContent } = defaultPage
 						<!-- 主题切换按钮 -->
 						<button
 							id='theme-toggle'
-							class='p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-0 border-none'
+							class='p-2 rounded-lg transition-colors duration-200 focus:outline-none'
+							style='color: var(--g-text-secondary); background-color: transparent;'
+							onmouseover="this.style.color='var(--h-nav-text-hover)'; this.style.backgroundColor='var(--a-main-item-bg-hover)'"
+							onmouseout="this.style.color='var(--g-text-secondary)'; this.style.backgroundColor='transparent'"
 							aria-label='切换主题'
 						>
 							<svg
@@ -266,12 +271,10 @@ const { Content: DefaultContent } = defaultPage
 		<!-- 主要内容区域 -->
 		<div class='flex' style='height: calc(100vh - 4rem);'>
 			<!-- 左侧边栏 -->
-			<aside
-				class='w-64 flex-shrink-0 border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 flex flex-col h-full'
-			>
+			<aside class='sidebar w-64 flex-shrink-0 border-r flex flex-col h-full'>
 				<div class='flex-1 overflow-y-auto px-2 py-4 sidebar-scroll'>
 					<!-- 主菜单 -->
-					<div class='mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-2'>
+					<div class='main-menu mb-6'>
 						<nav class='space-y-1' id='main-menu'>
 							{
 								menuTree.map((menuItem) => (
@@ -279,10 +282,10 @@ const { Content: DefaultContent } = defaultPage
 										data-menu={menuItem.value}
 										data-path={menuItem.path}
 										data-has-index={menuItem.hasIndex}
-										class='menu-item group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200 text-left focus:outline-none focus:ring-0 border-none'
+										class='main-menu-item group flex items-center w-full text-sm font-medium text-left focus:outline-none'
 									>
 										{menuItem.icon && (
-											<span class='mr-3 h-5 w-5 text-orange-500 flex items-center justify-center'>
+											<span class='main-menu-icon mr-3 h-5 w-5 flex items-center justify-center'>
 												<Icon name={menuItem.icon as any} />
 											</span>
 										)}
@@ -294,17 +297,14 @@ const { Content: DefaultContent } = defaultPage
 					</div>
 
 					<!-- 子菜单区域 -->
-					<div class='border-gray-200 dark:border-gray-700 px-2 pt-4'>
-						<div
-							class='text-sm text-gray-500 dark:text-gray-400 px-3 mb-3'
-							id='submenu-title'
-						>
+					<div class='px-2 pt-4' style='border-color: var(--a-sidebar-border)'>
+						<div class='sub-menu-title px-3 mb-3' id='submenu-title'>
 							子菜单
 						</div>
 
 						<!-- 动态子菜单内容 -->
 						<div id='submenu-container' class='space-y-1'>
-							<div class='text-xs text-gray-400 dark:text-gray-500 px-3 py-2'>
+							<div class='text-xs px-3 py-2' style='color: var(--g-text-muted)'>
 								选择上方菜单查看子选项
 							</div>
 						</div>
@@ -313,13 +313,15 @@ const { Content: DefaultContent } = defaultPage
 			</aside>
 
 			<!-- 主内容区 -->
-			<main class='flex-1 overflow-y-auto h-full main-content'>
+			<main class='main-content flex-1 overflow-y-auto h-full'>
 				<div class='px-6 py-6 lg:px-8'>
 					<!-- 面包屑导航 -->
-					<nav class='mb-6' id='breadcrumb-nav' style='display: none;'>
-						<ol
-							class='flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400'
-						>
+					<nav
+						class='breadcrumb mb-6 border-b pb-4'
+						id='breadcrumb-nav'
+						style='display: none;'
+					>
+						<ol class='flex items-center space-x-2 text-sm'>
 							<!-- 面包屑将通过 JavaScript 动态生成 -->
 						</ol>
 					</nav>
@@ -328,17 +330,26 @@ const { Content: DefaultContent } = defaultPage
 					<div id='content-area'>
 						{
 							defaultPage && DefaultContent ? (
-								<article class='prose prose-lg max-w-none prose-gray dark:prose-invert'>
+								<article class='prose prose-lg max-w-none'>
 									<header class='mb-8'>
-										<h1 class='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
+										<h1
+											class='text-4xl font-bold mb-4'
+											style='color: var(--m-content-heading)'
+										>
 											{defaultPage.data.title}
 										</h1>
 										{defaultPage.data.description && (
-											<p class='text-xl text-gray-600 dark:text-gray-400 mb-6'>
+											<p
+												class='text-xl mb-6'
+												style='color: var(--g-text-secondary)'
+											>
 												{defaultPage.data.description}
 											</p>
 										)}
-										<div class='flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-4'>
+										<div
+											class='flex items-center space-x-4 text-sm border-b pb-4'
+											style='color: var(--g-text-tertiary); border-color: var(--m-content-border)'
+										>
 											<span>作者: {defaultPage.data.author}</span>
 											<span>
 												创建于:{" "}
@@ -356,7 +367,8 @@ const { Content: DefaultContent } = defaultPage
 							) : (
 								<div class='text-center py-12'>
 									<svg
-										class='w-16 h-16 mx-auto text-gray-400 mb-4'
+										class='w-16 h-16 mx-auto mb-4'
+										style='color: var(--g-text-muted)'
 										fill='none'
 										stroke='currentColor'
 										viewBox='0 0 24 24'
@@ -368,10 +380,16 @@ const { Content: DefaultContent } = defaultPage
 											d='M9 12h6M9 16h6M9 8h6M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002 2V8'
 										/>
 									</svg>
-									<h2 class='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
+									<h2
+										class='text-2xl font-bold mb-4'
+										style='color: var(--m-content-heading)'
+									>
 										欢迎来到 Fanmu 的博客
 									</h2>
-									<p class='text-lg text-gray-600 dark:text-gray-400 mb-6'>
+									<p
+										class='text-lg mb-6'
+										style='color: var(--g-text-secondary)'
+									>
 										请选择左侧菜单开始浏览内容
 									</p>
 								</div>
@@ -634,7 +652,7 @@ const { Content: DefaultContent } = defaultPage
 
 			if (!menuItem || !menuItem.children || menuItem.children.length === 0) {
 				container.innerHTML =
-					'<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
+					'<div class="text-xs px-3 py-2" style="color: var(--g-text-muted)">暂无子菜单</div>';
 				titleElement.textContent = "子菜单";
 				return;
 			}
@@ -650,10 +668,10 @@ const { Content: DefaultContent } = defaultPage
 							? section.children
 									.map(
 										(child) => `
-										<div class="submenu-item ${selectedMenuItem === child.value ? "active" : ""}" data-submenu="${child.value}" data-path="${child.path}">
-											<a href="javascript:void(0)" class="flex items-center py-3 text-sm group cursor-pointer focus:outline-none focus:ring-0 border-none">
-												<div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 transition-all duration-200 ${selectedMenuItem === child.value ? "bg-orange-500 dark:bg-orange-400" : "group-hover:bg-orange-400 dark:group-hover:bg-orange-500"}"></div>
-												<span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ml-9 ${selectedMenuItem === child.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+										<div class="sub-menu-item ${selectedMenuItem === child.value ? "active" : ""}" data-submenu="${child.value}" data-path="${child.path}">
+											<a href="javascript:void(0)" class="flex items-center py-3 text-sm group cursor-pointer focus:outline-none">
+												<div class="sub-menu-border w-px h-full transition-all duration-200 ${selectedMenuItem === child.value ? "active" : ""}"></div>
+												<span class="ml-9 ${selectedMenuItem === child.value ? "font-medium" : ""}" style="color: ${selectedMenuItem === child.value ? "var(--a-sub-item-text-active)" : "var(--a-sub-item-text)"}">
 													${child.label}
 												</span>
 											</a>
@@ -665,25 +683,25 @@ const { Content: DefaultContent } = defaultPage
 
 						return `
 							<div class="submenu-section mb-2 relative">
-								<div class="section-header flex items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200 focus:outline-none focus:ring-0 border-none" data-section="${section.value}" data-path="${section.path}" data-has-index="${section.hasIndex}">
-									<span class="expand-arrow text-gray-500 dark:text-gray-400 transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? "rotate-90" : ""}">
+								<div class="section-header flex items-center py-3 cursor-pointer rounded-md transition-colors duration-200 focus:outline-none" data-section="${section.value}" data-path="${section.path}" data-has-index="${section.hasIndex}" style="background-color: transparent;" onmouseover="this.style.backgroundColor='var(--a-sub-item-bg-hover)'" onmouseout="this.style.backgroundColor='transparent'">
+									<span class="expand-arrow transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? "rotate-90" : ""}" style="color: var(--g-text-secondary)">
 										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<path d="m9 18 6-6-6-6"/>
 										</svg>
 									</span>
-									<span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-3">${section.label}</span>
+									<span class="text-sm font-medium ml-3" style="color: var(--m-content-heading)">${section.label}</span>
 								</div>
 								<div class="section-children relative ${isExpanded ? "block" : "hidden"}">
-									<div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+									<div class="absolute left-3 top-0 bottom-0 w-px" style="background-color: var(--a-sub-border)"></div>
 									${childrenHtml}
 								</div>
 							</div>
 						`;
 					} else {
 						return `
-							<div class="submenu-item ${selectedMenuItem === section.value ? "active" : ""}" data-submenu="${section.value}" data-path="${section.path}">
-								<a href="javascript:void(0)" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group focus:outline-none focus:ring-0 border-none">
-									<span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ${selectedMenuItem === section.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+							<div class="sub-menu-item ${selectedMenuItem === section.value ? "active" : ""}" data-submenu="${section.value}" data-path="${section.path}">
+								<a href="javascript:void(0)" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group focus:outline-none" style="color: ${selectedMenuItem === section.value ? "var(--a-sub-item-text-active)" : "var(--a-sub-item-text)"}; background-color: ${selectedMenuItem === section.value ? "var(--a-sub-item-bg-active)" : "transparent"};" onmouseover="if (!this.parentElement.classList.contains('active')) this.style.backgroundColor='var(--a-sub-item-bg-hover)'" onmouseout="if (!this.parentElement.classList.contains('active')) this.style.backgroundColor='transparent'">
+									<span class="${selectedMenuItem === section.value ? "font-medium" : ""}">
 										${section.label}
 									</span>
 								</a>
@@ -713,7 +731,7 @@ const { Content: DefaultContent } = defaultPage
 			});
 
 			// 绑定子菜单点击事件
-			container.querySelectorAll(".submenu-item").forEach((item) => {
+			container.querySelectorAll(".sub-menu-item").forEach((item) => {
 				item.addEventListener("click", (e) => {
 					e.preventDefault();
 					const submenuId = item.dataset.submenu;
@@ -741,7 +759,7 @@ const { Content: DefaultContent } = defaultPage
 		function selectSubmenu(submenuId) {
 			selectedMenuItem = submenuId;
 
-			document.querySelectorAll(".submenu-item").forEach((item) => {
+			document.querySelectorAll(".sub-menu-item").forEach((item) => {
 				item.classList.remove("active");
 			});
 
@@ -761,7 +779,7 @@ const { Content: DefaultContent } = defaultPage
 			selectedMenuItem = null;
 			expandedSections.clear();
 
-			document.querySelectorAll(".menu-item").forEach((item) => {
+			document.querySelectorAll(".main-menu-item").forEach((item) => {
 				item.classList.remove("active");
 			});
 
@@ -800,7 +818,7 @@ const { Content: DefaultContent } = defaultPage
 
 		// 初始化菜单
 		function initMenus() {
-			document.querySelectorAll(".menu-item").forEach((item) => {
+			document.querySelectorAll(".main-menu-item").forEach((item) => {
 				item.addEventListener("click", (e) => {
 					e.preventDefault();
 					const menuKey = item.dataset.menu;
@@ -977,37 +995,37 @@ const { Content: DefaultContent } = defaultPage
 		}
 
 		/* 菜单样式优化 */
-		.menu-item {
+		.main-menu-item {
 			@apply transition-all duration-200;
 			border: none !important;
 			outline: none !important;
 		}
 
-		.menu-item.active {
+		.main-menu-item.active {
 			@apply bg-white text-gray-900 shadow-sm;
 			@apply dark:bg-gray-700 dark:text-gray-100;
 		}
 
-		.menu-item.active svg {
+		.main-menu-item.active svg {
 			@apply text-orange-600;
 			@apply dark:text-orange-400;
 		}
 
-		.menu-item:not(.active):hover {
+		.main-menu-item:not(.active):hover {
 			@apply bg-gray-100 text-gray-900;
 			@apply dark:bg-gray-700 dark:text-gray-100;
 		}
 
 		/* 子菜单样式 */
-		.submenu-item {
+		.sub-menu-item {
 			@apply transition-all duration-200 relative;
 		}
 
-		.submenu-item.active a {
+		.sub-menu-item.active a {
 			@apply text-orange-700 dark:text-orange-300 font-medium;
 		}
 
-		.submenu-item:hover:not(.active) a {
+		.sub-menu-item:hover:not(.active) a {
 			@apply text-gray-900 dark:text-gray-100;
 		}
 
@@ -1048,17 +1066,17 @@ const { Content: DefaultContent } = defaultPage
 		}
 
 		/* 子菜单竖线样式 */
-		.submenu-vertical-line {
+		.sub-menu-border {
 			@apply transition-all duration-200 ease-in-out relative z-10;
 			transform-origin: center;
 		}
 
-		.submenu-item:hover .submenu-vertical-line {
+		.sub-menu-item:hover .sub-menu-border {
 			@apply bg-orange-400 dark:bg-orange-500;
 			transform: scaleX(2);
 		}
 
-		.submenu-item.active .submenu-vertical-line {
+		.sub-menu-item.active .sub-menu-border {
 			@apply bg-orange-500 dark:bg-orange-400;
 			transform: scaleX(3);
 			filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.6));

@@ -1,150 +1,200 @@
 /* src/styles/global.css - 优化后的全局样式配置 */
 @import "tailwindcss";
-@import "./light.css";
-@import "./dark.css";
 
 /* 导入字体 */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-@theme {
-	/* ========== 全局变量定义 ========== */
-
-	/* 主色调 - Primary Colors */
-	--color-primary: #f97316;
-	--color-primary-hover: #ea580c;
-	--color-primary-light: #fed7aa;
-	--color-primary-dark: #c2410c;
-
-	/* 中性色调 - Neutral Colors */
-	--color-neutral-50: #fafafa;
-	--color-neutral-100: #f5f5f5;
-	--color-neutral-200: #e5e5e5;
-	--color-neutral-300: #d4d4d4;
-	--color-neutral-400: #a3a3a3;
-	--color-neutral-500: #737373;
-	--color-neutral-600: #525252;
-	--color-neutral-700: #404040;
-	--color-neutral-800: #262626;
-	--color-neutral-900: #171717;
-
-	/* ========== 语义化CSS变量 ========== */
-
-	/* 全局背景 - Global Backgrounds */
-	--g-bg: var(--color-neutral-50); /* 全局背景 */
-	--g-bg-secondary: #ffffff; /* 次要背景 */
-	--g-bg-tertiary: var(--color-neutral-100); /* 第三级背景 */
-
-	/* 全局文字 - Global Text */
-	--g-text-primary: var(--color-neutral-900); /* 主要文字 */
-	--g-text-secondary: var(--color-neutral-600); /* 次要文字 */
-	--g-text-tertiary: var(--color-neutral-500); /* 第三级文字 */
-	--g-text-muted: var(--color-neutral-400); /* 静音文字 */
-
-	/* 全局边框 - Global Borders */
-	--g-border: var(--color-neutral-200); /* 全局边框 */
-	--g-border-light: var(--color-neutral-100); /* 浅色边框 */
-	--g-border-dark: var(--color-neutral-300); /* 深色边框 */
-
-	/* 主导航区域 - Header Navigation */
-	--h-nav-bg: rgba(255, 255, 255, 0.8); /* 导航背景 */
-	--h-nav-border: var(--color-neutral-200); /* 导航边框 */
-	--h-nav-text: var(--color-neutral-900); /* 导航文字 */
-	--h-nav-text-hover: var(--color-primary); /* 导航文字悬停 */
-
-	/* 侧边栏 - Aside Sidebar */
-	--a-sidebar-bg: #ffffff; /* 侧边栏背景 */
-	--a-sidebar-border: var(--color-neutral-200); /* 侧边栏边框 */
-
-	/* 主菜单 - Aside Main Menu */
-	--a-main-bg: var(--color-neutral-50); /* 主菜单背景 */
-	--a-main-item-bg: transparent; /* 菜单项背景 */
-	--a-main-item-bg-hover: var(--color-neutral-100); /* 菜单项悬停背景 */
-	--a-main-item-bg-active: #ffffff; /* 菜单项激活背景 */
-	--a-main-item-text: var(--color-neutral-700); /* 菜单项文字 */
-	--a-main-item-text-hover: var(--color-neutral-900); /* 菜单项悬停文字 */
-	--a-main-item-text-active: var(--color-neutral-900); /* 菜单项激活文字 */
-	--a-main-icon: var(--color-primary); /* 菜单项图标 */
-	--a-main-icon-active: var(--color-primary); /* 菜单项激活图标 */
-
-	/* 子菜单 - Aside Sub Menu */
-	--a-sub-title: var(--color-neutral-500); /* 子菜单标题 */
-	--a-sub-item-bg: transparent; /* 子菜单项背景 */
-	--a-sub-item-bg-hover: var(--color-neutral-50); /* 子菜单项悬停背景 */
-	--a-sub-item-bg-active: rgba(249, 115, 22, 0.05); /* 子菜单项激活背景 */
-	--a-sub-item-text: var(--color-neutral-700); /* 子菜单项文字 */
-	--a-sub-item-text-hover: var(--color-neutral-900); /* 子菜单项悬停文字 */
-	--a-sub-item-text-active: #c2410c; /* 子菜单项激活文字 */
-	--a-sub-border: var(--color-neutral-200); /* 子菜单边框 */
-	--a-sub-border-active: var(--color-primary); /* 子菜单激活边框 */
-
-	/* 主内容区 - Main Content */
-	--m-content-bg: #ffffff; /* 内容背景 */
-	--m-content-text: var(--color-neutral-800); /* 内容文字 */
-	--m-content-heading: var(--color-neutral-900); /* 内容标题 */
-	--m-content-link: var(--color-primary); /* 内容链接 */
-	--m-content-link-hover: var(--color-primary-hover); /* 内容链接悬停 */
-	--m-content-border: var(--color-neutral-200); /* 内容边框 */
-
-	/* 面包屑 - Breadcrumb */
-	--b-crumb-bg: #ffffff; /* 面包屑背景 */
-	--b-crumb-text: var(--color-neutral-500); /* 面包屑文字 */
-	--b-crumb-text-current: var(--color-neutral-900); /* 面包屑当前文字 */
-	--b-crumb-text-hover: var(--color-neutral-700); /* 面包屑悬停文字 */
-	--b-crumb-border: var(--color-neutral-200); /* 面包屑边框 */
-
-	/* 搜索框 - Search Input */
-	--s-input-bg: var(--color-neutral-50); /* 搜索框背景 */
-	--s-input-border: var(--color-neutral-200); /* 搜索框边框 */
-	--s-input-border-focus: var(--color-primary); /* 搜索框聚焦边框 */
-	--s-input-text: var(--color-neutral-800); /* 搜索框文字 */
-	--s-input-placeholder: var(--color-neutral-400); /* 搜索框占位符 */
-
-	/* 按钮 - Buttons */
-	--btn-primary-bg: var(--color-primary); /* 主按钮背景 */
-	--btn-primary-bg-hover: var(--color-primary-hover); /* 主按钮悬停背景 */
-	--btn-primary-text: #ffffff; /* 主按钮文字 */
-	--btn-secondary-bg: var(--color-neutral-100); /* 次按钮背景 */
-	--btn-secondary-bg-hover: var(--color-neutral-200); /* 次按钮悬停背景 */
-	--btn-secondary-text: var(--color-neutral-700); /* 次按钮文字 */
-
-	/* 代码块 - Code Blocks */
-	--code-bg: var(--color-neutral-100); /* 行内代码背景 */
-	--code-text: var(--color-neutral-800); /* 行内代码文字 */
-	--code-block-bg: #1e293b; /* 代码块背景 */
-	--code-block-text: #e2e8f0; /* 代码块文字 */
-	--code-block-border: var(--color-neutral-200); /* 代码块边框 */
-
-	/* 引用块 - Blockquotes */
-	--quote-bg: rgba(249, 115, 22, 0.05); /* 引用背景 */
-	--quote-border: var(--color-primary); /* 引用边框 */
-	--quote-text: var(--color-neutral-700); /* 引用文字 */
-
-	/* 标签 - Tags */
-	--tag-bg: var(--color-neutral-100); /* 标签背景 */
-	--tag-text: var(--color-neutral-700); /* 标签文字 */
-	--tag-bg-hover: var(--color-neutral-200); /* 标签悬停背景 */
-
-	/* 滚动条 - Scrollbars */
-	--scroll-track: var(--color-neutral-100); /* 滚动条轨道 */
-	--scroll-thumb: var(--color-neutral-300); /* 滚动条滑块 */
-	--scroll-thumb-hover: var(--color-neutral-400); /* 滚动条滑块悬停 */
-	--scroll-main-track: rgba(243, 244, 246, 0.5); /* 主内容滚动条轨道 */
-	--scroll-main-thumb: rgba(249, 115, 22, 0.8); /* 主内容滚动条滑块 */
-	--scroll-main-thumb-hover: var(--color-primary); /* 主内容滚动条滑块悬停 */
-
-	/* 阴影 - Shadows */
-	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* 小阴影 */
-	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1); /* 中等阴影 */
-	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); /* 大阴影 */
-
-	/* 过渡动画 - Transitions */
-	--transition-fast: 0.15s ease-in-out; /* 快速过渡 */
-	--transition-normal: 0.2s ease-in-out; /* 普通过渡 */
-	--transition-slow: 0.3s ease-in-out; /* 慢速过渡 */
-}
-
 @layer base {
+	:root {
+		/* 自定义颜色变量 */
+		--color-primary: 251 146 60; /* orange-500 */
+		--color-primary-dark: 234 88 12; /* orange-600 */
+		--color-secondary: 59 130 246; /* blue-500 */
+		--color-secondary-dark: 37 99 235; /* blue-600 */
+		--color-accent: 168 85 247; /* purple-500 */
+		--color-accent-dark: 147 51 234; /* purple-600 */
+
+		/* ========== 浅色模式变量 ========== */
+		/* 全局背景 */
+		--g-bg: #fafafa;
+		--g-bg-secondary: #ffffff;
+		--g-bg-tertiary: #f5f5f5;
+
+		/* 全局文字 */
+		--g-text-primary: #171717;
+		--g-text-secondary: #525252;
+		--g-text-tertiary: #737373;
+		--g-text-muted: #a3a3a3;
+
+		/* 全局边框 */
+		--g-border: #e5e5e5;
+		--g-border-light: #f5f5f5;
+		--g-border-dark: #d4d4d4;
+
+		/* 主导航区域 */
+		--h-nav-bg: rgba(255, 255, 255, 0.8);
+		--h-nav-border: #e5e5e5;
+		--h-nav-text: #171717;
+		--h-nav-text-hover: rgb(var(--color-primary));
+
+		/* 侧边栏 */
+		--a-sidebar-bg: #ffffff;
+		--a-sidebar-border: #e5e5e5;
+
+		/* 主菜单 */
+		--a-main-bg: #fafafa;
+		--a-main-item-bg: transparent;
+		--a-main-item-bg-hover: #f5f5f5;
+		--a-main-item-bg-active: #ffffff;
+		--a-main-item-text: #404040;
+		--a-main-item-text-hover: #171717;
+		--a-main-item-text-active: #171717;
+		--a-main-icon: rgb(var(--color-primary));
+		--a-main-icon-active: rgb(var(--color-primary));
+
+		/* 子菜单 */
+		--a-sub-title: #737373;
+		--a-sub-item-bg: transparent;
+		--a-sub-item-bg-hover: #fafafa;
+		--a-sub-item-bg-active: rgba(251, 146, 60, 0.05);
+		--a-sub-item-text: #404040;
+		--a-sub-item-text-hover: #171717;
+		--a-sub-item-text-active: #c2410c;
+		--a-sub-border: #e5e5e5;
+		--a-sub-border-active: rgb(var(--color-primary));
+
+		/* 主内容区 */
+		--m-content-bg: #ffffff;
+		--m-content-text: #262626;
+		--m-content-heading: #171717;
+		--m-content-link: rgb(var(--color-primary));
+		--m-content-link-hover: rgb(var(--color-primary-dark));
+		--m-content-border: #e5e5e5;
+
+		/* 面包屑 */
+		--b-crumb-bg: #ffffff;
+		--b-crumb-text: #737373;
+		--b-crumb-text-current: #171717;
+		--b-crumb-text-hover: #404040;
+		--b-crumb-border: #e5e5e5;
+
+		/* 搜索框 */
+		--s-input-bg: #fafafa;
+		--s-input-border: #e5e5e5;
+		--s-input-border-focus: rgb(var(--color-primary));
+		--s-input-text: #262626;
+		--s-input-placeholder: #a3a3a3;
+
+		/* 按钮 */
+		--btn-primary-bg: rgb(var(--color-primary));
+		--btn-primary-bg-hover: rgb(var(--color-primary-dark));
+		--btn-primary-text: #ffffff;
+		--btn-secondary-bg: #f5f5f5;
+		--btn-secondary-bg-hover: #e5e5e5;
+		--btn-secondary-text: #404040;
+
+		/* 代码块 */
+		--code-bg: #f5f5f5;
+		--code-text: #262626;
+		--code-block-bg: #1e293b;
+		--code-block-text: #e2e8f0;
+		--code-block-border: #e5e5e5;
+
+		/* 过渡动画 */
+		--transition-fast: 0.15s ease-in-out;
+		--transition-normal: 0.2s ease-in-out;
+		--transition-slow: 0.3s ease-in-out;
+	}
+
+	/* ========== 深色模式变量 ========== */
+	.dark {
+		/* 全局背景 */
+		--g-bg: #0f172a;
+		--g-bg-secondary: #1e293b;
+		--g-bg-tertiary: #334155;
+
+		/* 全局文字 */
+		--g-text-primary: #f1f5f9;
+		--g-text-secondary: #cbd5e1;
+		--g-text-tertiary: #94a3b8;
+		--g-text-muted: #64748b;
+
+		/* 全局边框 */
+		--g-border: #334155;
+		--g-border-light: #475569;
+		--g-border-dark: #1e293b;
+
+		/* 主导航区域 */
+		--h-nav-bg: rgba(15, 23, 42, 0.9);
+		--h-nav-border: #334155;
+		--h-nav-text: #f1f5f9;
+		--h-nav-text-hover: rgb(var(--color-primary));
+
+		/* 侧边栏 */
+		--a-sidebar-bg: #1e293b;
+		--a-sidebar-border: #334155;
+
+		/* 主菜单 */
+		--a-main-bg: #334155;
+		--a-main-item-bg: transparent;
+		--a-main-item-bg-hover: #475569;
+		--a-main-item-bg-active: #1e293b;
+		--a-main-item-text: #cbd5e1;
+		--a-main-item-text-hover: #f1f5f9;
+		--a-main-item-text-active: #f1f5f9;
+		--a-main-icon: rgb(var(--color-primary));
+		--a-main-icon-active: rgb(var(--color-primary));
+
+		/* 子菜单 */
+		--a-sub-title: #64748b;
+		--a-sub-item-bg: transparent;
+		--a-sub-item-bg-hover: #334155;
+		--a-sub-item-bg-active: rgba(251, 146, 60, 0.1);
+		--a-sub-item-text: #cbd5e1;
+		--a-sub-item-text-hover: #f1f5f9;
+		--a-sub-item-text-active: rgb(var(--color-primary));
+		--a-sub-border: #475569;
+		--a-sub-border-active: rgb(var(--color-primary));
+
+		/* 主内容区 */
+		--m-content-bg: #0f172a;
+		--m-content-text: #e2e8f0;
+		--m-content-heading: #f1f5f9;
+		--m-content-link: rgb(var(--color-primary));
+		--m-content-link-hover: rgb(var(--color-primary-dark));
+		--m-content-border: #334155;
+
+		/* 面包屑 */
+		--b-crumb-bg: #1e293b;
+		--b-crumb-text: #94a3b8;
+		--b-crumb-text-current: #f1f5f9;
+		--b-crumb-text-hover: #cbd5e1;
+		--b-crumb-border: #334155;
+
+		/* 搜索框 */
+		--s-input-bg: #1e293b;
+		--s-input-border: #475569;
+		--s-input-border-focus: rgb(var(--color-primary));
+		--s-input-text: #f1f5f9;
+		--s-input-placeholder: #64748b;
+
+		/* 按钮 */
+		--btn-primary-bg: rgb(var(--color-primary));
+		--btn-primary-bg-hover: rgb(var(--color-primary-dark));
+		--btn-primary-text: #0f172a;
+		--btn-secondary-bg: #334155;
+		--btn-secondary-bg-hover: #475569;
+		--btn-secondary-text: #cbd5e1;
+
+		/* 代码块 */
+		--code-bg: #334155;
+		--code-text: #e2e8f0;
+		--code-block-bg: #0c1420;
+		--code-block-text: #e2e8f0;
+		--code-block-border: #334155;
+	}
+
 	html {
 		@apply scroll-smooth;
 		font-family: "Inter", system-ui, sans-serif;
@@ -235,7 +285,7 @@
 	.main-menu-item.active {
 		background-color: var(--a-main-item-bg-active);
 		color: var(--a-main-item-text-active);
-		box-shadow: var(--shadow-sm);
+		box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	}
 
 	.main-menu-icon {
@@ -282,7 +332,7 @@
 	.sub-menu-item.active .sub-menu-border {
 		border-color: var(--a-sub-border-active);
 		border-width: 2px;
-		box-shadow: 0 0 6px rgba(249, 115, 22, 0.3);
+		box-shadow: 0 0 6px rgba(251, 146, 60, 0.3);
 	}
 
 	/* 主内容区样式 */
@@ -319,7 +369,7 @@
 
 	.search-input:focus {
 		border-color: var(--s-input-border-focus);
-		box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+		box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
 	}
 
 	.search-input::placeholder {
@@ -349,59 +399,10 @@
 }
 
 @layer utilities {
-	/* ========== 文本工具类 ========== */
-
-	.text-truncate-2 {
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.text-truncate-3 {
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	/* ========== 滚动条样式 ========== */
-
-	/* 全局滚动条基础样式 */
-	* {
-		scrollbar-width: thin;
-		scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-	}
-
-	/* WebKit 滚动条样式 */
-	*::-webkit-scrollbar {
-		width: 4px;
-		height: 4px;
-	}
-
-	*::-webkit-scrollbar-track {
-		background: var(--scroll-track);
-		border-radius: 3px;
-	}
-
-	*::-webkit-scrollbar-thumb {
-		background: var(--scroll-thumb);
-		border-radius: 3px;
-		border: none;
-		background-clip: content-box;
-		transition: background-color var(--transition-normal);
-	}
-
-	*::-webkit-scrollbar-thumb:hover {
-		background: var(--scroll-thumb-hover);
-	}
-
-	/* 侧边栏滚动条 - 非常细 */
+	/* 滚动条样式 */
 	.sidebar-scroll {
 		scrollbar-width: thin;
-		scrollbar-color: rgba(156, 163, 175, 0.7) transparent;
-		scroll-behavior: smooth;
-		scroll-padding-top: 1rem;
+		scrollbar-color: var(--g-border) transparent;
 	}
 
 	.sidebar-scroll::-webkit-scrollbar {
@@ -413,76 +414,17 @@
 	}
 
 	.sidebar-scroll::-webkit-scrollbar-thumb {
-		background: rgba(156, 163, 175, 0.7);
+		background: var(--g-border);
 		border-radius: 2px;
-		border: none;
-		background-clip: content-box;
 	}
 
 	.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-		background: rgba(107, 114, 128, 0.9);
+		background: var(--g-border-dark);
 	}
 
-	/* 主内容区滚动条 - 橙色主题，细线条 */
-	.main-content-scroll {
-		scrollbar-width: thin;
-		scrollbar-color: var(--scroll-main-thumb) var(--scroll-main-track);
-		scroll-behavior: smooth;
-		scroll-padding-top: 2rem;
-	}
-
-	.main-content-scroll::-webkit-scrollbar {
-		width: 6px;
-	}
-
-	.main-content-scroll::-webkit-scrollbar-track {
-		background: var(--scroll-main-track);
-		border-radius: 3px;
-		margin: 4px 0;
-	}
-
-	.main-content-scroll::-webkit-scrollbar-thumb {
-		background: var(--scroll-main-thumb);
-		border-radius: 3px;
-		border: none;
-		background-clip: content-box;
-		transition: all var(--transition-normal);
-	}
-
-	.main-content-scroll::-webkit-scrollbar-thumb:hover {
-		background: var(--scroll-main-thumb-hover);
-		transform: scaleX(1.1);
-	}
-
-	/* 平滑滚动增强 */
-	.scroll-smooth-enhanced {
-		scroll-behavior: smooth;
-		scroll-padding-top: 2rem;
-	}
-
-	/* 响应式滚动条 - 移动端 */
-	@media (max-width: 768px) {
-		*::-webkit-scrollbar {
-			width: 3px;
-		}
-
-		.main-content-scroll::-webkit-scrollbar {
-			width: 4px;
-		}
-
-		.sidebar-scroll::-webkit-scrollbar {
-			width: 2px;
-		}
-	}
-
-	/* ========== 动画工具类 ========== */
-
+	/* 动画工具类 */
 	.animate-fade-in {
 		animation: fadeIn var(--transition-normal) ease-in-out;
-	}
-
-	.animate-slide-in {
-		animation: slideIn var(--transition-normal) ease-out;
 	}
 
 	@keyframes fadeIn {
@@ -494,15 +436,23 @@
 		}
 	}
 
-	@keyframes slideIn {
-		from {
-			opacity: 0;
-			transform: translateY(10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
+	/* 选择文本样式 */
+	::selection {
+		background-color: rgba(251, 146, 60, 0.2);
+		color: #c2410c;
+	}
+
+	.dark ::selection {
+		background-color: rgba(251, 146, 60, 0.3);
+		color: #fed7aa;
+	}
+
+	/* 焦点样式 */
+	:focus-visible {
+		outline: 2px solid var(--s-input-border-focus);
+		outline-offset: 2px;
+		border-radius: 4px;
+		transition: outline var(--transition-fast);
 	}
 }
 
