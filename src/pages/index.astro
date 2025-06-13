@@ -1,1009 +1,957 @@
 ---
-// 暂时不使用内容集合，用静态数据测试布局
-const posts = [
-  {
-    title: "欢迎来到我的博客",
-    description: "这是第一篇测试文章，用于展示博客布局效果。",
-    pubDate: new Date('2024-06-01'),
-    slug: "welcome-post",
-    tags: ["欢迎", "测试"],
-    category: "公告"
-  },
-  {
-    title: "Astro 入门指南",
-    description: "学习如何使用 Astro 构建现代化的静态网站。",
-    pubDate: new Date('2024-06-05'),
-    slug: "astro-guide",
-    tags: ["Astro", "教程"],
-    category: "技术"
-  },
-  {
-    title: "Tailwind CSS 最佳实践",
-    description: "分享在项目中使用 Tailwind CSS 的经验和技巧。",
-    pubDate: new Date('2024-06-10'),
-    slug: "tailwind-tips",
-    tags: ["CSS", "前端"],
-    category: "技术"
-  }
-];
+import Layout from "../layouts/Layout.astro";
+import { buildMenuTree, getPageByPath } from "../utils/menu";
 
-// 格式化日期的辅助函数
-const formatDate = (date) => {
-  if (!date) return '';
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+// 构建菜单树
+const menuTree = await buildMenuTree();
 
-// 导入图标组件
-import { 
-  Home, 
-  Code2, 
-  Triangle, 
-  ArrowRight, 
-  Database, 
-  Cog 
-} from 'lucide-react';
+// 默认显示首页内容
+const defaultPage = await getPageByPath("home/index");
+const { Content: DefaultContent } = defaultPage
+	? await defaultPage.render()
+	: { Content: null };
+
+// 获取首页菜单项
+const homeMenuItem = menuTree.find((item) => item.value === "home");
 ---
 
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Fanmu - yancode.life</title>
-    <meta name="description" content="分享技术见解、生活感悟和学习心得" />
-  </head>
-  <body class="h-screen bg-white dark:bg-gray-900 m-0 overflow-hidden">
-    <!-- 优化后的顶部导航 -->
-    <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
-      <div class="px-4 lg:px-6">
-        <div class="flex h-16 items-center justify-between">
-          <!-- 左侧：Logo + 博客名称 -->
-          <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3 group">
-              <!-- Logo图标 -->
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200">
-                <svg viewBox="0 0 120 120" class="h-10 w-10">
-                  <!-- 定义渐变 -->
-                  <defs>
-                    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-                      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-                    </linearGradient>
-                    
-                    <!-- 阴影滤镜 -->
-                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.2" flood-color="#000"/>
-                    </filter>
-                  </defs>
-                  
-                  <!-- 背景圆形 -->
-                  <circle cx="60" cy="60" r="56" fill="url(#primaryGradient)" filter="url(#shadow)"/>
-                  
-                  <!-- 代码符号 "{}" -->
-                  <g transform="translate(60, 60)">
-                    <!-- 左大括号 -->
-                    <path d="M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15" 
-                          stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    
-                    <!-- 右大括号 -->
-                    <path d="M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15" 
-                          stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    
-                    <!-- 中间的点 -->
-                    <circle cx="-8" cy="-3" r="2" fill="white"/>
-                    <circle cx="0" cy="3" r="2" fill="white"/>
-                    <circle cx="8" cy="-3" r="2" fill="white"/>
-                  </g>
-                  
-                  <!-- 装饰性几何元素 -->
-                  <g opacity="0.3">
-                    <!-- 左上角三角形 -->
-                    <polygon points="15,25 25,15 35,25" fill="white"/>
-                    <!-- 右下角菱形 -->
-                    <polygon points="85,85 95,90 85,95 75,90" fill="white"/>
-                  </g>
-                </svg>
-              </div>
-              <!-- 博客名称和副标题 -->
-              <div class="flex flex-col">
-                <span class="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight">
-                  Fanmu
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-none">
-                  yancode.life
-                </span>
-              </div>
-            </a>
-          </div>
-          
-          <!-- 右侧：搜索 + 主题切换 -->
-          <div class="flex items-center space-x-3">
-            <!-- 搜索框 -->
-            <div class="relative group">
-              <div class="relative">
-                <input
-                  type="search"
-                  placeholder="搜索"
-                  class="w-64 pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:ring-orange-600"
-                />
-                <!-- 搜索图标 -->
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <!-- 快捷键提示 -->
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <kbd class="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-gray-200 bg-gray-100 px-1.5 font-mono text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                    <span class="text-xs">⌘</span>K
-                  </kbd>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 主题切换按钮 -->
-            <button 
-              id="theme-toggle" 
-              class="text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200 border-none bg-none"
-              style="border: none; background: none; padding: 0; margin: 0;"
-              aria-label="切换主题"
-            >
-              <!-- 太阳图标 (暗色模式下显示) -->
-              <svg class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-              </svg>
-              <!-- 月亮图标 (亮色模式下显示) -->
-              <svg class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+<Layout
+	title='Fanmu - yancode.life'
+	description='分享技术见解、生活感悟和学习心得'
+>
+	<div class='h-screen bg-white dark:bg-gray-900 m-0 overflow-hidden'>
+		<!-- 优化后的顶部导航 -->
+		<header
+			class='sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80'
+		>
+			<div class='px-4 lg:px-6'>
+				<div class='flex h-16 items-center justify-between'>
+					<!-- 左侧：Logo + 博客名称 -->
+					<div class='flex items-center space-x-3'>
+						<a href='/' class='flex items-center space-x-3 group'>
+							<!-- Logo图标 -->
+							<div
+								class='flex h-10 w-10 items-center justify-center rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200'
+							>
+								<svg viewBox='0 0 120 120' class='h-10 w-10'>
+									<defs>
+										<linearGradient
+											id='primaryGradient'
+											x1='0%'
+											y1='0%'
+											x2='100%'
+											y2='100%'
+										>
+											<stop
+												offset='0%'
+												style='stop-color:#f59e0b;stop-opacity:1'></stop>
+											<stop
+												offset='100%'
+												style='stop-color:#d97706;stop-opacity:1'></stop>
+										</linearGradient>
+										<filter
+											id='shadow'
+											x='-20%'
+											y='-20%'
+											width='140%'
+											height='140%'
+										>
+											<feDropShadow
+												dx='1'
+												dy='2'
+												stdDeviation='2'
+												flood-opacity='0.2'
+												flood-color='#000'></feDropShadow>
+										</filter>
+									</defs>
+									<circle
+										cx='60'
+										cy='60'
+										r='56'
+										fill='url(#primaryGradient)'
+										filter='url(#shadow)'></circle>
+									<g transform='translate(60, 60)'>
+										<path
+											d='M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15'
+											stroke='white'
+											stroke-width='3'
+											fill='none'
+											stroke-linecap='round'></path>
+										<path
+											d='M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15'
+											stroke='white'
+											stroke-width='3'
+											fill='none'
+											stroke-linecap='round'></path>
+										<circle cx='-8' cy='-3' r='2' fill='white'></circle>
+										<circle cx='0' cy='3' r='2' fill='white'></circle>
+										<circle cx='8' cy='-3' r='2' fill='white'></circle>
+									</g>
+									<g opacity='0.3'>
+										<polygon points='15,25 25,15 35,25' fill='white'></polygon>
+										<polygon points='85,85 95,90 85,95 75,90' fill='white'
+										></polygon>
+									</g>
+								</svg>
+							</div>
+							<div class='flex flex-col'>
+								<span
+									class='text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight'
+								>
+									Fanmu
+								</span>
+								<span
+									class='text-xs text-gray-500 dark:text-gray-400 font-medium leading-none'
+								>
+									yancode.life
+								</span>
+							</div>
+						</a>
+					</div>
 
-    <!-- 主要内容区域 -->
-    <div class="flex" style="height: calc(100vh - 4rem);">
-      <!-- 左侧边栏 -->
-      <aside class="w-64 flex-shrink-0 border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 flex flex-col h-full">
-        <div class="flex-1 overflow-y-auto px-2 py-4 sidebar-scroll">
-          <div class="mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
-            <nav class="space-y-1" id="main-menu">
-              <!-- 首页 -->
-              <a href="#" data-menu="home" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <Home className="mr-3 h-5 w-5 text-orange-500" />
-                <span class="flex-1">首页</span>
-              </a>
-              
-              <!-- React -->
-              <a href="#" data-menu="react" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <Code2 className="mr-3 h-5 w-5 text-blue-500" />
-                <span class="flex-1">React</span>
-              </a>
-              
-              <!-- Vue -->
-              <a href="#" data-menu="vue" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <Triangle className="mr-3 h-5 w-5 text-green-500" />
-                <span class="flex-1">Vue</span>
-              </a>
-              
-              <!-- Next.js -->
-              <a href="#" data-menu="next" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <ArrowRight className="mr-3 h-5 w-5 text-gray-900 dark:text-gray-100" />
-                <span class="flex-1">Next</span>
-              </a>
-              
-              <!-- Nest.js -->
-              <a href="#" data-menu="nest" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <Database className="mr-3 h-5 w-5 text-red-500" />
-                <span class="flex-1">Nest</span>
-              </a>
-              
-              <!-- Rust -->
-              <a href="#" data-menu="rust" class="menu-item group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200">
-                <Cog className="mr-3 h-5 w-5 text-orange-600" />
-                <span class="flex-1">Rust</span>
-              </a>
-            </nav>
-          </div>
+					<!-- 右侧：搜索 + 主题切换 -->
+					<div class='flex items-center space-x-3'>
+						<!-- 搜索框 -->
+						<div class='relative group'>
+							<div class='relative'>
+								<input
+									type='search'
+									placeholder='搜索'
+									id='global-search'
+									class='w-64 pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:ring-orange-600'
+								/>
+								<div
+									class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'
+								>
+									<svg
+										class='h-4 w-4 text-gray-400 dark:text-gray-500'
+										fill='none'
+										stroke='currentColor'
+										viewBox='0 0 24 24'
+									>
+										<path
+											stroke-linecap='round'
+											stroke-linejoin='round'
+											stroke-width='2'
+											d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'></path>
+									</svg>
+								</div>
+								<div class='absolute inset-y-0 right-0 pr-3 flex items-center'>
+									<kbd
+										class='hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-gray-200 bg-gray-100 px-1.5 font-mono text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'
+									>
+										<span class='text-xs'>⌘</span>K
+									</kbd>
+								</div>
+							</div>
+						</div>
 
-          <!-- 子菜单区域 -->
-          <div class="border-gray-200 dark:border-gray-700 px-2 pt-4">
-            <div class="text-sm text-gray-500 dark:text-gray-400 px-3 mb-3">
-              子菜单
-            </div>
-            
-            <!-- 动态子菜单内容 -->
-            <div id="submenu-container" class="space-y-1">
-              <!-- 子菜单将通过 JavaScript 动态插入这里 -->
-              <div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">
-                选择上方菜单查看子选项
+						<!-- 主题切换按钮 -->
+						<button
+							id='theme-toggle'
+							class='text-gray-500 hover:text-gray-700 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-200 border-none bg-none'
+							style='border: none; background: none; padding: 0; margin: 0;'
+							aria-label='切换主题'
+						>
+							<svg
+								class='h-5 w-5 hidden dark:block'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+								stroke-width='1.5'
+							>
+								<path
+									stroke-linecap='round'
+									stroke-linejoin='round'
+									d='M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z'
+								></path>
+							</svg>
+							<svg
+								class='h-5 w-5 block dark:hidden'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+								stroke-width='1.5'
+							>
+								<path
+									stroke-linecap='round'
+									stroke-linejoin='round'
+									d='M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z'
+								></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- 主要内容区域 -->
+		<div class='flex' style='height: calc(100vh - 4rem);'>
+			<!-- 左侧边栏 -->
+			<aside
+				class='w-64 flex-shrink-0 border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 flex flex-col h-full'
+			>
+				<div class='flex-1 overflow-y-auto px-2 py-4 sidebar-scroll'>
+					<!-- 主菜单 -->
+					<div class='mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-2'>
+						<nav class='space-y-1' id='main-menu'>
+							{
+								menuTree.map((menuItem) => (
+									<button
+										data-menu={menuItem.value}
+										data-path={menuItem.path}
+										data-has-index={menuItem.hasIndex}
+										class='menu-item group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 transition-colors duration-200 text-left'
+									>
+										{menuItem.icon && (
+											<span class='mr-3 h-5 w-5 text-orange-500 flex items-center justify-center'>
+												<svg
+													class='w-5 h-5'
+													fill='currentColor'
+													viewBox='0 0 20 20'
+												>
+													<path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
+												</svg>
+											</span>
+										)}
+										<span class='flex-1'>{menuItem.label}</span>
+										{menuItem.children && menuItem.children.length > 0 && (
+											<svg
+												class='w-4 h-4 transition-transform duration-200 submenu-arrow'
+												fill='none'
+												stroke='currentColor'
+												viewBox='0 0 24 24'
+											>
+												<path
+													stroke-linecap='round'
+													stroke-linejoin='round'
+													stroke-width='2'
+													d='M9 5l7 7-7 7'
+												/>
+											</svg>
+										)}
+									</button>
+								))
+							}
+						</nav>
+					</div>
+
+					<!-- 子菜单区域 -->
+					<div class='border-gray-200 dark:border-gray-700 px-2 pt-4'>
+						<div
+							class='text-sm text-gray-500 dark:text-gray-400 px-3 mb-3'
+							id='submenu-title'
+						>
+							子菜单
+						</div>
+
+						<!-- 动态子菜单内容 -->
+						<div id='submenu-container' class='space-y-1'>
+							<div class='text-xs text-gray-400 dark:text-gray-500 px-3 py-2'>
+								选择上方菜单查看子选项
+							</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+
+			<!-- 主内容区 -->
+			<main class='flex-1 overflow-y-auto h-full main-content'>
+				<div class='px-6 py-6 lg:px-8'>
+					<!-- 面包屑导航 -->
+					<nav class='mb-6' id='breadcrumb-nav' style='display: none;'>
+						<ol
+							class='flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400'
+						>
+							<!-- 面包屑将通过 JavaScript 动态生成 -->
+						</ol>
+					</nav>
+
+					<!-- 内容区域 -->
+					<div id='content-area'>
+						{
+							defaultPage && DefaultContent ? (
+								<article class='prose prose-lg max-w-none prose-gray dark:prose-invert'>
+									<header class='mb-8'>
+										<h1 class='text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
+											{defaultPage.data.title}
+										</h1>
+										{defaultPage.data.description && (
+											<p class='text-xl text-gray-600 dark:text-gray-400 mb-6'>
+												{defaultPage.data.description}
+											</p>
+										)}
+										<div class='flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-4'>
+											<span>作者: {defaultPage.data.author}</span>
+											<span>
+												创建于:{" "}
+												{defaultPage.data.createdAt.toLocaleDateString("zh-CN")}
+											</span>
+											{defaultPage.data.readingTime && (
+												<span>
+													阅读时间: {defaultPage.data.readingTime} 分钟
+												</span>
+											)}
+										</div>
+									</header>
+									<DefaultContent />
+								</article>
+							) : (
+								<div class='text-center py-12'>
+									<svg
+										class='w-16 h-16 mx-auto text-gray-400 mb-4'
+										fill='none'
+										stroke='currentColor'
+										viewBox='0 0 24 24'
+									>
+										<path
+											stroke-linecap='round'
+											stroke-linejoin='round'
+											stroke-width='2'
+											d='M9 12h6M9 16h6M9 8h6M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002 2V8'
+										/>
+									</svg>
+									<h2 class='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
+										欢迎来到 Fanmu 的博客
+									</h2>
+									<p class='text-lg text-gray-600 dark:text-gray-400 mb-6'>
+										请选择左侧菜单开始浏览内容
+									</p>
+								</div>
+							)
+						}
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<!-- 页面脚本 -->
+	<script define:vars={{ menuTree }}>
+		// 将菜单数据传递给客户端
+		window.menuTree = menuTree;
+
+		// 当前选中的菜单和子菜单
+		let currentMenu = "home";
+		let currentSubmenu = null;
+		let selectedMenuItem = null;
+		let expandedSections = new Set(); // 展开的一级菜单
+
+		// 主题切换功能
+		const themeToggle = document.getElementById("theme-toggle");
+
+		function toggleTheme() {
+			const html = document.documentElement;
+			const isDark = html.classList.contains("dark");
+
+			if (isDark) {
+				html.classList.remove("dark");
+				localStorage.setItem("theme", "light");
+			} else {
+				html.classList.add("dark");
+				localStorage.setItem("theme", "dark");
+			}
+		}
+
+		function initTheme() {
+			const savedTheme = localStorage.getItem("theme");
+			const prefersDark = window.matchMedia(
+				"(prefers-color-scheme: dark)"
+			).matches;
+
+			if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+				document.documentElement.classList.add("dark");
+			}
+		}
+
+		// 渲染面包屑导航
+		function renderBreadcrumb(path) {
+			const breadcrumbNav = document.getElementById("breadcrumb-nav");
+			const breadcrumbContainer = breadcrumbNav.querySelector("ol");
+
+			const pathParts = path.split("/").filter((part) => part);
+
+			if (pathParts.length === 0) {
+				breadcrumbNav.style.display = "none";
+				return;
+			}
+
+			let breadcrumbHtml =
+				'<li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">首页</a></li>';
+
+			let currentPath = "";
+			pathParts.forEach((part, index) => {
+				currentPath += "/" + part;
+				const isLast = index === pathParts.length - 1;
+
+				// 查找对应的菜单项获取标签
+				const menuItem = findMenuItemByPath(window.menuTree, currentPath);
+				const label = menuItem ? menuItem.label : part.replace(/-/g, " ");
+
+				breadcrumbHtml += `
+          <li class="flex items-center">
+            <svg class="h-4 w-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+            ${
+							isLast
+								? `<span class="text-gray-900 dark:text-gray-100">${label}</span>`
+								: `<a href="${currentPath}" class="hover:text-gray-700 dark:hover:text-gray-300">${label}</a>`
+						}
+          </li>
+        `;
+			});
+
+			breadcrumbContainer.innerHTML = breadcrumbHtml;
+			breadcrumbNav.style.display = "block";
+		}
+
+		// 查找菜单项
+		function findMenuItemByPath(menuTree, targetPath) {
+			function searchMenu(items) {
+				for (const item of items) {
+					if (item.path === targetPath) {
+						return item;
+					}
+					if (item.children && item.children.length > 0) {
+						const found = searchMenu(item.children);
+						if (found) return found;
+					}
+				}
+				return null;
+			}
+			return searchMenu(menuTree);
+		}
+
+		// 加载页面内容
+		async function loadPageContent(path) {
+			try {
+				const response = await fetch(
+					`/api/page?path=${encodeURIComponent(path)}`
+				);
+				if (!response.ok) {
+					throw new Error("页面不存在");
+				}
+
+				const data = await response.json();
+				const contentArea = document.getElementById("content-area");
+
+				contentArea.innerHTML = `
+          <article class="prose prose-lg max-w-none prose-gray dark:prose-invert">
+            <header class="mb-8">
+              <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                ${data.title}
+              </h1>
+              ${
+								data.description
+									? `
+                <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+                  ${data.description}
+                </p>
+              `
+									: ""
+							}
+              <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-4">
+                <span>作者: ${data.author}</span>
+                <span>创建于: ${new Date(data.createdAt).toLocaleDateString("zh-CN")}</span>
+                ${data.readingTime ? `<span>阅读时间: ${data.readingTime} 分钟</span>` : ""}
               </div>
-            </div>
-          </div>
-        </div>
-      </aside>
+            </header>
+            <div class="content">${data.content}</div>
+          </article>
+        `;
 
-      <!-- 主内容区 -->
-      <main class="flex-1 overflow-y-auto h-full main-content">
-        <div class="px-6 py-6 lg:px-8">
-          <!-- 欢迎区域 -->
-          <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              欢迎来到 Fanmu
-            </h1>
+				// 更新面包屑
+				renderBreadcrumb(path);
+
+				// 滚动到顶部
+				document
+					.querySelector(".main-content")
+					.scrollTo({ top: 0, behavior: "smooth" });
+			} catch (error) {
+				console.error("加载页面失败:", error);
+				const contentArea = document.getElementById("content-area");
+				contentArea.innerHTML = `
+          <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              页面加载失败
+            </h2>
             <p class="text-lg text-gray-600 dark:text-gray-400">
-              分享技术见解、生活感悟和学习心得
+              ${error.message}
             </p>
           </div>
+        `;
+			}
+		}
 
-          <!-- 文章列表 -->
-          <div class="space-y-6">
-            {posts.map((post) => (
-              <article class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between mb-4">
-                  <div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
-                      {post.category}
-                    </span>
-                  </div>
-                  <time class="text-sm text-gray-500 dark:text-gray-400">
-                    {formatDate(post.pubDate)}
-                  </time>
-                </div>
-                
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                  <a href={`/blog/${post.slug}`} class="hover:text-orange-600 dark:hover:text-orange-400">
-                    {post.title}
-                  </a>
-                </h2>
-                
-                <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                  {post.description}
-                </p>
-                
-                <div class="flex items-center justify-between">
-                  <div class="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded dark:bg-gray-700 dark:text-gray-300">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  <a href={`/blog/${post.slug}`} class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 text-sm font-medium">
-                    阅读更多 →
-                  </a>
-                </div>
-              </article>
-            ))}
-            
-            <!-- 添加更多内容用于测试滚动 -->
-            <div class="text-center py-12">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">更多内容</h3>
-              <p class="text-gray-600 dark:text-gray-400 mb-8">这里会显示更多的博客文章...</p>
-              
-              <!-- 模拟更多文章 -->
-              {Array.from({ length: 8 }, (_, i) => (
-                <article class="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow mb-6">
-                  <div class="flex items-start justify-between mb-4">
-                    <div>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                        技术
-                      </span>
-                    </div>
-                    <time class="text-sm text-gray-500 dark:text-gray-400">
-                      2024年6月{15 + i}日
-                    </time>
-                  </div>
-                  
-                  <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                    <a href="#" class="hover:text-orange-600 dark:hover:text-orange-400">
-                      示例文章 {i + 1} - 测试滚动效果
-                    </a>
-                  </h2>
-                  
-                  <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    这是一篇示例文章，用于展示页面滚动效果。左侧菜单栏保持固定，只有右侧内容区域会滚动。当内容足够多时，可以测试滚动的流畅性和边界处理。现在你可以看到美化的滚动条效果！
-                  </p>
-                  
-                  <div class="flex items-center justify-between">
-                    <div class="flex flex-wrap gap-2">
-                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded dark:bg-gray-700 dark:text-gray-300">
-                        #示例
-                      </span>
-                      <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded dark:bg-gray-700 dark:text-gray-300">
-                        #滚动测试
-                      </span>
-                    </div>
-                    <a href="#" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 text-sm font-medium">
-                      阅读更多 →
-                    </a>
-                  </div>
-                </article>
-              ))}
-              
-              <!-- 底部测试内容 -->
-              <div class="mt-12 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-2">滚动测试完成</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  如果您能看到这个内容，说明右侧滚动功能正常工作，且底部内容没有被遮挡。现在滚动条已经美化，提供更好的视觉体验！
-                </p>
+		// 渲染子菜单
+		function renderSubmenu(menuKey) {
+			const container = document.getElementById("submenu-container");
+			const titleElement = document.getElementById("submenu-title");
+			const menuItem = window.menuTree.find((item) => item.value === menuKey);
+
+			if (!menuItem || !menuItem.children || menuItem.children.length === 0) {
+				container.innerHTML =
+					'<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
+				titleElement.textContent = "子菜单";
+				return;
+			}
+
+			titleElement.textContent = `${menuItem.label} - 子菜单`;
+
+			const submenuHtml = menuItem.children
+				.map((section) => {
+					// 检查当前分组是否展开
+					const isExpanded = expandedSections.has(section.value);
+
+					if (section.children && section.children.length > 0) {
+						// 有子项的分组
+						const childrenHtml = isExpanded
+							? section.children
+									.map(
+										(child) => `
+            <div class="submenu-item ${selectedMenuItem === child.value ? "active" : ""}" data-submenu="${child.value}" data-path="${child.path}">
+              <a href="javascript:void(0)" class="flex items-center py-3 text-sm group cursor-pointer">
+                <div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 transition-all duration-200 ${selectedMenuItem === child.value ? "bg-orange-500 dark:bg-orange-400" : "group-hover:bg-orange-400 dark:group-hover:bg-orange-500"}"></div>
+                <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ml-9 ${selectedMenuItem === child.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+                  ${child.label}
+                </span>
+              </a>
+            </div>
+          `
+									)
+									.join("")
+							: "";
+
+						return `
+            <div class="submenu-section mb-2 relative">
+              <div class="section-header flex items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" data-section="${section.value}" data-path="${section.path}" data-has-index="${section.hasIndex}">
+                <span class="expand-arrow text-gray-500 dark:text-gray-400 transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? "rotate-90" : ""}">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-3">${section.label}</span>
+              </div>
+              <div class="section-children relative ${isExpanded ? "block" : "hidden"}">
+                <div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+                ${childrenHtml}
               </div>
             </div>
-          </div>
+          `;
+					} else {
+						// 没有子项的简单项目
+						return `
+            <div class="submenu-item ${selectedMenuItem === section.value ? "active" : ""}" data-submenu="${section.value}" data-path="${section.path}">
+              <a href="javascript:void(0)" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group">
+                <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ${selectedMenuItem === section.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+                  ${section.label}
+                </span>
+              </a>
+            </div>
+          `;
+					}
+				})
+				.join("");
+
+			container.innerHTML = submenuHtml;
+
+			// 绑定一级菜单展开收起事件
+			container.querySelectorAll(".section-header").forEach((header) => {
+				header.addEventListener("click", (e) => {
+					e.preventDefault();
+					const sectionId = header.dataset.section;
+					const hasIndex = header.dataset.hasIndex === "true";
+					const path = header.dataset.path;
+
+					if (hasIndex) {
+						// 如果有index页面，加载内容
+						loadPageContent(path);
+						selectSubmenu(sectionId);
+					}
+
+					// 切换展开状态
+					toggleSection(sectionId);
+				});
+			});
+
+			// 绑定子菜单点击事件
+			container.querySelectorAll(".submenu-item").forEach((item) => {
+				item.addEventListener("click", (e) => {
+					e.preventDefault();
+					const submenuId = item.dataset.submenu;
+					const path = item.dataset.path;
+					selectSubmenu(submenuId);
+					loadPageContent(path);
+				});
+			});
+		}
+
+		// 切换一级菜单展开收起
+		function toggleSection(sectionId) {
+			if (expandedSections.has(sectionId)) {
+				expandedSections.delete(sectionId);
+			} else {
+				expandedSections.add(sectionId);
+			}
+
+			// 重新渲染当前菜单的子菜单
+			renderSubmenu(currentMenu);
+		}
+
+		// 选择子菜单
+		function selectSubmenu(submenuId) {
+			selectedMenuItem = submenuId;
+
+			// 更新子菜单样式
+			document.querySelectorAll(".submenu-item").forEach((item) => {
+				item.classList.remove("active");
+			});
+
+			const selectedItem = document.querySelector(
+				`[data-submenu="${submenuId}"]`
+			);
+			if (selectedItem) {
+				selectedItem.classList.add("active");
+			}
+		}
+
+		// 选择主菜单
+		function selectMainMenu(menuKey) {
+			// 更新当前菜单
+			currentMenu = menuKey;
+			selectedMenuItem = null;
+
+			// 重置展开状态
+			expandedSections.clear();
+
+			// 更新主菜单样式
+			document.querySelectorAll(".menu-item").forEach((item) => {
+				item.classList.remove("active");
+			});
+
+			const selectedMenuElement = document.querySelector(
+				`[data-menu="${menuKey}"]`
+			);
+			if (selectedMenuElement) {
+				selectedMenuElement.classList.add("active");
+			}
+
+			// 查找菜单项
+			const menuItem = window.menuTree.find((item) => item.value === menuKey);
+
+			if (menuItem) {
+				// 如果只有index页面且没有子菜单，直接加载内容
+				if (
+					menuItem.hasIndex &&
+					(!menuItem.children || menuItem.children.length === 0)
+				) {
+					loadPageContent(menuItem.path);
+					document.getElementById("submenu-container").innerHTML =
+						'<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
+				} else if (menuItem.hasIndex) {
+					// 有index页面也有子菜单，加载index内容并展示子菜单
+					loadPageContent(menuItem.path);
+					renderSubmenu(menuKey);
+				} else {
+					// 只有子菜单，展示子菜单
+					renderSubmenu(menuKey);
+				}
+			}
+		}
+
+		// 初始化菜单
+		function initMenus() {
+			// 为主菜单添加点击事件
+			document.querySelectorAll(".menu-item").forEach((item) => {
+				item.addEventListener("click", (e) => {
+					e.preventDefault();
+					const menuKey = item.dataset.menu;
+					selectMainMenu(menuKey);
+				});
+			});
+
+			// 设置默认选中首页
+			selectMainMenu("home");
+		}
+
+		// 搜索功能
+		const searchInput = document.getElementById("global-search");
+
+		// 键盘快捷键 Cmd/Ctrl + K
+		document.addEventListener("keydown", (e) => {
+			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+				e.preventDefault();
+				searchInput?.focus();
+			}
+
+			// ESC 键取消搜索焦点
+			if (e.key === "Escape") {
+				searchInput?.blur();
+			}
+		});
+
+		// 搜索输入处理
+		let searchTimeout;
+		searchInput?.addEventListener("input", (e) => {
+			clearTimeout(searchTimeout);
+			const query = e.target.value.trim();
+
+			// 防抖处理
+			searchTimeout = setTimeout(() => {
+				if (query.length > 0) {
+					performSearch(query);
+				} else {
+					resetSearch();
+				}
+			}, 300);
+		});
+
+		// 执行搜索
+		async function performSearch(query) {
+			try {
+				const response = await fetch(
+					`/api/search?q=${encodeURIComponent(query)}`
+				);
+				const results = await response.json();
+
+				// 显示搜索结果
+				showSearchResults(results, query);
+			} catch (error) {
+				console.error("搜索出错:", error);
+			}
+		}
+
+		// 显示搜索结果
+		function showSearchResults(results, query) {
+			const contentArea = document.getElementById("content-area");
+
+			const resultsHtml = `
+        <div class="search-results">
+          <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              搜索结果
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+              找到 ${results.length} 个关于 "${query}" 的结果
+            </p>
+          </header>
+          
+          ${
+						results.length > 0
+							? `
+            <div class="space-y-6">
+              ${results
+								.map(
+									(result) => `
+                <article class="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="loadPageContent('${result.path}')">
+                  <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 hover:text-orange-600 dark:hover:text-orange-400">
+                    ${result.title}
+                  </h2>
+                  ${
+										result.description
+											? `
+                    <p class="text-gray-600 dark:text-gray-400 mb-3">
+                      ${result.description}
+                    </p>
+                  `
+											: ""
+									}
+                  <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>路径: ${result.path}</span>
+                    <span>作者: ${result.author}</span>
+                  </div>
+                </article>
+              `
+								)
+								.join("")}
+            </div>
+          `
+							: `
+            <div class="text-center py-12">
+              <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                未找到相关内容
+              </h2>
+              <p class="text-lg text-gray-600 dark:text-gray-400">
+                请尝试其他关键词
+              </p>
+            </div>
+          `
+					}
         </div>
-      </main>
-    </div>
+      `;
 
-    <!-- 搜索和主题切换脚本 -->
-    <script>
-      // 子菜单数据配置
-      const menuData = {
-        home: {
-          label: '首页',
-          submenus: [] // 首页没有子菜单
-        },
-        react: {
-          label: 'React',
-          submenus: [
-            { 
-              id: 'react-welcome', 
-              label: '欢迎，世界！', 
-              type: 'section',
-              children: [
-                { id: 'react-intro', label: '为什么是 React?', url: '/react/intro', type: 'item' },
-                { id: 'react-tutorial', label: '教程：待办事项应用', url: '/react/tutorial', type: 'item' },
-                { id: 'react-thinking', label: 'React 哲学', url: '/react/thinking', type: 'item' }
-              ]
-            },
-            { 
-              id: 'react-installation', 
-              label: '安装', 
-              type: 'section',
-              children: [
-                { id: 'react-start-new-project', label: '启动新的 React 项目', url: '/react/start-new-project', type: 'item' },
-                { id: 'react-add-to-existing', label: '添加到现有项目', url: '/react/add-to-existing', type: 'item' },
-                { id: 'react-editor-setup', label: '编辑器设置', url: '/react/editor-setup', type: 'item' },
-                { id: 'react-typescript', label: '使用 TypeScript', url: '/react/typescript', type: 'item' },
-                { id: 'react-dev-tools', label: 'React 开发者工具', url: '/react/dev-tools', type: 'item' }
-              ]
-            },
-            { 
-              id: 'react-learn', 
-              label: '学习 React', 
-              type: 'section',
-              children: [
-                { id: 'react-quick-start', label: '快速入门', url: '/react/quick-start', type: 'item' },
-                { id: 'react-tic-tac-toe', label: '教程：井字棋', url: '/react/tic-tac-toe', type: 'item' },
-                { id: 'react-concepts', label: 'React 思维', url: '/react/concepts', type: 'item' }
-              ]
-            },
-            { 
-              id: 'react-api-reference', 
-              label: 'API 参考', 
-              type: 'section',
-              children: [
-                { id: 'react-apis', label: 'React APIs', url: '/react/apis', type: 'item' },
-                { id: 'react-dom-apis', label: 'React DOM APIs', url: '/react/dom-apis', type: 'item' },
-                { id: 'react-dom-server', label: 'React DOM Server APIs', url: '/react/dom-server', type: 'item' },
-                { id: 'react-rules', label: 'React 规则', url: '/react/rules', type: 'item' }
-              ]
-            },
-            { 
-              id: 'react-community', 
-              label: '社区', 
-              type: 'section',
-              children: [
-                { id: 'react-code-of-conduct', label: '行为准则', url: '/react/code-of-conduct', type: 'item' },
-                { id: 'react-meet-team', label: '认识团队', url: '/react/meet-team', type: 'item' },
-                { id: 'react-docs-contributors', label: '文档贡献者', url: '/react/docs-contributors', type: 'item' },
-                { id: 'react-acknowledgements', label: '致谢', url: '/react/acknowledgements', type: 'item' }
-              ]
-            }
-          ]
-        },
-        vue: {
-          label: 'Vue',
-          submenus: [
-            { 
-              id: 'vue-welcome', 
-              label: '欢迎，世界！', 
-              type: 'section',
-              children: [
-                { id: 'vue-intro', label: '为什么是 Vue?', url: '/vue/intro', type: 'item' },
-                { id: 'vue-tutorial', label: '教程：构建应用', url: '/vue/tutorial', type: 'item' }
-              ]
-            },
-            { 
-              id: 'vue-start', 
-              label: '开始新项目', 
-              type: 'section',
-              children: [
-                { id: 'vue-installation', label: '安装', url: '/vue/installation', type: 'item' },
-                { id: 'vue-project-setup', label: '项目设置', url: '/vue/project-setup', type: 'item' }
-              ]
-            }
-          ]
-        },
-        next: {
-          label: 'Next.js',
-          submenus: [
-            { 
-              id: 'next-welcome', 
-              label: '欢迎，世界！', 
-              type: 'section',
-              children: [
-                { id: 'next-intro', label: '为什么是 Next.js?', url: '/next/intro', type: 'item' },
-                { id: 'next-tutorial', label: '教程：Dashboard 应用', url: '/next/tutorial', type: 'item' }
-              ]
-            },
-            { 
-              id: 'next-start', 
-              label: '开始新项目', 
-              type: 'section',
-              children: [
-                { id: 'next-installation', label: '安装', url: '/next/installation', type: 'item' },
-                { id: 'next-routing', label: '路由', url: '/next/routing', type: 'item' },
-                { id: 'next-rendering', label: '渲染', url: '/next/rendering', type: 'item' }
-              ]
-            }
-          ]
-        },
-        nest: {
-          label: 'Nest.js',
-          submenus: [
-            { 
-              id: 'nest-welcome', 
-              label: '欢迎，世界！', 
-              type: 'section',
-              children: [
-                { id: 'nest-intro', label: '为什么是 Nest.js?', url: '/nest/intro', type: 'item' },
-                { id: 'nest-tutorial', label: '教程：API 构建', url: '/nest/tutorial', type: 'item' }
-              ]
-            },
-            { 
-              id: 'nest-start', 
-              label: '开始新项目', 
-              type: 'section',
-              children: [
-                { id: 'nest-installation', label: '安装', url: '/nest/installation', type: 'item' },
-                { id: 'nest-controllers', label: '控制器', url: '/nest/controllers', type: 'item' },
-                { id: 'nest-providers', label: '提供者', url: '/nest/providers', type: 'item' }
-              ]
-            }
-          ]
-        },
-        rust: {
-          label: 'Rust',
-          submenus: [
-            { 
-              id: 'rust-welcome', 
-              label: '欢迎，世界！', 
-              type: 'section',
-              children: [
-                { id: 'rust-intro', label: '为什么是 Rust?', url: '/rust/intro', type: 'item' },
-                { id: 'rust-tutorial', label: '教程：猜数字游戏', url: '/rust/tutorial', type: 'item' }
-              ]
-            },
-            { 
-              id: 'rust-start', 
-              label: '开始新项目', 
-              type: 'section',
-              children: [
-                { id: 'rust-installation', label: '安装', url: '/rust/installation', type: 'item' },
-                { id: 'rust-cargo', label: 'Cargo 包管理', url: '/rust/cargo', type: 'item' },
-                { id: 'rust-syntax', label: '语法基础', url: '/rust/syntax', type: 'item' }
-              ]
-            }
-          ]
-        }
-      };
+			contentArea.innerHTML = resultsHtml;
 
-      // 当前选中的菜单和子菜单
-      let currentMenu = 'home';
-      let currentSubmenu = null;
-      let selectedMenuItem = null;
-      let expandedSections = new Set(); // 展开的一级菜单
+			// 隐藏面包屑
+			document.getElementById("breadcrumb-nav").style.display = "none";
+		}
 
-      // 主题切换功能
-      const themeToggle = document.getElementById('theme-toggle');
-      
-      function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.classList.contains('dark');
-        
-        if (isDark) {
-          html.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-        } else {
-          html.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        }
-      }
-      
-      function initTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      }
+		// 重置搜索
+		function resetSearch() {
+			// 恢复到当前选中的菜单状态
+			selectMainMenu(currentMenu);
+		}
 
-      // 渲染子菜单
-      function renderSubmenu(menuKey) {
-        const container = document.getElementById('submenu-container');
-        const menuInfo = menuData[menuKey];
-        
-        if (!menuInfo || menuInfo.submenus.length === 0) {
-          container.innerHTML = '<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
-          return;
-        }
+		// 初始化主题和菜单
+		initTheme();
+		themeToggle?.addEventListener("click", toggleTheme);
 
-        const submenuHtml = menuInfo.submenus.map(section => {
-          if (section.type === 'section') {
-            // 检查当前分组是否展开
-            const isExpanded = expandedSections.has(section.id);
-            
-            // 渲染一级标题和二级子项
-            const childrenHtml = section.children && isExpanded ? section.children.map((child, index) => `
-              <div class="submenu-item ${selectedMenuItem === child.id ? 'active' : ''}" data-submenu="${child.id}">
-                <a href="${child.url}" class="flex items-center py-3 text-sm group cursor-pointer">
-                  <div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 transition-all duration-200 ${selectedMenuItem === child.id ? 'bg-orange-500 dark:bg-orange-400' : 'group-hover:bg-orange-400 dark:group-hover:bg-orange-500'}"></div>
-                  <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ml-9 ${selectedMenuItem === child.id ? 'text-orange-700 dark:text-orange-300 font-medium' : ''}">
-                    ${child.label}
-                  </span>
-                </a>
-              </div>
-            `).join('') : '';
+		// DOM加载完成后初始化菜单
+		document.addEventListener("DOMContentLoaded", function () {
+			initMenus();
+		});
+	</script>
 
-            return `
-              <div class="submenu-section mb-2 relative">
-                <div class="section-header flex items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" data-section="${section.id}">
-                  <span class="expand-arrow text-gray-500 dark:text-gray-400 transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? 'rotate-90' : ''}">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="m9 18 6-6-6-6"/>
-                    </svg>
-                  </span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-3">${section.label}</span>
-                </div>
-                <div class="section-children relative ${isExpanded ? 'block' : 'hidden'}">
-                  <!-- 连续的竖线背景，对准箭头中心位置 -->
-                  <div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
-                  ${childrenHtml}
-                </div>
-              </div>
-            `;
-          } else {
-            // 简单项目（没有子项的）
-            return `
-              <div class="submenu-item ${selectedMenuItem === section.id ? 'active' : ''}" data-submenu="${section.id}">
-                <a href="${section.url}" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group">
-                  <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
-                    ${section.label}
-                  </span>
-                </a>
-              </div>
-            `;
-          }
-        }).join('');
+	<style>
+		/* 导入全局样式 */
+		@import "../styles/global.css";
 
-        container.innerHTML = submenuHtml;
+		/* 菜单样式 */
+		.menu-item {
+			@apply transition-all duration-200;
+		}
 
-        // 绑定一级菜单展开收起事件
-        container.querySelectorAll('.section-header').forEach(header => {
-          header.addEventListener('click', (e) => {
-            e.preventDefault();
-            const sectionId = header.dataset.section;
-            toggleSection(sectionId);
-          });
-        });
+		.menu-item.active {
+			@apply bg-white text-gray-900 shadow-sm;
+			@apply dark:bg-gray-700 dark:text-gray-100;
+		}
 
-        // 绑定子菜单点击事件
-        container.querySelectorAll('.submenu-item').forEach(item => {
-          item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const submenuId = item.dataset.submenu;
-            selectSubmenu(submenuId);
-          });
-        });
-      }
+		.menu-item.active svg {
+			@apply text-orange-600;
+			@apply dark:text-orange-400;
+		}
 
-      // 切换一级菜单展开收起
-      function toggleSection(sectionId) {
-        if (expandedSections.has(sectionId)) {
-          expandedSections.delete(sectionId);
-        } else {
-          expandedSections.add(sectionId);
-        }
-        
-        // 重新渲染当前菜单的子菜单
-        renderSubmenu(currentMenu);
-      }
+		.menu-item:not(.active):hover {
+			@apply bg-gray-100 text-gray-900;
+			@apply dark:bg-gray-700 dark:text-gray-100;
+		}
 
-      // 选择子菜单
-      function selectSubmenu(submenuId) {
-        selectedMenuItem = submenuId;
-        
-        // 更新子菜单样式
-        document.querySelectorAll('.submenu-item').forEach(item => {
-          item.classList.remove('active');
-        });
-        
-        const selectedItem = document.querySelector(`[data-submenu="${submenuId}"]`);
-        if (selectedItem) {
-          selectedItem.classList.add('active');
-        }
+		/* 子菜单样式 */
+		.submenu-item {
+			@apply transition-all duration-200 relative;
+		}
 
-        // 更新单个竖线样式
-        document.querySelectorAll('.submenu-vertical-line').forEach(line => {
-          line.classList.remove('bg-orange-500', 'dark:bg-orange-400');
-          line.classList.add('bg-gray-300', 'dark:bg-gray-600');
-        });
+		.submenu-item.active a {
+			@apply text-orange-700 dark:text-orange-300 font-medium;
+		}
 
-        const selectedLine = selectedItem?.querySelector('.submenu-vertical-line');
-        if (selectedLine) {
-          selectedLine.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-          selectedLine.classList.add('bg-orange-500', 'dark:bg-orange-400');
-        }
-      }
+		.submenu-item:hover:not(.active) a {
+			@apply text-gray-900 dark:text-gray-100;
+		}
 
-      // 选择主菜单
-      function selectMainMenu(menuKey) {
-        // 更新当前菜单
-        currentMenu = menuKey;
-        selectedMenuItem = null;
-        
-        // 切换菜单时，重置展开状态，默认展开第一个分组
-        expandedSections.clear();
-        if (menuData[menuKey] && menuData[menuKey].submenus.length > 0) {
-          const firstSection = menuData[menuKey].submenus[0];
-          if (firstSection.type === 'section') {
-            expandedSections.add(firstSection.id);
-          }
-        }
+		/* 一级菜单标题样式 */
+		.section-header {
+			@apply transition-all duration-200;
+		}
 
-        // 更新主菜单样式
-        document.querySelectorAll('.menu-item').forEach(item => {
-          item.classList.remove('active');
-        });
-        
-        const selectedMenuElement = document.querySelector(`[data-menu="${menuKey}"]`);
-        if (selectedMenuElement) {
-          selectedMenuElement.classList.add('active');
-        }
+		.section-header:hover {
+			@apply bg-gray-50 dark:bg-gray-800;
+		}
 
-        // 根据选择的菜单渲染子菜单
-        if (menuKey === 'home') {
-          // 首页没有子菜单，显示默认提示
-          document.getElementById('submenu-container').innerHTML = '<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
-        } else {
-          // 渲染对应的子菜单
-          renderSubmenu(menuKey);
-        }
-      }
+		/* 展开箭头动画 */
+		.expand-arrow {
+			@apply transition-transform duration-200 ease-in-out;
+		}
 
-      // 初始化菜单
-      function initMenus() {
-        // 为主菜单添加点击事件
-        document.querySelectorAll('.menu-item').forEach(item => {
-          item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const menuKey = item.dataset.menu;
-            selectMainMenu(menuKey);
-          });
-        });
+		.expand-arrow.rotate-90 {
+			transform: rotate(90deg);
+		}
 
-        // 设置默认选中首页
-        selectMainMenu('home');
-      }
-      
-      // 初始化主题
-      initTheme();
-      
-      // 绑定主题切换事件
-      themeToggle?.addEventListener('click', toggleTheme);
+		/* 分组内容显示/隐藏动画 */
+		.section-children {
+			@apply transition-all duration-300 ease-in-out;
+		}
 
-      // 搜索功能
-      const searchInput = document.querySelector('input[type="search"]');
-      
-      // 键盘快捷键 Cmd/Ctrl + K
-      document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-          e.preventDefault();
-          searchInput?.focus();
-        }
-        
-        // ESC 键取消搜索焦点
-        if (e.key === 'Escape') {
-          searchInput?.blur();
-        }
-      });
-      
-      // 搜索输入处理
-      searchInput?.addEventListener('input', (e) => {
-        const query = e.target.value.trim();
-        if (query.length > 0) {
-          // 这里可以添加实时搜索逻辑
-          console.log('搜索:', query);
-        }
-      });
-      
-      // 搜索提交处理
-      searchInput?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const query = e.target.value.trim();
-          if (query.length > 0) {
-            // 跳转到搜索结果页面
-            window.location.href = `/search?q=${encodeURIComponent(query)}`;
-          }
-        }
-      });
+		.section-children.hidden {
+			@apply opacity-0;
+			max-height: 0;
+			overflow: hidden;
+		}
 
-      // 滚动增强功能
-      document.addEventListener('DOMContentLoaded', function() {
-        const mainContent = document.querySelector('.main-content');
-        
-        // 初始化菜单系统
-        initMenus();
-        
-        // 平滑滚动到顶部功能
-        function scrollToTop(element) {
-          element.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
-        }
-        
-        // 双击滚动条区域回到顶部
-        if (mainContent) {
-          mainContent.addEventListener('dblclick', (e) => {
-            // 只在点击滚动条区域时触发
-            if (e.target === mainContent) {
-              scrollToTop(mainContent);
-            }
-          });
-        }
-        
-        // 键盘快捷键：Home键回到顶部
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Home' && e.ctrlKey) {
-            e.preventDefault();
-            if (mainContent) scrollToTop(mainContent);
-          }
-        });
-      });
-    </script>
+		.section-children.block {
+			@apply opacity-100;
+			max-height: none;
+		}
 
-    <style>
-      /* 导入全局样式 */
-      @import '../styles/global.css';
-      
-      /* 菜单样式 */
-      .menu-item {
-        @apply transition-all duration-200;
-      }
+		/* 子菜单竖线样式 */
+		.submenu-vertical-line {
+			@apply transition-all duration-200 ease-in-out relative z-10;
+			transform-origin: center;
+		}
 
-      .menu-item.active {
-        /* 白天模式：白色背景 + 黑色文字 + 轻微阴影 */
-        @apply bg-white text-gray-900 shadow-sm;
-        /* 暗夜模式：更明显的背景 + 白色文字 */
-        @apply dark:bg-gray-700 dark:text-gray-100;
-      }
+		.submenu-item:hover .submenu-vertical-line {
+			@apply bg-orange-400 dark:bg-orange-500;
+			transform: scaleX(2);
+		}
 
-      /* active 状态下的图标颜色 */
-      .menu-item.active svg {
-        /* 白天模式：橙色主题色 */
-        @apply text-orange-600;
-        /* 暗夜模式：稍浅的橙色 */
-        @apply dark:text-orange-400;
-      }
+		.submenu-item.active .submenu-vertical-line {
+			@apply bg-orange-500 dark:bg-orange-400;
+			transform: scaleX(3);
+			filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.6));
+		}
 
-      .menu-item:not(.active):hover {
-        @apply bg-gray-100 text-gray-900;
-        @apply dark:bg-gray-700 dark:text-gray-100;
-      }
+		/* 增强的 prose 样式 */
+		.prose {
+			@apply text-gray-800 dark:text-gray-200;
+			max-width: none;
+		}
 
-      /* 子菜单样式 */
-      .submenu-item {
-        @apply transition-all duration-200 relative;
-      }
+		.prose h1,
+		.prose h2,
+		.prose h3,
+		.prose h4 {
+			@apply scroll-mt-24 relative;
+		}
 
-      .submenu-item.active a {
-        @apply text-orange-700 dark:text-orange-300 font-medium;
-      }
+		.prose h1 {
+			@apply text-3xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-6;
+		}
 
-      .submenu-item:hover:not(.active) a {
-        @apply text-gray-900 dark:text-gray-100;
-      }
+		.prose h2 {
+			@apply text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700;
+		}
 
-      /* 一级菜单标题样式 */
-      .section-header {
-        @apply transition-all duration-200;
-      }
+		.prose h3 {
+			@apply text-xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3;
+		}
 
-      .section-header:hover {
-        @apply bg-gray-50 dark:bg-gray-800;
-      }
+		.prose h4 {
+			@apply text-lg font-medium text-gray-900 dark:text-gray-100 mt-4 mb-2;
+		}
 
-      /* 展开箭头动画 */
-      .expand-arrow {
-        @apply transition-transform duration-200 ease-in-out;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+		.prose p {
+			@apply mb-4 leading-relaxed text-base;
+		}
 
-      .expand-arrow.rotate-90 {
-        transform: rotate(90deg);
-      }
+		.prose a {
+			@apply text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium no-underline transition-colors;
+		}
 
-      .expand-arrow svg {
-        @apply transition-transform duration-200;
-      }
+		.prose a:hover {
+			@apply underline underline-offset-2;
+		}
 
-      /* 分组内容显示/隐藏动画 */
-      .section-children {
-        @apply transition-all duration-300 ease-in-out;
-      }
+		.prose code {
+			@apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono before:content-none after:content-none;
+		}
 
-      .section-children.hidden {
-        @apply opacity-0;
-        max-height: 0;
-        overflow: hidden;
-      }
+		.prose pre {
+			@apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6 border border-gray-200 dark:border-gray-700;
+		}
 
-      .section-children.block {
-        @apply opacity-100;
-        max-height: none;
-      }
+		.prose pre code {
+			@apply bg-transparent text-gray-100 p-0 text-sm;
+		}
 
-      /* 子菜单竖线样式 - 覆盖背景线 */
-      .submenu-vertical-line {
-        @apply transition-all duration-200 ease-in-out relative z-10;
-        transform-origin: center;
-      }
-
-      .submenu-item:hover .submenu-vertical-line {
-        @apply bg-orange-400 dark:bg-orange-500;
-        transform: scaleX(2);
-      }
-
-      .submenu-item.active .submenu-vertical-line {
-        @apply bg-orange-500 dark:bg-orange-400;
-        transform: scaleX(3);
-        filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.6));
-      }
-
-      /* 文本截断工具类 */
-      .line-clamp-2 {
-        display: -webkit-box !important;
-        -webkit-line-clamp: 2 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-      }
-
-      .line-clamp-3 {
-        display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-      }
-
-      /* 确保滚动容器正确设置 */
-      .scroll-smooth-enhanced {
-        scroll-behavior: smooth !important;
-        scroll-padding-top: 2rem !important;
-      }
-
-      /* 滚动条样式优化 */
-      .sidebar-scroll {
-        scrollbar-width: thin;
-        scrollbar-color: rgb(209 213 219 / 0.7) transparent;
-        scroll-behavior: smooth;
-        scroll-padding-top: 1rem;
-      }
-
-      .sidebar-scroll::-webkit-scrollbar {
-        width: 3px;
-      }
-
-      .sidebar-scroll::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .sidebar-scroll::-webkit-scrollbar-thumb {
-        background: rgb(209 213 219 / 0.7);
-        border-radius: 2px;
-        border: none;
-        background-clip: content-box;
-      }
-
-      .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgb(156 163 175 / 0.9);
-      }
-
-      .dark .sidebar-scroll {
-        scrollbar-color: rgb(75 85 99 / 0.7) transparent;
-      }
-
-      .dark .sidebar-scroll::-webkit-scrollbar-thumb {
-        background: rgb(75 85 99 / 0.7);
-      }
-
-      .dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgb(107 114 128 / 0.9);
-      }
-
-      .main-content {
-        scrollbar-width: thin;
-        scrollbar-color: rgb(251 146 60 / 0.7) rgb(243 244 246 / 0.5);
-        scroll-behavior: smooth;
-        scroll-padding-top: 2rem;
-      }
-
-      .main-content::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      .main-content::-webkit-scrollbar-track {
-        background: rgb(243 244 246 / 0.5);
-        border-radius: 3px;
-        margin: 4px 0;
-      }
-
-      .main-content::-webkit-scrollbar-thumb {
-        background: rgb(251 146 60 / 0.8);
-        border-radius: 3px;
-        border: none;
-        background-clip: content-box;
-        transition: all 0.2s ease;
-      }
-
-      .main-content::-webkit-scrollbar-thumb:hover {
-        background: rgb(251 146 60);
-        transform: scaleX(1.1);
-      }
-
-      .main-content::-webkit-scrollbar-thumb:active {
-        background: rgb(249 115 22);
-      }
-
-      .dark .main-content {
-        scrollbar-color: rgb(234 88 12 / 0.7) rgb(31 41 55 / 0.5);
-      }
-
-      .dark .main-content::-webkit-scrollbar-track {
-        background: rgb(31 41 55 / 0.5);
-      }
-
-      .dark .main-content::-webkit-scrollbar-thumb {
-        background: rgb(234 88 12 / 0.8);
-      }
-
-      .dark .main-content::-webkit-scrollbar-thumb:hover {
-        background: rgb(234 88 12);
-      }
-
-      .dark .main-content::-webkit-scrollbar-thumb:active {
-        background: rgb(194 65 12);
-      }
-
-      /* 响应式滚动条 - 移动端 */
-      @media (max-width: 768px) {
-        .main-content::-webkit-scrollbar {
-          width: 4px;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar {
-          width: 2px;
-        }
-      }
-    </style>
-  </body>
-</html>
+		.prose blockquote {
+			@apply border-l-4 border-orange-500 bg-orange-50 dark:bg-orange-900/20 pl-4 py-2 italic my-6 text-gray-700 dark:text-gray-300;
+		}
+	</style>
+</Layout>

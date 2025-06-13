@@ -1,0 +1,498 @@
+---
+export interface Props {
+	title: string;
+	description?: string;
+	image?: string;
+	canonical?: string;
+	noindex?: boolean;
+}
+
+const {
+	title,
+	description = "分享技术见解、生活感悟和学习心得",
+	image = "/og-image.jpg",
+	canonical,
+	noindex = false,
+} = Astro.props;
+
+// 获取当前 URL
+const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
+---
+
+<!doctype html>
+<html lang='zh-CN' class='scroll-smooth'>
+	<head>
+		<meta charset='UTF-8' />
+		<meta name='description' content={description} />
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+		<meta name='generator' content={Astro.generator} />
+
+		<!-- 页面标题 -->
+		<title>{title} - Fanmu</title>
+
+		<!-- 规范链接 -->
+		<link rel='canonical' href={canonicalURL} />
+
+		<!-- 搜索引擎优化 -->
+		{noindex && <meta name='robots' content='noindex, nofollow' />}
+
+		<!-- Open Graph / Facebook -->
+		<meta property='og:type' content='website' />
+		<meta property='og:url' content={canonicalURL} />
+		<meta property='og:title' content={`${title} - Fanmu`} />
+		<meta property='og:description' content={description} />
+		<meta property='og:image' content={socialImage} />
+		<meta property='og:site_name' content='Fanmu - yancode.life' />
+		<meta property='og:locale' content='zh_CN' />
+
+		<!-- Twitter -->
+		<meta property='twitter:card' content='summary_large_image' />
+		<meta property='twitter:url' content={canonicalURL} />
+		<meta property='twitter:title' content={`${title} - Fanmu`} />
+		<meta property='twitter:description' content={description} />
+		<meta property='twitter:image' content={socialImage} />
+
+		<!-- 额外的 meta 标签 -->
+		<meta name='author' content='Fanmu' />
+		<meta name='theme-color' content='#f97316' />
+
+		<!-- RSS 订阅 -->
+		<link
+			rel='alternate'
+			type='application/rss+xml'
+			title='Fanmu - RSS Feed'
+			href='/rss.xml'
+		/>
+
+		<!-- 预连接到外部资源 -->
+		<link rel='preconnect' href='https://fonts.googleapis.com' />
+		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+		<link rel='preconnect' href='https://images.unsplash.com' />
+
+		<!-- 字体 -->
+		<link
+			href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'
+			rel='stylesheet'
+		/>
+		<link
+			href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap'
+			rel='stylesheet'
+		/>
+
+		<!-- 结构化数据 -->
+		<script type='application/ld+json'>
+			{
+				"@context": "https://schema.org",
+				"@type": "WebSite",
+				"name": "Fanmu - yancode.life",
+				"description": "分享技术见解、生活感悟和学习心得",
+				"url": "https://yancode.life",
+				"author": {
+					"@type": "Person",
+					"name": "Fanmu",
+					"url": "https://yancode.life/about"
+				},
+				"potentialAction": {
+					"@type": "SearchAction",
+					"target": "https://yancode.life/search?q={search_term_string}",
+					"query-input": "required name=search_term_string"
+				}
+			}
+		</script>
+
+		<!-- 主题初始化脚本（避免闪烁） -->
+		<script is:inline>
+			function initTheme() {
+				const savedTheme = localStorage.getItem("theme");
+				const prefersDark = window.matchMedia(
+					"(prefers-color-scheme: dark)"
+				).matches;
+
+				if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+					document.documentElement.classList.add("dark");
+				}
+			}
+
+			// 立即执行，避免主题闪烁
+			initTheme();
+		</script>
+	</head>
+
+	<body
+		class='min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300'
+	>
+		<!-- 页面内容 -->
+		<slot />
+
+		<!-- 返回顶部按钮 -->
+		<button
+			id='back-to-top'
+			class='fixed bottom-6 right-6 w-12 h-12 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg transition-all duration-300 transform translate-y-20 opacity-0 z-50'
+			aria-label='返回顶部'
+		>
+			<svg
+				class='w-6 h-6 mx-auto'
+				fill='none'
+				stroke='currentColor'
+				viewBox='0 0 24 24'
+			>
+				<path
+					stroke-linecap='round'
+					stroke-linejoin='round'
+					stroke-width='2'
+					d='M5 10l7-7m0 0l7 7m-7-7v18'></path>
+			</svg>
+		</button>
+
+		<!-- 全局脚本 -->
+		<script>
+			// 返回顶部功能
+			const backToTopButton = document.getElementById("back-to-top");
+
+			// 监听滚动事件
+			window.addEventListener("scroll", () => {
+				if (window.pageYOffset > 300) {
+					backToTopButton.classList.remove("translate-y-20", "opacity-0");
+					backToTopButton.classList.add("translate-y-0", "opacity-100");
+				} else {
+					backToTopButton.classList.add("translate-y-20", "opacity-0");
+					backToTopButton.classList.remove("translate-y-0", "opacity-100");
+				}
+			});
+
+			// 点击返回顶部
+			backToTopButton?.addEventListener("click", () => {
+				window.scrollTo({
+					top: 0,
+					behavior: "smooth",
+				});
+			});
+
+			// 键盘快捷键
+			document.addEventListener("keydown", (e) => {
+				// Ctrl/Cmd + K 打开搜索
+				if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+					e.preventDefault();
+					const searchInput = document.querySelector('input[type="search"]');
+					if (searchInput) {
+						searchInput.focus();
+					}
+				}
+
+				// Home 键返回顶部
+				if (e.key === "Home" && e.ctrlKey) {
+					e.preventDefault();
+					window.scrollTo({ top: 0, behavior: "smooth" });
+				}
+
+				// End 键到达底部
+				if (e.key === "End" && e.ctrlKey) {
+					e.preventDefault();
+					window.scrollTo({
+						top: document.body.scrollHeight,
+						behavior: "smooth",
+					});
+				}
+			});
+
+			// 图片懒加载增强
+			if ("IntersectionObserver" in window) {
+				const imageObserver = new IntersectionObserver((entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							const img = entry.target;
+							if (img.dataset.src) {
+								img.src = img.dataset.src;
+								img.removeAttribute("data-src");
+								img.classList.remove("blur-sm");
+								observer.unobserve(img);
+							}
+						}
+					});
+				});
+
+				// 观察所有带有 data-src 的图片
+				document.querySelectorAll("img[data-src]").forEach((img) => {
+					imageObserver.observe(img);
+				});
+			}
+
+			// 外部链接处理
+			document.querySelectorAll('a[href^="http"]').forEach((link) => {
+				if (!link.href.startsWith(window.location.origin)) {
+					link.setAttribute("target", "_blank");
+					link.setAttribute("rel", "noopener noreferrer");
+				}
+			});
+
+			// 代码复制功能
+			document.querySelectorAll("pre").forEach((pre) => {
+				const code = pre.querySelector("code");
+				if (code) {
+					const button = document.createElement("button");
+					button.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          `;
+					button.className =
+						"absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-200 transition-colors";
+					button.setAttribute("aria-label", "复制代码");
+
+					pre.style.position = "relative";
+					pre.appendChild(button);
+
+					button.addEventListener("click", async () => {
+						try {
+							await navigator.clipboard.writeText(code.textContent);
+							button.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              `;
+							setTimeout(() => {
+								button.innerHTML = `
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                `;
+							}, 2000);
+						} catch (err) {
+							console.error("复制失败:", err);
+						}
+					});
+				}
+			});
+
+			// 性能监控（可选）
+			if ("performance" in window && "PerformanceObserver" in window) {
+				// 监控 LCP (Largest Contentful Paint)
+				const lcpObserver = new PerformanceObserver((list) => {
+					const entries = list.getEntries();
+					const lastEntry = entries[entries.length - 1];
+					console.log("LCP:", lastEntry.startTime);
+				});
+				lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
+
+				// 监控 CLS (Cumulative Layout Shift)
+				const clsObserver = new PerformanceObserver((list) => {
+					let clsValue = 0;
+					for (const entry of list.getEntries()) {
+						if (!entry.hadRecentInput) {
+							clsValue += entry.value;
+						}
+					}
+					console.log("CLS:", clsValue);
+				});
+				clsObserver.observe({ entryTypes: ["layout-shift"] });
+			}
+		</script>
+
+		<!-- Service Worker 注册（可选） -->
+		<script>
+			if (
+				"serviceWorker" in navigator &&
+				window.location.hostname !== "localhost"
+			) {
+				window.addEventListener("load", () => {
+					navigator.serviceWorker
+						.register("/sw.js")
+						.then((registration) => {
+							console.log("SW registered: ", registration);
+						})
+						.catch((registrationError) => {
+							console.log("SW registration failed: ", registrationError);
+						});
+				});
+			}
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	/* 导入全局样式 */
+	@import "../styles/global.css";
+
+	/* 额外的全局样式 */
+	html {
+		font-family: "Inter", system-ui, sans-serif;
+	}
+
+	/* 代码字体 */
+	code,
+	pre {
+		font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace !important;
+	}
+
+	/* 滚动条样式 */
+	::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: rgb(243 244 246);
+		border-radius: 3px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: rgb(209 213 219);
+		border-radius: 3px;
+		transition: background-color 0.2s ease;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: rgb(156 163 175);
+	}
+
+	.dark ::-webkit-scrollbar-track {
+		background: rgb(31 41 55);
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: rgb(75 85 99);
+	}
+
+	.dark ::-webkit-scrollbar-thumb:hover {
+		background: rgb(107 114 128);
+	}
+
+	/* 选择文本样式 */
+	::selection {
+		background-color: rgb(251 146 60 / 0.3);
+		color: rgb(154 52 18);
+	}
+
+	.dark ::selection {
+		background-color: rgb(234 88 12 / 0.3);
+		color: rgb(254 215 170);
+	}
+
+	/* 焦点样式 */
+	:focus {
+		outline: 2px solid rgb(251 146 60);
+		outline-offset: 2px;
+	}
+
+	.dark :focus {
+		outline-color: rgb(234 88 12);
+	}
+
+	/* 平滑滚动 */
+	@media (prefers-reduced-motion: no-preference) {
+		html {
+			scroll-behavior: smooth;
+		}
+	}
+
+	/* 减少动画（用户偏好） */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+
+	/* 高对比度模式 */
+	@media (prefers-contrast: high) {
+		.text-gray-600 {
+			color: rgb(0 0 0) !important;
+		}
+
+		.dark .text-gray-400 {
+			color: rgb(255 255 255) !important;
+		}
+	}
+
+	/* 打印样式 */
+	@media print {
+		.no-print {
+			display: none !important;
+		}
+
+		* {
+			background: white !important;
+			color: black !important;
+			box-shadow: none !important;
+		}
+
+		a[href]:after {
+			content: " (" attr(href) ")";
+		}
+
+		img {
+			max-width: 100% !important;
+			height: auto !important;
+		}
+	}
+
+	/* 加载动画 */
+	.loading {
+		background: linear-gradient(-90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+		background-size: 400% 400%;
+		animation: loading 1.5s ease-in-out infinite;
+	}
+
+	.dark .loading {
+		background: linear-gradient(-90deg, #374151 0%, #4b5563 50%, #374151 100%);
+		background-size: 400% 400%;
+	}
+
+	@keyframes loading {
+		0% {
+			background-position: 0% 0%;
+		}
+		100% {
+			background-position: -200% 0%;
+		}
+	}
+
+	/* 错误和成功状态 */
+	.error {
+		color: rgb(220 38 38);
+	}
+
+	.success {
+		color: rgb(34 197 94);
+	}
+
+	.dark .error {
+		color: rgb(248 113 113);
+	}
+
+	.dark .success {
+		color: rgb(74 222 128);
+	}
+
+	/* 工具提示 */
+	[data-tooltip] {
+		position: relative;
+	}
+
+	[data-tooltip]:hover::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background: rgb(0 0 0 / 0.9);
+		color: white;
+		padding: 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.875rem;
+		white-space: nowrap;
+		z-index: 50;
+		pointer-events: none;
+	}
+
+	.dark [data-tooltip]:hover::after {
+		background: rgb(255 255 255 / 0.9);
+		color: black;
+	}
+</style>

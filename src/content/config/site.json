@@ -1,0 +1,53 @@
+{
+  "site": {
+    "title": "Fanmu - yancode.life",
+    "description": "分享技术见解、生活感悟和学习心得",
+    "url": "https://yancode.life",
+    "author": "Fanmu",
+    "lang": "zh-CN"
+  },
+  "mainMenu": [
+    {
+      "label": "首页",
+      "value": "home",
+      "icon": "home",
+      "order": 1
+    },
+    {
+      "label": "React",
+      "value": "react",
+      "icon": "react",
+      "order": 2
+    },
+    {
+      "label": "Vue",
+      "value": "vue",
+      "icon": "vue",
+      "order": 3
+    },
+    {
+      "label": "Next.js",
+      "value": "next",
+      "icon": "next",
+      "order": 4
+    }
+  ],
+  "social": [
+    {
+      "name": "GitHub",
+      "href": "https://github.com/fanmu",
+      "icon": "github"
+    },
+    {
+      "name": "Twitter",
+      "href": "https://twitter.com/fanmu",
+      "icon": "twitter"
+    }
+  ],
+  "features": {
+    "search": true,
+    "comments": false,
+    "analytics": false,
+    "rss": true
+  }
+}
