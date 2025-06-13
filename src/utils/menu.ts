@@ -1,4 +1,4 @@
-// 修复后的 src/utils/menu.ts 文件
+// 优化后的 src/utils/menu.ts 文件
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type PageEntry = CollectionEntry<'pages'>;
@@ -13,7 +13,7 @@ export interface MenuItem {
   children?: MenuItem[];
   hasIndex: boolean;
   indexContent?: PageEntry;
-  pageSlug?: string; // 原始文件 slug，用于查找文件
+  pageSlug?: string;
 }
 
 // 主菜单配置接口
@@ -22,28 +22,6 @@ export interface MainMenuConfig {
   value: string;
   icon?: string;
   order: number;
-}
-
-/**
- * 查找菜单项 - 支持中文路径和 pageName
- */
-export function findMenuItemByPath(menuTree: MenuItem[], targetPath: string): MenuItem | null {
-  function searchMenu(items: MenuItem[]): MenuItem | null {
-    for (const item of items) {
-      // 完全匹配路径
-      if (item.path === targetPath) {
-        return item;
-      }
-
-      // 搜索子菜单
-      if (item.children && item.children.length > 0) {
-        const found = searchMenu(item.children);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-  return searchMenu(menuTree);
 }
 
 /**
@@ -90,7 +68,26 @@ export async function getPageByPath(pagePath: string): Promise<PageEntry | null>
 }
 
 /**
- * 构建菜单树 - 修复版本
+ * 根据路径查找菜单项
+ */
+export function findMenuItemByPath(menuTree: MenuItem[], targetPath: string): MenuItem | null {
+  function searchMenu(items: MenuItem[]): MenuItem | null {
+    for (const item of items) {
+      if (item.path === targetPath) {
+        return item;
+      }
+      if (item.children && item.children.length > 0) {
+        const found = searchMenu(item.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+  return searchMenu(menuTree);
+}
+
+/**
+ * 构建完整的菜单树
  */
 export async function buildMenuTree(): Promise<MenuItem[]> {
   const mainMenuConfig = await getMainMenuConfig();
@@ -117,26 +114,22 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
       return pathParts[0] === mainConfig.value;
     });
 
-    console.log(`主菜单 ${mainConfig.value} 的页面:`, menuPages.map(p => ({
-      slug: p.slug,
-      title: p.data.title,
-      pageName: p.data.pageName
-    })));
+    console.log(`主菜单 ${mainConfig.value} 的页面:`, menuPages.map(p => p.slug));
 
-    // 检查是否有主菜单的 index 页面 (如 react/index.md)
-    const indexPage = menuPages.find(page => {
+    // 检查是否有主菜单的 index 页面 (如 home/index.md)
+    const mainIndexPage = menuPages.find(page => {
       const pathParts = page.slug.split('/');
       return pathParts.length === 2 && pathParts[1] === 'index';
     });
 
-    if (indexPage) {
+    if (mainIndexPage) {
       menuItem.hasIndex = true;
-      menuItem.indexContent = indexPage;
-      menuItem.pageSlug = indexPage.slug;
-      console.log(`主菜单 ${mainConfig.value} 有 index 页面:`, indexPage.slug);
+      menuItem.indexContent = mainIndexPage;
+      menuItem.pageSlug = mainIndexPage.slug;
+      console.log(`主菜单 ${mainConfig.value} 有 index 页面:`, mainIndexPage.slug);
     }
 
-    // 构建子菜单
+    // 构建子菜单结构
     const subMenus = new Map<string, MenuItem>();
 
     menuPages.forEach(page => {
@@ -148,12 +141,12 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
       }
 
       if (pathParts.length === 3) {
-        // 三级结构：react/开始学习/index.md 或 react/开始学习/环境搭建.md
+        // 三级结构处理：react/开始学习/index.md 或 react/开始学习/环境搭建.md
         const subMenuKey = pathParts[1]; // "开始学习"
         const fileName = pathParts[2]; // "index" 或 "环境搭建"
         const isIndex = fileName === 'index';
 
-        // 如果这个子菜单还不存在，创建它
+        // 创建或获取子菜单分组
         if (!subMenus.has(subMenuKey)) {
           const subMenuItem: MenuItem = {
             label: subMenuKey,
@@ -169,48 +162,33 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
         const subMenuItem = subMenus.get(subMenuKey)!;
 
         if (isIndex) {
-          // 这是子菜单的 index 页面
+          // 子菜单的 index 页面
           subMenuItem.hasIndex = true;
           subMenuItem.indexContent = page;
           subMenuItem.label = page.data.menuLabel || page.data.title;
           subMenuItem.order = page.data.order;
           subMenuItem.pageSlug = page.slug;
-
-          console.log(`子菜单 ${subMenuKey} 有 index 页面:`, {
-            path: subMenuItem.path,
-            pageSlug: subMenuItem.pageSlug
-          });
         } else {
-          // 这是子菜单下的具体页面
+          // 子菜单下的具体页面
           if (page.data.showInMenu) {
-            // 使用 pageName 作为 URL 路径，如果没有则使用文件名
-            const urlPath = page.data.pageName || fileName;
-
+            const pageName = page.data.pageName || fileName;
             const childItem: MenuItem = {
               label: page.data.menuLabel || page.data.title,
-              value: urlPath, // 使用 pageName 作为 value
-              path: `/${pathParts[0]}/${subMenuKey}/${urlPath}`, // URL 路径使用 pageName
+              value: pageName,
+              path: `/${pathParts[0]}/${subMenuKey}/${pageName}`,
               order: page.data.order,
               children: [],
               hasIndex: false,
-              pageSlug: page.slug, // 保存原始 slug 用于查找文件
+              pageSlug: page.slug,
             };
 
             subMenuItem.children!.push(childItem);
-
-            console.log(`创建子页面:`, {
-              label: childItem.label,
-              path: childItem.path, // /react/开始学习/环境搭建 (如果 pageName 是 "环境搭建")
-              pageSlug: childItem.pageSlug, // react/开始学习/环境搭建
-              pageName: page.data.pageName,
-              fileName: fileName
-            });
           }
         }
       }
     });
 
-    // 将子菜单添加到主菜单项，并排序
+    // 排序并添加子菜单
     menuItem.children = Array.from(subMenus.values())
       .sort((a, b) => a.order - b.order)
       .map(item => ({

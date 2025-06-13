@@ -1,0 +1,17 @@
+# Netlify 重定向配置文件
+# 文件路径: public/_redirects
+
+# 根路径重定向到首页 (临时重定向)
+/    /home    302
+
+# 外部重定向
+/github    https://github.com/fanmucc    302
+
+# API 路由保持不变
+/api/*    /api/*    200
+
+# SPA 回退规则 - 所有其他路径都回到 index.html
+/*    /index.html    200
+
+# 404 错误页面重定向到首页
+/404    /home    302
