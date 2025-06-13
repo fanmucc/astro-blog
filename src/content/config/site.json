@@ -49,5 +49,29 @@
     "comments": false,
     "analytics": false,
     "rss": true
+  },
+  "redirects": {
+    "description": "网站重定向配置",
+    "rules": [
+      {
+        "from": "/",
+        "to": "/home",
+        "type": "temporary",
+        "status": 302,
+        "description": "根路径重定向到首页"
+      }
+    ],
+    "external": [
+      {
+        "from": "/github",
+        "to": "https://github.com/fanmu",
+        "description": "GitHub 链接"
+      }
+    ],
+    "fallback": {
+      "enabled": true,
+      "target": "/home",
+      "description": "404 重定向到首页"
+    }
   }
 }

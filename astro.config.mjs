@@ -8,11 +8,6 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://your-blog-domain.com',
 
-  // 启用中间件
-  experimental: {
-    middleware: true,
-  },
-
   // 重定向配置 - 这是 Astro 的内置重定向功能
   redirects: {
     // 根路径重定向到 /home
@@ -20,17 +15,6 @@ export default defineConfig({
       status: 302, // 临时重定向
       destination: '/home'
     },
-
-    // 可以添加更多重定向规则
-    '/blog': '/react',
-    '/docs': '/react/开始学习',
-    '/guide': '/react/开始学习/environment-setup',
-
-    // 旧路径重定向到新路径
-    '/old-path': '/new-path',
-
-    // 支持动态重定向
-    '/user/[id]': '/profile/[id]',
 
     // 外部重定向
     '/github': 'https://github.com/fanmu',
@@ -67,4 +51,10 @@ export default defineConfig({
     // 生成静态文件时的配置
     assets: '_astro',
   },
+
+  // 输出配置
+  output: 'static', // 或者 'server' 如果你需要 SSR
+
+  // 如果需要中间件支持，可以添加这个（在较新版本的 Astro 中已默认启用）
+  // middleware: true, // 这在新版本中已不需要
 });

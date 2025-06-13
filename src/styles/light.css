@@ -1,0 +1,447 @@
+/* src/styles/light.css - 浅色模式样式配置 */
+
+/* 浅色模式是默认模式，所有变量已在 global.css 中定义 */
+/* 这里可以添加浅色模式的特殊样式覆盖 */
+
+:root {
+	/* ========== 浅色模式特有样式 ========== */
+
+	/* 特殊效果 - 玻璃态 */
+	--glass-bg: rgba(255, 255, 255, 0.8);
+	--glass-border: rgba(255, 255, 255, 0.2);
+	--glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+	/* 渐变背景 */
+	--gradient-primary: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+	--gradient-secondary: linear-gradient(135deg, #f5f5f5 0%, #e5e5e5 100%);
+	--gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+
+	/* 高亮色彩 */
+	--highlight-success: #10b981;
+	--highlight-warning: #f59e0b;
+	--highlight-error: #ef4444;
+	--highlight-info: #3b82f6;
+
+	/* 代码高亮 - 浅色主题 */
+	--code-keyword: #d73a49;
+	--code-string: #032f62;
+	--code-comment: #6a737d;
+	--code-function: #6f42c1;
+	--code-variable: #e36209;
+}
+
+/* ========== 浅色模式组件样式 ========== */
+
+/* Logo 特殊效果 */
+.logo-light {
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 卡片样式 */
+.card-light {
+	background: var(--gradient-card);
+	border: 1px solid var(--g-border-light);
+	box-shadow: var(--shadow-sm);
+}
+
+.card-light:hover {
+	box-shadow: var(--shadow-md);
+	transform: translateY(-2px);
+	transition: all var(--transition-normal);
+}
+
+/* 玻璃态效果 */
+.glass-light {
+	background: var(--glass-bg);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+	backdrop-filter: blur(12px);
+}
+
+/* 主菜单特殊样式 */
+.main-menu-light {
+	background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+	border: 1px solid #e2e8f0;
+}
+
+/* 子菜单激活状态 */
+.sub-menu-item-light.active {
+	background: linear-gradient(
+		135deg,
+		rgba(249, 115, 22, 0.05) 0%,
+		rgba(249, 115, 22, 0.1) 100%
+	);
+	border-left: 3px solid var(--color-primary);
+	position: relative;
+}
+
+.sub-menu-item-light.active::before {
+	content: "";
+	position: absolute;
+	left: -3px;
+	top: 0;
+	bottom: 0;
+	width: 3px;
+	background: var(--gradient-primary);
+	border-radius: 0 2px 2px 0;
+	box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+}
+
+/* 搜索框特殊效果 */
+.search-light {
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid #e2e8f0;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-light:focus {
+	background: rgba(255, 255, 255, 1);
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 按钮特殊效果 */
+.btn-primary-light {
+	background: var(--gradient-primary);
+	box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+.btn-primary-light:hover {
+	box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
+	transform: translateY(-1px);
+}
+
+.btn-primary-light:active {
+	transform: translateY(0);
+	box-shadow: 0 1px 2px rgba(249, 115, 22, 0.2);
+}
+
+/* 代码块浅色主题 */
+.code-light {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	color: #334155;
+}
+
+.code-block-light {
+	background: #f1f5f9;
+	border: 1px solid #cbd5e1;
+	color: #475569;
+}
+
+.code-block-light .hljs-keyword {
+	color: var(--code-keyword);
+}
+.code-block-light .hljs-string {
+	color: var(--code-string);
+}
+.code-block-light .hljs-comment {
+	color: var(--code-comment);
+}
+.code-block-light .hljs-function {
+	color: var(--code-function);
+}
+.code-block-light .hljs-variable {
+	color: var(--code-variable);
+}
+
+/* 引用块浅色样式 */
+.blockquote-light {
+	background: linear-gradient(
+		135deg,
+		rgba(249, 115, 22, 0.03) 0%,
+		rgba(249, 115, 22, 0.08) 100%
+	);
+	border-left: 4px solid var(--color-primary);
+	box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
+}
+
+/* 标签浅色样式 */
+.tag-light {
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	border: 1px solid #e2e8f0;
+	color: #475569;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tag-light:hover {
+	background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 表格浅色样式 */
+.table-light {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+}
+
+.table-light th {
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	border-bottom: 2px solid #cbd5e1;
+	color: #374151;
+}
+
+.table-light td {
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.table-light tr:hover {
+	background: rgba(249, 115, 22, 0.02);
+}
+
+/* 分割线浅色样式 */
+.divider-light {
+	border-color: #e2e8f0;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		#e2e8f0 50%,
+		transparent 100%
+	);
+}
+
+/* 警告框浅色样式 */
+.alert-success-light {
+	background: linear-gradient(
+		135deg,
+		rgba(16, 185, 129, 0.05) 0%,
+		rgba(16, 185, 129, 0.1) 100%
+	);
+	border-left: 4px solid var(--highlight-success);
+	color: #065f46;
+}
+
+.alert-warning-light {
+	background: linear-gradient(
+		135deg,
+		rgba(245, 158, 11, 0.05) 0%,
+		rgba(245, 158, 11, 0.1) 100%
+	);
+	border-left: 4px solid var(--highlight-warning);
+	color: #92400e;
+}
+
+.alert-error-light {
+	background: linear-gradient(
+		135deg,
+		rgba(239, 68, 68, 0.05) 0%,
+		rgba(239, 68, 68, 0.1) 100%
+	);
+	border-left: 4px solid var(--highlight-error);
+	color: #991b1b;
+}
+
+.alert-info-light {
+	background: linear-gradient(
+		135deg,
+		rgba(59, 130, 246, 0.05) 0%,
+		rgba(59, 130, 246, 0.1) 100%
+	);
+	border-left: 4px solid var(--highlight-info);
+	color: #1e40af;
+}
+
+/* 选择文本样式 */
+::selection {
+	background: rgba(249, 115, 22, 0.2);
+	color: #c2410c;
+}
+
+/* 焦点样式 */
+:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* 加载动画浅色版本 */
+.loading-light {
+	background: linear-gradient(-90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+	background-size: 400% 400%;
+	animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 0% 0%;
+	}
+	100% {
+		background-position: -200% 0%;
+	}
+}
+
+/* 工具提示浅色样式 */
+[data-tooltip-light]:hover::after {
+	background: rgba(0, 0, 0, 0.9);
+	color: white;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 面包屑特殊效果 */
+.breadcrumb-light {
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+/* 侧边栏特殊效果 */
+.sidebar-light {
+	background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+	border-right: 1px solid rgba(226, 232, 240, 0.8);
+	box-shadow: 2px 0 4px rgba(0, 0, 0, 0.02);
+}
+
+/* 主内容区特殊效果 */
+.main-content-light {
+	background: #ffffff;
+	position: relative;
+}
+
+.main-content-light::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgba(226, 232, 240, 0.6) 50%,
+		transparent 100%
+	);
+}
+
+/* 文章内容特殊样式 */
+.prose-light h1,
+.prose-light h2,
+.prose-light h3,
+.prose-light h4,
+.prose-light h5,
+.prose-light h6 {
+	color: #1a202c;
+	position: relative;
+}
+
+.prose-light h2::before {
+	content: "";
+	position: absolute;
+	left: -1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 4px;
+	height: 60%;
+	background: var(--gradient-primary);
+	border-radius: 2px;
+	opacity: 0;
+	transition: opacity var(--transition-normal);
+}
+
+.prose-light h2:hover::before {
+	opacity: 1;
+}
+
+/* 图片特殊效果 */
+.prose-light img {
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	transition: transform var(--transition-normal),
+		box-shadow var(--transition-normal);
+}
+
+.prose-light img:hover {
+	transform: scale(1.02);
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 链接特殊效果 */
+.prose-light a {
+	position: relative;
+	color: var(--color-primary);
+	text-decoration: none;
+}
+
+.prose-light a::after {
+	content: "";
+	position: absolute;
+	width: 0;
+	height: 2px;
+	bottom: -2px;
+	left: 0;
+	background: var(--gradient-primary);
+	transition: width var(--transition-normal);
+}
+
+.prose-light a:hover::after {
+	width: 100%;
+}
+
+/* 列表特殊样式 */
+.prose-light ul li {
+	position: relative;
+	padding-left: 1.5rem;
+}
+
+.prose-light ul li::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.6rem;
+	width: 6px;
+	height: 6px;
+	background: var(--color-primary);
+	border-radius: 50%;
+	transform: scale(0.8);
+	transition: transform var(--transition-fast);
+}
+
+.prose-light ul li:hover::before {
+	transform: scale(1);
+}
+
+/* 有序列表样式 */
+.prose-light ol {
+	counter-reset: list-counter;
+}
+
+.prose-light ol li {
+	counter-increment: list-counter;
+	position: relative;
+	padding-left: 2rem;
+}
+
+.prose-light ol li::before {
+	content: counter(list-counter);
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+	background: var(--gradient-primary);
+	color: white;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+/* 打印样式 */
+@media print {
+	.sidebar-light,
+	.breadcrumb-light {
+		display: none !important;
+	}
+
+	.main-content-light {
+		background: white !important;
+		box-shadow: none !important;
+	}
+
+	.prose-light * {
+		color: black !important;
+		background: white !important;
+	}
+}

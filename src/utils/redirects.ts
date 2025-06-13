@@ -1,4 +1,5 @@
-// src/utils/redirects.ts - 重定向工具函数
+// src/utils/redirects.ts - 更新后的重定向工具函数
+import { getCollection } from "astro:content";
 
 interface RedirectRule {
   from: string;
@@ -34,28 +35,8 @@ const defaultRedirectConfig: RedirectConfig = {
       status: 302,
       description: "根路径重定向到首页"
     },
-    {
-      from: "/blog",
-      to: "/react",
-      type: "permanent",
-      status: 301,
-      description: "旧博客路径"
-    },
-    {
-      from: "/docs",
-      to: "/react/开始学习",
-      type: "temporary",
-      status: 302,
-      description: "文档重定向"
-    }
   ],
-  external: [
-    {
-      from: "/github",
-      to: "https://github.com/fanmu",
-      description: "GitHub 链接"
-    }
-  ],
+  external: [],
   fallback: {
     enabled: true,
     target: "/home",
@@ -69,12 +50,21 @@ const defaultRedirectConfig: RedirectConfig = {
 export async function getRedirectConfig(): Promise<RedirectConfig> {
   try {
     // 尝试从配置文件加载
-    const configModule = await import('../content/config/redirects.json');
-    return configModule.default as unknown as RedirectConfig;
+    const configCollection = await getCollection('config');
+    const siteConfig = configCollection.find(entry => entry.id === 'site');
+
+    if (siteConfig?.data?.redirects) {
+      return {
+        rules: siteConfig.data.redirects.rules as RedirectRule[] || [],
+        external: siteConfig.data.redirects.external as ExternalRedirect[] || [],
+        fallback: siteConfig.data.redirects.fallback as RedirectConfig['fallback'] || defaultRedirectConfig.fallback
+      };
+    }
   } catch (error) {
-    console.log("使用默认重定向配置");
-    return defaultRedirectConfig;
+    console.log("使用默认重定向配置:", error);
   }
+
+  return defaultRedirectConfig;
 }
 
 /**

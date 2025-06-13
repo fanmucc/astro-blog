@@ -48,25 +48,46 @@ const config = defineCollection({
       url: z.string().url(),
       author: z.string(),
       lang: z.string().default('zh-CN'),
-    }),
+    }).optional(),
     // 主菜单配置
     mainMenu: z.array(z.object({
       label: z.string(),
       value: z.string(),
       icon: z.string().optional(),
       order: z.number().default(999),
-    })),
+    })).optional(),
     social: z.array(z.object({
       name: z.string(),
       href: z.string(),
       icon: z.string(),
-    })),
+    })).optional(),
     features: z.object({
       search: z.boolean().default(true),
       comments: z.boolean().default(false),
       analytics: z.boolean().default(false),
       rss: z.boolean().default(true),
-    }),
+    }).optional(),
+    // 重定向配置
+    redirects: z.object({
+      description: z.string().optional(),
+      rules: z.array(z.object({
+        from: z.string(),
+        to: z.string(),
+        type: z.enum(['permanent', 'temporary']).default('temporary'),
+        status: z.number().default(302),
+        description: z.string().optional(),
+      })).default([]),
+      external: z.array(z.object({
+        from: z.string(),
+        to: z.string(),
+        description: z.string().optional(),
+      })).default([]),
+      fallback: z.object({
+        enabled: z.boolean().default(true),
+        target: z.string().default('/home'),
+        description: z.string().optional(),
+      }).optional(),
+    }).optional(),
   }),
 });
 

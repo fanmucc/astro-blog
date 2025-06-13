@@ -1,3 +1,4 @@
+/* src/styles/global.css - 优化后的全局样式配置 */
 @import "tailwindcss";
 @import "./light.css";
 @import "./dark.css";
@@ -7,6 +8,140 @@
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 @theme {
+	/* ========== 全局变量定义 ========== */
+
+	/* 主色调 - Primary Colors */
+	--color-primary: #f97316;
+	--color-primary-hover: #ea580c;
+	--color-primary-light: #fed7aa;
+	--color-primary-dark: #c2410c;
+
+	/* 中性色调 - Neutral Colors */
+	--color-neutral-50: #fafafa;
+	--color-neutral-100: #f5f5f5;
+	--color-neutral-200: #e5e5e5;
+	--color-neutral-300: #d4d4d4;
+	--color-neutral-400: #a3a3a3;
+	--color-neutral-500: #737373;
+	--color-neutral-600: #525252;
+	--color-neutral-700: #404040;
+	--color-neutral-800: #262626;
+	--color-neutral-900: #171717;
+
+	/* ========== 语义化CSS变量 ========== */
+
+	/* 全局背景 - Global Backgrounds */
+	--g-bg: var(--color-neutral-50); /* 全局背景 */
+	--g-bg-secondary: #ffffff; /* 次要背景 */
+	--g-bg-tertiary: var(--color-neutral-100); /* 第三级背景 */
+
+	/* 全局文字 - Global Text */
+	--g-text-primary: var(--color-neutral-900); /* 主要文字 */
+	--g-text-secondary: var(--color-neutral-600); /* 次要文字 */
+	--g-text-tertiary: var(--color-neutral-500); /* 第三级文字 */
+	--g-text-muted: var(--color-neutral-400); /* 静音文字 */
+
+	/* 全局边框 - Global Borders */
+	--g-border: var(--color-neutral-200); /* 全局边框 */
+	--g-border-light: var(--color-neutral-100); /* 浅色边框 */
+	--g-border-dark: var(--color-neutral-300); /* 深色边框 */
+
+	/* 主导航区域 - Header Navigation */
+	--h-nav-bg: rgba(255, 255, 255, 0.8); /* 导航背景 */
+	--h-nav-border: var(--color-neutral-200); /* 导航边框 */
+	--h-nav-text: var(--color-neutral-900); /* 导航文字 */
+	--h-nav-text-hover: var(--color-primary); /* 导航文字悬停 */
+
+	/* 侧边栏 - Aside Sidebar */
+	--a-sidebar-bg: #ffffff; /* 侧边栏背景 */
+	--a-sidebar-border: var(--color-neutral-200); /* 侧边栏边框 */
+
+	/* 主菜单 - Aside Main Menu */
+	--a-main-bg: var(--color-neutral-50); /* 主菜单背景 */
+	--a-main-item-bg: transparent; /* 菜单项背景 */
+	--a-main-item-bg-hover: var(--color-neutral-100); /* 菜单项悬停背景 */
+	--a-main-item-bg-active: #ffffff; /* 菜单项激活背景 */
+	--a-main-item-text: var(--color-neutral-700); /* 菜单项文字 */
+	--a-main-item-text-hover: var(--color-neutral-900); /* 菜单项悬停文字 */
+	--a-main-item-text-active: var(--color-neutral-900); /* 菜单项激活文字 */
+	--a-main-icon: var(--color-primary); /* 菜单项图标 */
+	--a-main-icon-active: var(--color-primary); /* 菜单项激活图标 */
+
+	/* 子菜单 - Aside Sub Menu */
+	--a-sub-title: var(--color-neutral-500); /* 子菜单标题 */
+	--a-sub-item-bg: transparent; /* 子菜单项背景 */
+	--a-sub-item-bg-hover: var(--color-neutral-50); /* 子菜单项悬停背景 */
+	--a-sub-item-bg-active: rgba(249, 115, 22, 0.05); /* 子菜单项激活背景 */
+	--a-sub-item-text: var(--color-neutral-700); /* 子菜单项文字 */
+	--a-sub-item-text-hover: var(--color-neutral-900); /* 子菜单项悬停文字 */
+	--a-sub-item-text-active: #c2410c; /* 子菜单项激活文字 */
+	--a-sub-border: var(--color-neutral-200); /* 子菜单边框 */
+	--a-sub-border-active: var(--color-primary); /* 子菜单激活边框 */
+
+	/* 主内容区 - Main Content */
+	--m-content-bg: #ffffff; /* 内容背景 */
+	--m-content-text: var(--color-neutral-800); /* 内容文字 */
+	--m-content-heading: var(--color-neutral-900); /* 内容标题 */
+	--m-content-link: var(--color-primary); /* 内容链接 */
+	--m-content-link-hover: var(--color-primary-hover); /* 内容链接悬停 */
+	--m-content-border: var(--color-neutral-200); /* 内容边框 */
+
+	/* 面包屑 - Breadcrumb */
+	--b-crumb-bg: #ffffff; /* 面包屑背景 */
+	--b-crumb-text: var(--color-neutral-500); /* 面包屑文字 */
+	--b-crumb-text-current: var(--color-neutral-900); /* 面包屑当前文字 */
+	--b-crumb-text-hover: var(--color-neutral-700); /* 面包屑悬停文字 */
+	--b-crumb-border: var(--color-neutral-200); /* 面包屑边框 */
+
+	/* 搜索框 - Search Input */
+	--s-input-bg: var(--color-neutral-50); /* 搜索框背景 */
+	--s-input-border: var(--color-neutral-200); /* 搜索框边框 */
+	--s-input-border-focus: var(--color-primary); /* 搜索框聚焦边框 */
+	--s-input-text: var(--color-neutral-800); /* 搜索框文字 */
+	--s-input-placeholder: var(--color-neutral-400); /* 搜索框占位符 */
+
+	/* 按钮 - Buttons */
+	--btn-primary-bg: var(--color-primary); /* 主按钮背景 */
+	--btn-primary-bg-hover: var(--color-primary-hover); /* 主按钮悬停背景 */
+	--btn-primary-text: #ffffff; /* 主按钮文字 */
+	--btn-secondary-bg: var(--color-neutral-100); /* 次按钮背景 */
+	--btn-secondary-bg-hover: var(--color-neutral-200); /* 次按钮悬停背景 */
+	--btn-secondary-text: var(--color-neutral-700); /* 次按钮文字 */
+
+	/* 代码块 - Code Blocks */
+	--code-bg: var(--color-neutral-100); /* 行内代码背景 */
+	--code-text: var(--color-neutral-800); /* 行内代码文字 */
+	--code-block-bg: #1e293b; /* 代码块背景 */
+	--code-block-text: #e2e8f0; /* 代码块文字 */
+	--code-block-border: var(--color-neutral-200); /* 代码块边框 */
+
+	/* 引用块 - Blockquotes */
+	--quote-bg: rgba(249, 115, 22, 0.05); /* 引用背景 */
+	--quote-border: var(--color-primary); /* 引用边框 */
+	--quote-text: var(--color-neutral-700); /* 引用文字 */
+
+	/* 标签 - Tags */
+	--tag-bg: var(--color-neutral-100); /* 标签背景 */
+	--tag-text: var(--color-neutral-700); /* 标签文字 */
+	--tag-bg-hover: var(--color-neutral-200); /* 标签悬停背景 */
+
+	/* 滚动条 - Scrollbars */
+	--scroll-track: var(--color-neutral-100); /* 滚动条轨道 */
+	--scroll-thumb: var(--color-neutral-300); /* 滚动条滑块 */
+	--scroll-thumb-hover: var(--color-neutral-400); /* 滚动条滑块悬停 */
+	--scroll-main-track: rgba(243, 244, 246, 0.5); /* 主内容滚动条轨道 */
+	--scroll-main-thumb: rgba(249, 115, 22, 0.8); /* 主内容滚动条滑块 */
+	--scroll-main-thumb-hover: var(--color-primary); /* 主内容滚动条滑块悬停 */
+
+	/* 阴影 - Shadows */
+	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* 小阴影 */
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1); /* 中等阴影 */
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); /* 大阴影 */
+
+	/* 过渡动画 - Transitions */
+	--transition-fast: 0.15s ease-in-out; /* 快速过渡 */
+	--transition-normal: 0.2s ease-in-out; /* 普通过渡 */
+	--transition-slow: 0.3s ease-in-out; /* 慢速过渡 */
 }
 
 @layer base {
@@ -16,37 +151,226 @@
 	}
 
 	body {
-		@apply bg-gray-50 text-gray-900 transition-colors duration-300 m-0;
-		@apply dark:bg-gray-900 dark:text-gray-100;
+		background-color: var(--g-bg);
+		color: var(--g-text-primary);
+		transition: background-color var(--transition-normal),
+			color var(--transition-normal);
+		margin: 0;
+	}
+
+	/* 标题样式 */
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--g-text-primary);
+		font-weight: 600;
+	}
+
+	/* 链接样式 */
+	a {
+		color: var(--m-content-link);
+		transition: color var(--transition-fast);
+	}
+
+	a:hover {
+		color: var(--m-content-link-hover);
+	}
+
+	/* 代码字体 */
+	code,
+	pre {
+		font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace !important;
+	}
+}
+
+@layer components {
+	/* ========== 布局组件 ========== */
+
+	/* 主导航样式 */
+	.header-nav {
+		background-color: var(--h-nav-bg);
+		border-color: var(--h-nav-border);
+		backdrop-filter: blur(12px);
+	}
+
+	.header-nav-text {
+		color: var(--h-nav-text);
+		transition: color var(--transition-fast);
+	}
+
+	.header-nav-text:hover {
+		color: var(--h-nav-text-hover);
+	}
+
+	/* 侧边栏样式 */
+	.sidebar {
+		background-color: var(--a-sidebar-bg);
+		border-color: var(--a-sidebar-border);
+	}
+
+	/* 主菜单容器 */
+	.main-menu {
+		background-color: var(--a-main-bg);
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+	}
+
+	/* 主菜单项 */
+	.main-menu-item {
+		background-color: var(--a-main-item-bg);
+		color: var(--a-main-item-text);
+		transition: all var(--transition-normal);
+		border-radius: 0.5rem;
+		padding: 0.625rem 0.75rem;
+	}
+
+	.main-menu-item:hover {
+		background-color: var(--a-main-item-bg-hover);
+		color: var(--a-main-item-text-hover);
+	}
+
+	.main-menu-item.active {
+		background-color: var(--a-main-item-bg-active);
+		color: var(--a-main-item-text-active);
+		box-shadow: var(--shadow-sm);
+	}
+
+	.main-menu-icon {
+		color: var(--a-main-icon);
+	}
+
+	.main-menu-item.active .main-menu-icon {
+		color: var(--a-main-icon-active);
+	}
+
+	/* 子菜单样式 */
+	.sub-menu-title {
+		color: var(--a-sub-title);
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.sub-menu-item {
+		background-color: var(--a-sub-item-bg);
+		color: var(--a-sub-item-text);
+		transition: all var(--transition-normal);
+		border-radius: 0.375rem;
+		margin-bottom: 0.125rem;
+	}
+
+	.sub-menu-item:hover {
+		background-color: var(--a-sub-item-bg-hover);
+		color: var(--a-sub-item-text-hover);
+	}
+
+	.sub-menu-item.active {
+		background-color: var(--a-sub-item-bg-active);
+		color: var(--a-sub-item-text-active);
+		font-weight: 500;
+	}
+
+	.sub-menu-border {
+		border-color: var(--a-sub-border);
+		transition: border-color var(--transition-normal);
+	}
+
+	.sub-menu-item.active .sub-menu-border {
+		border-color: var(--a-sub-border-active);
+		border-width: 2px;
+		box-shadow: 0 0 6px rgba(249, 115, 22, 0.3);
+	}
+
+	/* 主内容区样式 */
+	.main-content {
+		background-color: var(--m-content-bg);
+	}
+
+	/* 面包屑样式 */
+	.breadcrumb {
+		background-color: var(--b-crumb-bg);
+		border-color: var(--b-crumb-border);
+	}
+
+	.breadcrumb-text {
+		color: var(--b-crumb-text);
+		transition: color var(--transition-fast);
+	}
+
+	.breadcrumb-text:hover {
+		color: var(--b-crumb-text-hover);
+	}
+
+	.breadcrumb-current {
+		color: var(--b-crumb-text-current);
+	}
+
+	/* 搜索框样式 */
+	.search-input {
+		background-color: var(--s-input-bg);
+		border-color: var(--s-input-border);
+		color: var(--s-input-text);
+		transition: border-color var(--transition-fast);
+	}
+
+	.search-input:focus {
+		border-color: var(--s-input-border-focus);
+		box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+	}
+
+	.search-input::placeholder {
+		color: var(--s-input-placeholder);
+	}
+
+	/* 按钮样式 */
+	.btn-primary {
+		background-color: var(--btn-primary-bg);
+		color: var(--btn-primary-text);
+		transition: background-color var(--transition-fast);
+	}
+
+	.btn-primary:hover {
+		background-color: var(--btn-primary-bg-hover);
+	}
+
+	.btn-secondary {
+		background-color: var(--btn-secondary-bg);
+		color: var(--btn-secondary-text);
+		transition: background-color var(--transition-fast);
+	}
+
+	.btn-secondary:hover {
+		background-color: var(--btn-secondary-bg-hover);
 	}
 }
 
 @layer utilities {
-	/* 文本截断工具类 */
-	.line-clamp-2 {
+	/* ========== 文本工具类 ========== */
+
+	.text-truncate-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
 
-	.line-clamp-3 {
+	.text-truncate-3 {
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
 
-	/* 滚动条样式 - 移到 utilities 层以获得更高优先级 */
+	/* ========== 滚动条样式 ========== */
 
 	/* 全局滚动条基础样式 */
 	* {
 		scrollbar-width: thin;
-		scrollbar-color: rgb(209 213 219) rgb(249 250 251);
-	}
-
-	.dark * {
-		scrollbar-color: rgb(75 85 99) rgb(17 24 39);
+		scrollbar-color: var(--scroll-thumb) var(--scroll-track);
 	}
 
 	/* WebKit 滚动条样式 */
@@ -56,47 +380,26 @@
 	}
 
 	*::-webkit-scrollbar-track {
-		background: rgb(249 250 251);
+		background: var(--scroll-track);
 		border-radius: 3px;
 	}
 
 	*::-webkit-scrollbar-thumb {
-		background: rgb(209 213 219);
+		background: var(--scroll-thumb);
 		border-radius: 3px;
 		border: none;
 		background-clip: content-box;
-		transition: background-color 0.2s ease;
+		transition: background-color var(--transition-normal);
 	}
 
 	*::-webkit-scrollbar-thumb:hover {
-		background: rgb(156 163 175);
-	}
-
-	*::-webkit-scrollbar-thumb:active {
-		background: rgb(107 114 128);
-	}
-
-	/* 暗色模式 */
-	.dark *::-webkit-scrollbar-track {
-		background: rgb(17 24 39);
-	}
-
-	.dark *::-webkit-scrollbar-thumb {
-		background: rgb(75 85 99);
-	}
-
-	.dark *::-webkit-scrollbar-thumb:hover {
-		background: rgb(107 114 128);
-	}
-
-	.dark *::-webkit-scrollbar-thumb:active {
-		background: rgb(156 163 175);
+		background: var(--scroll-thumb-hover);
 	}
 
 	/* 侧边栏滚动条 - 非常细 */
 	.sidebar-scroll {
 		scrollbar-width: thin;
-		scrollbar-color: rgb(209 213 219 / 0.7) transparent;
+		scrollbar-color: rgba(156, 163, 175, 0.7) transparent;
 		scroll-behavior: smooth;
 		scroll-padding-top: 1rem;
 	}
@@ -110,81 +413,45 @@
 	}
 
 	.sidebar-scroll::-webkit-scrollbar-thumb {
-		background: rgb(209 213 219 / 0.7);
+		background: rgba(156, 163, 175, 0.7);
 		border-radius: 2px;
 		border: none;
 		background-clip: content-box;
 	}
 
 	.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-		background: rgb(156 163 175 / 0.9);
-	}
-
-	.dark .sidebar-scroll {
-		scrollbar-color: rgb(75 85 99 / 0.7) transparent;
-	}
-
-	.dark .sidebar-scroll::-webkit-scrollbar-thumb {
-		background: rgb(75 85 99 / 0.7);
-	}
-
-	.dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-		background: rgb(107 114 128 / 0.9);
+		background: rgba(107, 114, 128, 0.9);
 	}
 
 	/* 主内容区滚动条 - 橙色主题，细线条 */
-	.main-content {
+	.main-content-scroll {
 		scrollbar-width: thin;
-		scrollbar-color: rgb(251 146 60 / 0.7) rgb(243 244 246 / 0.5);
+		scrollbar-color: var(--scroll-main-thumb) var(--scroll-main-track);
 		scroll-behavior: smooth;
 		scroll-padding-top: 2rem;
 	}
 
-	.main-content::-webkit-scrollbar {
+	.main-content-scroll::-webkit-scrollbar {
 		width: 6px;
 	}
 
-	.main-content::-webkit-scrollbar-track {
-		background: rgb(243 244 246 / 0.5);
+	.main-content-scroll::-webkit-scrollbar-track {
+		background: var(--scroll-main-track);
 		border-radius: 3px;
 		margin: 4px 0;
 	}
 
-	.main-content::-webkit-scrollbar-thumb {
-		background: rgb(251 146 60 / 0.8);
+	.main-content-scroll::-webkit-scrollbar-thumb {
+		background: var(--scroll-main-thumb);
 		border-radius: 3px;
 		border: none;
 		background-clip: content-box;
-		transition: all 0.2s ease;
+		transition: all var(--transition-normal);
 	}
 
-	.main-content::-webkit-scrollbar-thumb:hover {
-		background: rgb(251 146 60);
+	.main-content-scroll::-webkit-scrollbar-thumb:hover {
+		background: var(--scroll-main-thumb-hover);
 		transform: scaleX(1.1);
-	}
-
-	.main-content::-webkit-scrollbar-thumb:active {
-		background: rgb(249 115 22);
-	}
-
-	.dark .main-content {
-		scrollbar-color: rgb(234 88 12 / 0.7) rgb(31 41 55 / 0.5);
-	}
-
-	.dark .main-content::-webkit-scrollbar-track {
-		background: rgb(31 41 55 / 0.5);
-	}
-
-	.dark .main-content::-webkit-scrollbar-thumb {
-		background: rgb(234 88 12 / 0.8);
-	}
-
-	.dark .main-content::-webkit-scrollbar-thumb:hover {
-		background: rgb(234 88 12);
-	}
-
-	.dark .main-content::-webkit-scrollbar-thumb:active {
-		background: rgb(194 65 12);
 	}
 
 	/* 平滑滚动增强 */
@@ -199,12 +466,60 @@
 			width: 3px;
 		}
 
-		.main-content::-webkit-scrollbar {
+		.main-content-scroll::-webkit-scrollbar {
 			width: 4px;
 		}
 
 		.sidebar-scroll::-webkit-scrollbar {
 			width: 2px;
 		}
+	}
+
+	/* ========== 动画工具类 ========== */
+
+	.animate-fade-in {
+		animation: fadeIn var(--transition-normal) ease-in-out;
+	}
+
+	.animate-slide-in {
+		animation: slideIn var(--transition-normal) ease-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+}
+
+/* ========== 媒体查询 ========== */
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+@media (prefers-contrast: high) {
+	:root {
+		--g-text-secondary: var(--g-text-primary);
+		--g-text-tertiary: var(--g-text-primary);
 	}
 }
