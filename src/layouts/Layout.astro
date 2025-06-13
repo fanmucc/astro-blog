@@ -154,11 +154,11 @@ const socialImage = new URL(image, Astro.site);
 			// 监听滚动事件
 			window.addEventListener("scroll", () => {
 				if (window.pageYOffset > 300) {
-					backToTopButton.classList.remove("translate-y-20", "opacity-0");
-					backToTopButton.classList.add("translate-y-0", "opacity-100");
+					backToTopButton?.classList.remove("translate-y-20", "opacity-0");
+					backToTopButton?.classList.add("translate-y-0", "opacity-100");
 				} else {
-					backToTopButton.classList.add("translate-y-20", "opacity-0");
-					backToTopButton.classList.remove("translate-y-0", "opacity-100");
+					backToTopButton?.classList.add("translate-y-20", "opacity-0");
+					backToTopButton?.classList.remove("translate-y-0", "opacity-100");
 				}
 			});
 
@@ -177,7 +177,7 @@ const socialImage = new URL(image, Astro.site);
 					e.preventDefault();
 					const searchInput = document.querySelector('input[type="search"]');
 					if (searchInput) {
-						searchInput.focus();
+						(searchInput as HTMLInputElement).focus();
 					}
 				}
 
@@ -203,7 +203,7 @@ const socialImage = new URL(image, Astro.site);
 					entries.forEach((entry) => {
 						if (entry.isIntersecting) {
 							const img = entry.target;
-							if (img.dataset.src) {
+							if (img instanceof HTMLImageElement && img.dataset.src) {
 								img.src = img.dataset.src;
 								img.removeAttribute("data-src");
 								img.classList.remove("blur-sm");
@@ -221,7 +221,10 @@ const socialImage = new URL(image, Astro.site);
 
 			// 外部链接处理
 			document.querySelectorAll('a[href^="http"]').forEach((link) => {
-				if (!link.href.startsWith(window.location.origin)) {
+				if (
+					link instanceof HTMLAnchorElement &&
+					!link.href.startsWith(window.location.origin)
+				) {
 					link.setAttribute("target", "_blank");
 					link.setAttribute("rel", "noopener noreferrer");
 				}
@@ -246,7 +249,7 @@ const socialImage = new URL(image, Astro.site);
 
 					button.addEventListener("click", async () => {
 						try {
-							await navigator.clipboard.writeText(code.textContent);
+							await navigator.clipboard.writeText(code.textContent || "");
 							button.innerHTML = `
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -280,8 +283,8 @@ const socialImage = new URL(image, Astro.site);
 				const clsObserver = new PerformanceObserver((list) => {
 					let clsValue = 0;
 					for (const entry of list.getEntries()) {
-						if (!entry.hadRecentInput) {
-							clsValue += entry.value;
+						if ("value" in entry) {
+							clsValue += (entry as any).value;
 						}
 					}
 					console.log("CLS:", clsValue);

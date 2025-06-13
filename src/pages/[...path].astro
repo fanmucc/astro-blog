@@ -1,7 +1,13 @@
 ---
+// 修复后的 src/pages/[...path].astro
 import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
-import { buildMenuTree, getPageByPath, type PageEntry } from "../utils/menu";
+import {
+	buildMenuTree,
+	getPageByPath,
+	type PageEntry,
+	findMenuItemByPath,
+} from "../utils/menu";
 
 export async function getStaticPaths() {
 	// 获取所有发布的页面
@@ -12,26 +18,65 @@ export async function getStaticPaths() {
 		}
 	);
 
-	return pages.map((page: PageEntry) => {
+	console.log("生成静态路径，总页面数:", pages.length);
+
+	const paths = [];
+
+	for (const page of pages) {
 		const pathParts = page.slug.split("/");
-		let path: string;
+		console.log(`处理页面: ${page.slug}, 路径分段:`, pathParts);
 
-		if (pathParts.length === 2 && pathParts[1] === "index") {
+		if (pathParts.length === 1) {
+			// 单层页面，如 home -> /home
+			const path = pathParts[0];
+			paths.push({
+				params: { path },
+				props: { page },
+			});
+			console.log(`添加单层页面路径: /${path}`);
+		} else if (pathParts.length === 2 && pathParts[1] === "index") {
 			// 主菜单的index页面，如 home/index -> /home
-			path = pathParts[0];
+			const path = pathParts[0];
+			paths.push({
+				params: { path },
+				props: { page },
+			});
+			console.log(`添加主菜单index路径: /${path}`);
+		} else if (pathParts.length === 2 && pathParts[1] !== "index") {
+			// 二层页面，如 react/start -> /react/start
+			const path = `${pathParts[0]}/${pathParts[1]}`;
+			paths.push({
+				params: { path },
+				props: { page },
+			});
+			console.log(`添加二层页面路径: /${path}`);
 		} else if (pathParts.length === 3 && pathParts[2] === "index") {
-			// 子菜单的index页面，如 react/开始学习/index -> /react/开始学习
-			path = `${pathParts[0]}/${pathParts[1]}`;
-		} else {
-			// 普通页面，如 react/开始学习/环境搭建 -> /react/开始学习/环境搭建
-			path = page.slug;
+			// 子菜单的index页面，如 react/start/index -> /react/start
+			const path = `${pathParts[0]}/${pathParts[1]}`;
+			paths.push({
+				params: { path },
+				props: { page },
+			});
+			console.log(`添加子菜单index路径: /${path}`);
+		} else if (pathParts.length === 3 && pathParts[2] !== "index") {
+			// 具体页面，需要处理 pageName
+			const pageName = page.data.pageName || pathParts[2];
+			const path = `${pathParts[0]}/${pathParts[1]}/${pageName}`;
+			paths.push({
+				params: { path },
+				props: { page },
+			});
+			console.log(
+				`添加页面路径: /${path} (原文件: ${page.slug}, pageName: ${page.data.pageName})`
+			);
 		}
+	}
 
-		return {
-			params: { path },
-			props: { page },
-		};
-	});
+	console.log(
+		"生成的所有路径:",
+		paths.map((p) => `/${p.params.path}`)
+	);
+	return paths;
 }
 
 type Props = {
@@ -53,6 +98,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
+	<!-- 页面结构保持不变，只修复了路径生成逻辑 -->
 	<div class='h-screen bg-white dark:bg-gray-900 m-0 overflow-hidden'>
 		<!-- 顶部导航 -->
 		<header
@@ -339,7 +385,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 															</span>
 														</a>
 
-														{hasChildren && isActive && (
+														{hasChildren && isActive && subItem.children && (
 															<div class='section-children relative block ml-3'>
 																<div class='absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700' />
 																{subItem.children.map((childItem) => (
@@ -532,51 +578,6 @@ const seoDescription = page.data.seoDescription || page.data.description;
 				return null;
 			}
 			return searchMenu(menuTree);
-		}
-
-		// 搜索功能
-		const searchInput = document.getElementById("global-search");
-		let searchTimeout;
-
-		// 键盘快捷键
-		document.addEventListener("keydown", (e) => {
-			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-				e.preventDefault();
-				searchInput?.focus();
-			}
-
-			if (e.key === "Escape") {
-				searchInput?.blur();
-			}
-		});
-
-		// 搜索输入处理
-		searchInput?.addEventListener("input", (e) => {
-			clearTimeout(searchTimeout);
-			const query = e.target.value.trim();
-
-			searchTimeout = setTimeout(() => {
-				if (query.length > 0) {
-					performSearch(query);
-				}
-			}, 300);
-		});
-
-		// 执行搜索
-		async function performSearch(query) {
-			try {
-				const response = await fetch(
-					`/api/search?q=${encodeURIComponent(query)}`
-				);
-				const results = await response.json();
-
-				if (results.length > 0) {
-					// 跳转到第一个搜索结果
-					window.location.href = results[0].path;
-				}
-			} catch (error) {
-				console.error("搜索出错:", error);
-			}
 		}
 
 		// 初始化
