@@ -1,10 +1,9 @@
+// 完整的 src/utils/menu.ts 文件
 import { getCollection, type CollectionEntry } from 'astro:content';
-import path from 'path';
 
 export type PageEntry = CollectionEntry<'pages'>;
-export type ConfigEntry = CollectionEntry<'config'>;
 
-// 菜单项接口
+// 菜单项接口 - 添加 pageSlug 字段
 export interface MenuItem {
   label: string;
   value: string;
@@ -14,6 +13,7 @@ export interface MenuItem {
   children?: MenuItem[];
   hasIndex: boolean;
   indexContent?: PageEntry;
+  pageSlug?: string; // 新增：原始文件 slug，用于查找文件
 }
 
 // 主菜单配置接口
@@ -28,31 +28,35 @@ export interface MainMenuConfig {
  * 获取主菜单配置
  */
 export async function getMainMenuConfig(): Promise<MainMenuConfig[]> {
-  const configCollection = await getCollection('config');
-  const siteConfig = configCollection.find((entry: ConfigEntry) => entry.id === 'site');
+  try {
+    const configCollection = await getCollection('config');
+    const siteConfig = configCollection.find(entry => entry.id === 'site');
 
-  if (!siteConfig?.data.mainMenu) {
-    // 默认主菜单配置
-    return [
-      { label: '首页', value: 'home', icon: 'home', order: 1 },
-      { label: 'React', value: 'react', icon: 'react', order: 2 },
-      { label: 'Vue', value: 'vue', icon: 'vue', order: 3 },
-      { label: 'Next.js', value: 'next', icon: 'next', order: 4 },
-    ];
+    if (siteConfig?.data.mainMenu) {
+      return siteConfig.data.mainMenu.sort((a, b) => a.order - b.order);
+    }
+  } catch (error) {
+    console.log("无法加载配置文件，使用默认主菜单配置");
   }
 
-  return siteConfig.data.mainMenu.sort((a: MainMenuConfig, b: MainMenuConfig) => a.order - b.order);
+  // 默认主菜单配置
+  return [
+    { label: '首页', value: 'home', icon: 'home', order: 1 },
+    { label: 'React', value: 'react', icon: 'react', order: 2 },
+    { label: 'Vue', value: 'vue', icon: 'vue', order: 3 },
+    { label: 'Next.js', value: 'next', icon: 'next', order: 4 },
+  ];
 }
 
 /**
  * 获取所有发布的页面
  */
 export async function getAllPublishedPages(): Promise<PageEntry[]> {
-  const pages = await getCollection('pages', ({ data }: { data: PageEntry['data'] }) => {
+  const pages = await getCollection('pages', ({ data }) => {
     return data.published && !data.draft;
   });
 
-  return pages.sort((a: PageEntry, b: PageEntry) => a.data.order - b.data.order);
+  return pages.sort((a, b) => a.data.order - b.data.order);
 }
 
 /**
@@ -64,11 +68,18 @@ export async function getPageByPath(pagePath: string): Promise<PageEntry | null>
 }
 
 /**
- * 构建菜单树结构
+ * 获取主菜单配置
  */
 export async function buildMenuTree(): Promise<MenuItem[]> {
   const mainMenuConfig = await getMainMenuConfig();
   const allPages = await getAllPublishedPages();
+
+  console.log("构建菜单树 - 总页面数:", allPages.length);
+  console.log("构建菜单树 - 所有页面:", allPages.map(p => ({
+    slug: p.slug,
+    title: p.data.title,
+    pageName: p.data.pageName
+  })));
 
   const menuTree: MenuItem[] = [];
 
@@ -89,7 +100,9 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
       return pathParts[0] === mainConfig.value;
     });
 
-    // 检查是否有index页面
+    console.log(`主菜单 ${mainConfig.value} 的页面:`, menuPages.map(p => p.slug));
+
+    // 检查是否有主菜单的 index 页面 (如 react/index.md)
     const indexPage = menuPages.find(page => {
       const pathParts = page.slug.split('/');
       return pathParts.length === 2 && pathParts[1] === 'index';
@@ -98,225 +111,115 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
     if (indexPage) {
       menuItem.hasIndex = true;
       menuItem.indexContent = indexPage;
+      menuItem.pageSlug = indexPage.slug;
+      console.log(`主菜单 ${mainConfig.value} 有 index 页面:`, indexPage.slug);
     }
 
-    // 构建子菜单
+    // 构建子菜单 - 根据你的文件结构调整
     const subMenus = new Map<string, MenuItem>();
 
     menuPages.forEach(page => {
       const pathParts = page.slug.split('/');
+      console.log(`处理页面: ${page.slug}, 路径分段:`, pathParts, `pageName: ${page.data.pageName}`);
 
+      // 跳过主菜单的 index 页面
       if (pathParts.length === 2 && pathParts[1] === 'index') {
-        // 跳过index页面，已经处理过了
         return;
       }
 
-      if (pathParts.length === 2) {
-        // 二级页面（直接子页面）
-        const subMenuItem: MenuItem = {
-          label: page.data.menuLabel || page.data.title,
-          value: pathParts[1],
-          path: `/${page.slug}`,
-          order: page.data.order,
-          children: [],
-          hasIndex: false,
-        };
+      if (pathParts.length === 3) {
+        // 这是三级结构：react/开始学习/index.md 或 react/开始学习/环境搭建.md
+        const subMenuKey = pathParts[1]; // "开始学习"
+        const fileName = pathParts[2]; // "index" 或 "环境搭建"
+        const isIndex = fileName === 'index';
 
-        if (page.data.showInMenu) {
-          subMenus.set(pathParts[1], subMenuItem);
-        }
-      } else if (pathParts.length === 3) {
-        // 三级页面（子菜单的子页面）
-        const parentKey = pathParts[1];
-        const isIndex = pathParts[2] === 'index';
+        console.log(`处理三级页面: subMenuKey=${subMenuKey}, fileName=${fileName}, isIndex=${isIndex}`);
 
-        if (!subMenus.has(parentKey)) {
-          // 创建父级菜单项
-          const parentMenuItem: MenuItem = {
-            label: parentKey.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
-            value: parentKey,
-            path: `/${pathParts[0]}/${parentKey}`,
-            order: 999, // 默认排序
+        // 如果这个子菜单还不存在，创建它
+        if (!subMenus.has(subMenuKey)) {
+          const subMenuItem: MenuItem = {
+            label: subMenuKey, // 临时使用目录名，如果有 index 会被覆盖
+            value: subMenuKey,
+            path: `/${pathParts[0]}/${subMenuKey}`,
+            order: 999, // 默认排序，如果有 index 会被覆盖
             children: [],
             hasIndex: false,
           };
-          subMenus.set(parentKey, parentMenuItem);
+          subMenus.set(subMenuKey, subMenuItem);
+
+          console.log(`创建子菜单分组:`, {
+            label: subMenuItem.label,
+            path: subMenuItem.path,
+            value: subMenuItem.value
+          });
         }
 
-        const parentItem = subMenus.get(parentKey)!;
+        const subMenuItem = subMenus.get(subMenuKey)!;
 
         if (isIndex) {
-          // 这是父级的index页面
-          parentItem.hasIndex = true;
-          parentItem.indexContent = page;
-          parentItem.label = page.data.menuLabel || page.data.title;
-          parentItem.order = page.data.order;
+          // 这是子菜单的 index 页面 (如 react/开始学习/index.md)
+          subMenuItem.hasIndex = true;
+          subMenuItem.indexContent = page;
+          subMenuItem.label = page.data.menuLabel || page.data.title;
+          subMenuItem.order = page.data.order;
+          subMenuItem.pageSlug = page.slug;
+
+          console.log(`更新子菜单分组为 index:`, {
+            label: subMenuItem.label,
+            path: subMenuItem.path,
+            pageSlug: subMenuItem.pageSlug
+          });
         } else {
-          // 这是子页面
+          // 这是子菜单下的具体页面 (如 react/开始学习/环境搭建.md)
           if (page.data.showInMenu) {
+            const pageName = page.data.pageName || fileName;
             const childItem: MenuItem = {
               label: page.data.menuLabel || page.data.title,
-              value: pathParts[2],
-              path: `/${page.slug}`,
+              value: pageName,
+              path: `/${pathParts[0]}/${subMenuKey}/${pageName}`,
               order: page.data.order,
               children: [],
               hasIndex: false,
+              pageSlug: page.slug, // 保存原始 slug: "react/开始学习/环境搭建"
             };
-            parentItem.children!.push(childItem);
+
+            subMenuItem.children!.push(childItem);
+
+            console.log(`创建子页面:`, {
+              label: childItem.label,
+              path: childItem.path, // /react/开始学习/environment-setup
+              pageSlug: childItem.pageSlug, // react/开始学习/环境搭建
+              pageName: pageName,
+              originalFileName: fileName
+            });
           }
         }
       }
     });
 
-    // 将子菜单添加到主菜单项
+    // 将子菜单添加到主菜单项，并排序
     menuItem.children = Array.from(subMenus.values())
-      .sort((a: MenuItem, b: MenuItem) => a.order - b.order)
-      .map((item: MenuItem) => ({
+      .sort((a, b) => a.order - b.order)
+      .map(item => ({
         ...item,
-        children: item.children?.sort((a: MenuItem, b: MenuItem) => a.order - b.order) || []
+        children: item.children?.sort((a, b) => a.order - b.order) || []
       }));
+
+    console.log(`主菜单 ${mainConfig.value} 的最终子菜单:`, menuItem.children.map(child => ({
+      label: child.label,
+      path: child.path,
+      pageSlug: child.pageSlug,
+      hasIndex: child.hasIndex,
+      hasChildren: child.children && child.children.length > 0,
+      children: child.children?.map(grandChild => ({
+        label: grandChild.label,
+        path: grandChild.path,
+        pageSlug: grandChild.pageSlug
+      }))
+    })));
 
     menuTree.push(menuItem);
   }
 
   return menuTree.sort((a, b) => a.order - b.order);
-}
-
-/**
- * 根据路径查找菜单项
- */
-export function findMenuItemByPath(menuTree: MenuItem[], targetPath: string): MenuItem | null {
-  function searchMenu(items: MenuItem[]): MenuItem | null {
-    for (const item of items) {
-      if (item.path === targetPath) {
-        return item;
-      }
-      if (item.children && item.children.length > 0) {
-        const found = searchMenu(item.children);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  return searchMenu(menuTree);
-}
-
-/**
- * 获取当前路径的面包屑导航
- */
-export function getBreadcrumbs(menuTree: MenuItem[], currentPath: string): MenuItem[] {
-  const breadcrumbs: MenuItem[] = [];
-
-  function findPath(items: MenuItem[], path: string, currentBreadcrumbs: MenuItem[]): boolean {
-    for (const item of items) {
-      const newBreadcrumbs = [...currentBreadcrumbs, item];
-
-      if (item.path === path) {
-        breadcrumbs.push(...newBreadcrumbs);
-        return true;
-      }
-
-      if (item.children && item.children.length > 0) {
-        if (findPath(item.children, path, newBreadcrumbs)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  findPath(menuTree, currentPath, []);
-  return breadcrumbs;
-}
-
-/**
- * 获取菜单的展开状态
- */
-export function getExpandedMenus(menuTree: MenuItem[], currentPath: string): Set<string> {
-  const expandedMenus = new Set<string>();
-
-  function markExpanded(items: MenuItem[], path: string): boolean {
-    for (const item of items) {
-      if (item.path === path) {
-        return true;
-      }
-
-      if (item.children && item.children.length > 0) {
-        if (markExpanded(item.children, path)) {
-          expandedMenus.add(item.value);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  markExpanded(menuTree, currentPath);
-  return expandedMenus;
-}
-
-/**
- * 格式化日期
- */
-export function formatDate(date: Date, locale: string = 'zh-CN'): string {
-  return date.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-/**
- * 生成页面 slug
- */
-export function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-/**
- * 检查路径是否激活
- */
-export function isPathActive(currentPath: string, menuPath: string): boolean {
-  if (currentPath === menuPath) return true;
-
-  // 检查是否是子路径
-  const normalizedCurrent = currentPath.replace(/\/$/, '') || '/';
-  const normalizedMenu = menuPath.replace(/\/$/, '') || '/';
-
-  return normalizedCurrent.startsWith(normalizedMenu + '/');
-}
-
-/**
- * 获取相邻页面（上一页/下一页）
- */
-export function getAdjacentPages(menuTree: MenuItem[], currentPath: string): {
-  prev: MenuItem | null;
-  next: MenuItem | null;
-} {
-  const flatPages: MenuItem[] = [];
-
-  function flattenMenu(items: MenuItem[]) {
-    for (const item of items) {
-      if (item.hasIndex || !item.children?.length) {
-        flatPages.push(item);
-      }
-      if (item.children && item.children.length > 0) {
-        flattenMenu(item.children);
-      }
-    }
-  }
-
-  flattenMenu(menuTree);
-
-  const currentIndex = flatPages.findIndex(page => page.path === currentPath);
-
-  return {
-    prev: currentIndex > 0 ? flatPages[currentIndex - 1] : null,
-    next: currentIndex < flatPages.length - 1 ? flatPages[currentIndex + 1] : null,
-  };
 }

@@ -7,7 +7,7 @@ published: true
 createdAt: 2024-01-03
 author: "Fanmu"
 tags: ["React", "入门", "环境搭建"]
-showInMenu: true
+showInMenu: false
 menuLabel: "开始学习"
 ---
 

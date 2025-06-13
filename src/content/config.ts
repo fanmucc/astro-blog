@@ -6,6 +6,8 @@ const pages = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    // 新增：页面路径名称（用于 URL，如果不提供则使用文件名）
+    pageName: z.string().optional(),
     // 排序字段，数字越小越靠前
     order: z.number().default(999),
     // 草稿状态

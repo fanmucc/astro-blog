@@ -404,21 +404,73 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 			return searchMenu(menuTree);
 		}
 
+		function simpleMarkdownToHtml(markdown) {
+			if (typeof marked !== "undefined") {
+				return marked(markdown);
+			}
+
+			// 简化的 markdown 处理
+			return markdown
+				.replace(/^### (.*$)/gim, "<h3>$1</h3>")
+				.replace(/^## (.*$)/gim, "<h2>$1</h2>")
+				.replace(/^# (.*$)/gim, "<h1>$1</h1>")
+				.replace(/\*\*(.*)\*\*/gim, "<strong>$1</strong>")
+				.replace(/\*(.*)\*/gim, "<em>$1</em>")
+				.replace(/\n\n/gim, "</p><p>")
+				.replace(/\n/gim, "<br>")
+				.replace(/^(.*)$/gim, "<p>$1</p>");
+		}
+
 		// 加载页面内容
 		async function loadPageContent(path) {
 			try {
-				const response = await fetch(
-					`/api/page?path=${encodeURIComponent(path)}`
-				);
+				console.log("前端: 加载页面:", path);
+
+				// 确保路径不为空且格式正确
+				if (!path || path === "") {
+					throw new Error("路径参数为空");
+				}
+
+				// 构建正确的 API URL - 这里是关键修复
+				// 确保路径被正确编码，但不要双重编码
+				const cleanPath = path.startsWith("/") ? path : "/" + path;
+				const apiUrl = `/api/page?path=${encodeURIComponent(cleanPath)}`;
+				console.log("前端: API URL:", apiUrl);
+				console.log("前端: 编码前路径:", cleanPath);
+				console.log("前端: 编码后路径:", encodeURIComponent(cleanPath));
+
+				const response = await fetch(apiUrl);
+
 				if (!response.ok) {
-					throw new Error("页面不存在");
+					const errorData = await response.json();
+					console.error("前端: API 错误:", errorData);
+					throw new Error(errorData.error || "页面不存在");
 				}
 
 				const data = await response.json();
+				console.log("前端: 获取到数据:", data);
+
 				const contentArea = document.getElementById("content-area");
 
-				// 使用 marked 解析 Markdown
-				const htmlContent = marked(data.body || "");
+				// 简化的 Markdown 处理
+				function simpleMarkdownToHtml(markdown) {
+					if (!markdown) return "";
+
+					return markdown
+						.replace(/^### (.*$)/gim, "<h3>$1</h3>")
+						.replace(/^## (.*$)/gim, "<h2>$1</h2>")
+						.replace(/^# (.*$)/gim, "<h1>$1</h1>")
+						.replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+						.replace(/\*(.*?)\*/gim, "<em>$1</em>")
+						.replace(/`(.*?)`/gim, "<code>$1</code>")
+						.replace(/\n\n/gim, "</p><p>")
+						.replace(/\n/gim, "<br>")
+						.replace(/^(.+)$/gim, "<p>$1</p>")
+						.replace(/<p><\/p>/gim, "")
+						.replace(/<p>(<h[1-6]>.*<\/h[1-6]>)<\/p>/gim, "$1");
+				}
+
+				const htmlContent = simpleMarkdownToHtml(data.body || "");
 
 				contentArea.innerHTML = `
       <article class="prose prose-lg max-w-none prose-gray dark:prose-invert">
@@ -445,12 +497,15 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
       </article>
     `;
 
+				// 更新 URL
+				updateURL(path);
+
 				renderBreadcrumb(path);
 				document
 					.querySelector(".main-content")
 					.scrollTo({ top: 0, behavior: "smooth" });
 			} catch (error) {
-				console.error("加载页面失败:", error);
+				console.error("前端: 加载页面失败:", error);
 				const contentArea = document.getElementById("content-area");
 				contentArea.innerHTML = `
       <div class="text-center py-12">
@@ -460,16 +515,28 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
         <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           页面加载失败
         </h2>
-        <p class="text-lg text-gray-600 dark:text-gray-400">
+        <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">
           ${error.message}
         </p>
+        <button onclick="location.reload()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+          刷新页面
+        </button>
       </div>
     `;
 			}
 		}
 
+		// 2. 添加 URL 更新函数
+		function updateURL(path) {
+			// 更新浏览器 URL 但不重新加载页面
+			const newUrl = window.location.origin + path;
+			window.history.pushState({ path: path }, "", newUrl);
+		}
+
 		// 渲染子菜单
 		function renderSubmenu(menuKey) {
+			console.log("渲染子菜单:", menuKey);
+
 			const container = document.getElementById("submenu-container");
 			const titleElement = document.getElementById("submenu-title");
 			const menuItem = window.menuTree.find((item) => item.value === menuKey);
@@ -494,53 +561,53 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 							? section.children
 									.map(
 										(child) => `
-            <div class="submenu-item ${selectedMenuItem === child.value ? "active" : ""}" data-submenu="${child.value}" data-path="${child.path}">
-              <a href="javascript:void(0)" class="flex items-center py-3 text-sm group cursor-pointer">
-                <div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 transition-all duration-200 ${selectedMenuItem === child.value ? "bg-orange-500 dark:bg-orange-400" : "group-hover:bg-orange-400 dark:group-hover:bg-orange-500"}"></div>
-                <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ml-9 ${selectedMenuItem === child.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
-                  ${child.label}
-                </span>
-              </a>
-            </div>
-          `
+          <div class="submenu-item ${selectedMenuItem === child.value ? "active" : ""}" data-submenu="${child.value}" data-path="${child.path}">
+            <a href="javascript:void(0)" class="flex items-center py-3 text-sm group cursor-pointer">
+              <div class="submenu-vertical-line w-px h-full bg-gray-300 dark:bg-gray-600 transition-all duration-200 ${selectedMenuItem === child.value ? "bg-orange-500 dark:bg-orange-400" : "group-hover:bg-orange-400 dark:group-hover:bg-orange-500"}"></div>
+              <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ml-9 ${selectedMenuItem === child.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+                ${child.label}
+              </span>
+            </a>
+          </div>
+        `
 									)
 									.join("")
 							: "";
 
 						return `
-            <div class="submenu-section mb-2 relative">
-              <div class="section-header flex items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" data-section="${section.value}" data-path="${section.path}" data-has-index="${section.hasIndex}">
-                <span class="expand-arrow text-gray-500 dark:text-gray-400 transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? "rotate-90" : ""}">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m9 18 6-6-6-6"/>
-                  </svg>
-                </span>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-3">${section.label}</span>
-              </div>
-              <div class="section-children relative ${isExpanded ? "block" : "hidden"}">
-                <div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
-                ${childrenHtml}
-              </div>
+          <div class="submenu-section mb-2 relative">
+            <div class="section-header flex items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" data-section="${section.value}" data-path="${section.path}" data-has-index="${section.hasIndex}">
+              <span class="expand-arrow text-gray-500 dark:text-gray-400 transition-transform duration-200 w-6 h-6 flex items-center justify-center ${isExpanded ? "rotate-90" : ""}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
+              </span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-3">${section.label}</span>
             </div>
-          `;
+            <div class="section-children relative ${isExpanded ? "block" : "hidden"}">
+              <div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+              ${childrenHtml}
+            </div>
+          </div>
+        `;
 					} else {
 						// 没有子项的简单项目
 						return `
-            <div class="submenu-item ${selectedMenuItem === section.value ? "active" : ""}" data-submenu="${section.value}" data-path="${section.path}">
-              <a href="javascript:void(0)" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group">
-                <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ${selectedMenuItem === section.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
-                  ${section.label}
-                </span>
-              </a>
-            </div>
-          `;
+          <div class="submenu-item ${selectedMenuItem === section.value ? "active" : ""}" data-submenu="${section.value}" data-path="${section.path}">
+            <a href="javascript:void(0)" class="flex items-center py-3 text-sm rounded-lg transition-colors duration-200 group">
+              <span class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 ${selectedMenuItem === section.value ? "text-orange-700 dark:text-orange-300 font-medium" : ""}">
+                ${section.label}
+              </span>
+            </a>
+          </div>
+        `;
 					}
 				})
 				.join("");
 
 			container.innerHTML = submenuHtml;
 
-			// 绑定一级菜单展开收起事件
+			// 绑定一级菜单展开收起事件 - 关键修复
 			container.querySelectorAll(".section-header").forEach((header) => {
 				header.addEventListener("click", (e) => {
 					e.preventDefault();
@@ -548,9 +615,19 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 					const hasIndex = header.dataset.hasIndex === "true";
 					const path = header.dataset.path;
 
-					if (hasIndex) {
-						// 如果有index页面，加载内容
-						loadPageContent(path);
+					console.log(
+						"点击子菜单分组:",
+						sectionId,
+						"路径:",
+						path,
+						"有index:",
+						hasIndex
+					);
+
+					// 如果有index页面，加载内容
+					if (hasIndex && path) {
+						console.log("准备加载分组的 index 页面:", path);
+						loadPageContent(path); // 确保传递正确的路径
 						selectSubmenu(sectionId);
 					}
 
@@ -559,14 +636,22 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 				});
 			});
 
-			// 绑定子菜单点击事件
+			// 绑定子菜单点击事件 - 关键修复
 			container.querySelectorAll(".submenu-item").forEach((item) => {
 				item.addEventListener("click", (e) => {
 					e.preventDefault();
 					const submenuId = item.dataset.submenu;
 					const path = item.dataset.path;
-					selectSubmenu(submenuId);
-					loadPageContent(path);
+
+					console.log("点击子菜单项:", submenuId, "路径:", path);
+
+					if (path) {
+						selectSubmenu(submenuId);
+						console.log("准备加载子菜单页面:", path);
+						loadPageContent(path); // 确保传递正确的路径
+					} else {
+						console.error("子菜单项缺少路径:", item);
+					}
 				});
 			});
 		}
@@ -602,6 +687,8 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 
 		// 选择主菜单
 		function selectMainMenu(menuKey) {
+			console.log("选择主菜单:", menuKey);
+
 			// 更新当前菜单
 			currentMenu = menuKey;
 			selectedMenuItem = null;
@@ -623,6 +710,7 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 
 			// 查找菜单项
 			const menuItem = window.menuTree.find((item) => item.value === menuKey);
+			console.log("找到菜单项:", menuItem);
 
 			if (menuItem) {
 				// 如果只有index页面且没有子菜单，直接加载内容
@@ -630,16 +718,35 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 					menuItem.hasIndex &&
 					(!menuItem.children || menuItem.children.length === 0)
 				) {
+					console.log("加载主菜单index页面:", menuItem.path);
 					loadPageContent(menuItem.path);
 					document.getElementById("submenu-container").innerHTML =
 						'<div class="text-xs text-gray-400 dark:text-gray-500 px-3 py-2">暂无子菜单</div>';
 				} else if (menuItem.hasIndex) {
 					// 有index页面也有子菜单，加载index内容并展示子菜单
+					console.log("加载主菜单index页面并显示子菜单:", menuItem.path);
 					loadPageContent(menuItem.path);
 					renderSubmenu(menuKey);
 				} else {
 					// 只有子菜单，展示子菜单
+					console.log("只显示子菜单:", menuKey);
 					renderSubmenu(menuKey);
+
+					// 清空内容区域，显示选择提示
+					const contentArea = document.getElementById("content-area");
+					contentArea.innerHTML = `
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6M9 16h6M9 8h6M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002 2V8" />
+          </svg>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            ${menuItem.label}
+          </h2>
+          <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">
+            请从左侧子菜单中选择具体内容
+          </p>
+        </div>
+      `;
 				}
 			}
 		}
@@ -787,6 +894,41 @@ const homeMenuItem = menuTree.find((item) => item.value === "home");
 		// DOM加载完成后初始化菜单
 		document.addEventListener("DOMContentLoaded", function () {
 			initMenus();
+		});
+
+		window.addEventListener("popstate", function (event) {
+			if (event.state && event.state.path) {
+				loadPageContent(event.state.path);
+			} else {
+				// 回到首页
+				selectMainMenu("home");
+			}
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+			console.log("页面加载完成，当前路径:", window.location.pathname);
+
+			initMenus();
+
+			// 如果 URL 不是根路径，尝试加载对应页面
+			if (window.location.pathname !== "/") {
+				const currentPath = window.location.pathname;
+
+				// 根据路径找到对应的菜单项
+				const menuItem = findMenuItemByPath(window.menuTree, currentPath);
+				if (menuItem) {
+					// 找到对应的主菜单
+					const mainMenuKey = currentPath.split("/")[1];
+					if (mainMenuKey) {
+						selectMainMenu(mainMenuKey);
+
+						// 如果是子页面，直接加载
+						if (currentPath !== `/${mainMenuKey}`) {
+							loadPageContent(currentPath);
+						}
+					}
+				}
+			}
 		});
 	</script>
 
