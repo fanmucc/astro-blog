@@ -1,0 +1,19 @@
+---
+export interface Props {
+	name: keyof typeof icons;
+	class?: string;
+}
+
+const { name, class: className = "w-5 h-5" } = Astro.props;
+
+const icons = {
+	home: `<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>`,
+	react: `<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
+	vue: `<path d="M13 10V3L4 14h7v7l9-11h-7z"/>`,
+	next: `<path d="M12 2l3.09 6.26L22 9l-5.91 4.34L18.18 20 12 16.77 5.82 20l2.09-6.66L2 9l6.91-1.74L12 2z"/>`,
+};
+---
+
+<svg class={className} fill='currentColor' viewBox='0 0 20 20'>
+	<Fragment set:html={icons[name as keyof typeof icons] || icons.home} />
+</svg>

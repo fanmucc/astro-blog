@@ -1,15 +1,18 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../layouts/Layout.astro";
-import { buildMenuTree, getPageByPath } from "../utils/menu";
+import { buildMenuTree, getPageByPath, type PageEntry } from "../utils/menu";
 
 export async function getStaticPaths() {
 	// 获取所有发布的页面
-	const pages = await getCollection("pages", ({ data }) => {
-		return data.published && !data.draft;
-	});
+	const pages = await getCollection(
+		"pages",
+		({ data }: { data: PageEntry["data"] }) => {
+			return data.published && !data.draft;
+		}
+	);
 
-	return pages.map((page) => {
+	return pages.map((page: PageEntry) => {
 		const pathParts = page.slug.split("/");
 		let path: string;
 

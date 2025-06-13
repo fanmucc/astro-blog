@@ -2,6 +2,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import path from 'path';
 
 export type PageEntry = CollectionEntry<'pages'>;
+export type ConfigEntry = CollectionEntry<'config'>;
 
 // 菜单项接口
 export interface MenuItem {
@@ -28,7 +29,7 @@ export interface MainMenuConfig {
  */
 export async function getMainMenuConfig(): Promise<MainMenuConfig[]> {
   const configCollection = await getCollection('config');
-  const siteConfig = configCollection.find(entry => entry.id === 'site');
+  const siteConfig = configCollection.find((entry: ConfigEntry) => entry.id === 'site');
 
   if (!siteConfig?.data.mainMenu) {
     // 默认主菜单配置
@@ -40,18 +41,18 @@ export async function getMainMenuConfig(): Promise<MainMenuConfig[]> {
     ];
   }
 
-  return siteConfig.data.mainMenu.sort((a, b) => a.order - b.order);
+  return siteConfig.data.mainMenu.sort((a: MainMenuConfig, b: MainMenuConfig) => a.order - b.order);
 }
 
 /**
  * 获取所有发布的页面
  */
 export async function getAllPublishedPages(): Promise<PageEntry[]> {
-  const pages = await getCollection('pages', ({ data }) => {
+  const pages = await getCollection('pages', ({ data }: { data: PageEntry['data'] }) => {
     return data.published && !data.draft;
   });
 
-  return pages.sort((a, b) => a.data.order - b.data.order);
+  return pages.sort((a: PageEntry, b: PageEntry) => a.data.order - b.data.order);
 }
 
 /**
@@ -132,7 +133,7 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
         if (!subMenus.has(parentKey)) {
           // 创建父级菜单项
           const parentMenuItem: MenuItem = {
-            label: parentKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            label: parentKey.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
             value: parentKey,
             path: `/${pathParts[0]}/${parentKey}`,
             order: 999, // 默认排序
@@ -169,10 +170,10 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
 
     // 将子菜单添加到主菜单项
     menuItem.children = Array.from(subMenus.values())
-      .sort((a, b) => a.order - b.order)
-      .map(item => ({
+      .sort((a: MenuItem, b: MenuItem) => a.order - b.order)
+      .map((item: MenuItem) => ({
         ...item,
-        children: item.children?.sort((a, b) => a.order - b.order) || []
+        children: item.children?.sort((a: MenuItem, b: MenuItem) => a.order - b.order) || []
       }));
 
     menuTree.push(menuItem);
