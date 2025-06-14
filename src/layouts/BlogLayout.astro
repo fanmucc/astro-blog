@@ -1,0 +1,262 @@
+---
+// src/layouts/BlogLayout.astro - 博客页面布局
+import Layout from './Layout.astro';
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { buildMenuTree } from '../utils/menu';
+
+export interface Props {
+	title: string;
+	description?: string;
+	currentPath?: string;
+	showSidebar?: boolean;
+	showBreadcrumb?: boolean;
+	theme?: 'light' | 'dark' | 'auto';
+	pageType?: 'article' | 'index' | 'search';
+}
+
+const {
+	title,
+	description,
+	currentPath = Astro.url.pathname,
+	showSidebar = true,
+	showBreadcrumb = true,
+	theme = 'auto',
+	pageType = 'article'
+} = Astro.props;
+
+// 构建菜单树
+const menuTree = await buildMenuTree();
+---
+
+<Layout title={title} description={description} theme={theme}>
+	<div class='blog-layout'>
+		<!-- 顶部导航 -->
+		<Header currentPath={currentPath} />
+
+		<!-- 主要内容区域 -->
+		<div class='main-layout'>
+			<!-- 左侧边栏 -->
+			{showSidebar && (
+				<Sidebar 
+					menuTree={menuTree} 
+					currentPath={currentPath} 
+				/>
+			)}
+
+			<!-- 主内容区 -->
+			<main class={`main-content ${!showSidebar ? 'full-width' : ''}`}>
+				<div class='content-container'>
+					<!-- 面包屑导航 -->
+					{showBreadcrumb && (
+						<nav class='breadcrumb-nav' id='breadcrumb-nav'>
+							<!-- 面包屑将通过组件或 JavaScript 生成 -->
+						</nav>
+					)}
+
+					<!-- 页面内容 -->
+					<div class='content-area' data-page-type={pageType}>
+						<slot />
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<!-- 页面脚本 -->
+	<script define:vars={{ menuTree, currentPath }}>
+		// 主题切换功能
+		function initBlogTheme() {
+			const themeToggle = document.getElementById("theme-toggle");
+			
+			function toggleTheme() {
+				const html = document.documentElement;
+				const isDark = html.classList.contains("dark");
+
+				if (isDark) {
+					html.classList.remove("dark");
+					localStorage.setItem("theme", "light");
+				} else {
+					html.classList.add("dark");
+					localStorage.setItem("theme", "dark");
+				}
+			}
+
+			themeToggle?.addEventListener("click", toggleTheme);
+		}
+
+		// 生成面包屑导航
+		function generateBreadcrumb() {
+			const breadcrumbNav = document.getElementById("breadcrumb-nav");
+			if (!breadcrumbNav || !currentPath || currentPath === '/') return;
+
+			const pathParts = currentPath.split("/").filter((part) => part);
+			if (pathParts.length === 0) return;
+
+			let breadcrumbHtml = '<ol class="breadcrumb-list">';
+			breadcrumbHtml += '<li class="breadcrumb-item"><a href="/" class="breadcrumb-link">首页</a></li>';
+
+			let currentPath_ = "";
+			pathParts.forEach((part, index) => {
+				currentPath_ += "/" + part;
+				const isLast = index === pathParts.length - 1;
+
+				// 查找对应的菜单项获取标签
+				const menuItem = findMenuItemByPath(menuTree, currentPath_);
+				const label = menuItem ? menuItem.label : decodeURIComponent(part);
+
+				breadcrumbHtml += `
+					<li class="breadcrumb-item">
+						<svg class="breadcrumb-separator" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+						</svg>
+						${isLast 
+							? `<span class="breadcrumb-current">${label}</span>`
+							: `<a href="${currentPath_}" class="breadcrumb-link">${label}</a>`
+						}
+					</li>
+				`;
+			});
+
+			breadcrumbHtml += '</ol>';
+			breadcrumbNav.innerHTML = breadcrumbHtml;
+		}
+
+		// 查找菜单项
+		function findMenuItemByPath(menuTree, targetPath) {
+			function searchMenu(items) {
+				for (const item of items) {
+					if (item.path === targetPath) {
+						return item;
+					}
+					if (item.children && item.children.length > 0) {
+						const found = searchMenu(item.children);
+						if (found) return found;
+					}
+				}
+				return null;
+			}
+			return searchMenu(menuTree);
+		}
+
+		// 初始化
+		document.addEventListener("DOMContentLoaded", function () {
+			initBlogTheme();
+			generateBreadcrumb();
+		});
+	</script>
+
+	<style>
+		/* 博客布局样式 */
+		.blog-layout {
+			min-height: 100vh;
+			background-color: var(--g-bg);
+		}
+
+		.main-layout {
+			display: flex;
+			min-height: calc(100vh - 4rem);
+		}
+
+		.main-content {
+			flex: 1;
+			overflow-y: auto;
+			background-color: var(--m-content-bg);
+		}
+
+		.main-content.full-width {
+			width: 100%;
+		}
+
+		.content-container {
+			max-width: none;
+			padding: 1.5rem 2rem;
+		}
+
+		/* 面包屑导航 */
+		.breadcrumb-nav {
+			margin-bottom: 1.5rem;
+			padding-bottom: 1rem;
+			border-bottom: 1px solid var(--b-crumb-border);
+		}
+
+		.breadcrumb-list {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 0.875rem;
+			color: var(--b-crumb-text);
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.breadcrumb-item {
+			display: flex;
+			align-items: center;
+		}
+
+		.breadcrumb-separator {
+			width: 1rem;
+			height: 1rem;
+			margin: 0 0.5rem;
+			color: var(--b-crumb-text);
+		}
+
+		.breadcrumb-link {
+			color: var(--b-crumb-text);
+			text-decoration: none;
+			transition: color var(--transition-fast);
+		}
+
+		.breadcrumb-link:hover {
+			color: var(--b-crumb-text-hover);
+		}
+
+		.breadcrumb-current {
+			color: var(--b-crumb-text-current);
+			font-weight: 500;
+		}
+
+		/* 内容区域 */
+		.content-area {
+			max-width: none;
+		}
+
+		/* 不同页面类型的样式 */
+		.content-area[data-page-type="article"] {
+			/* 文章页面样式 */
+		}
+
+		.content-area[data-page-type="index"] {
+			/* 索引页面样式 */
+		}
+
+		.content-area[data-page-type="search"] {
+			/* 搜索页面样式 */
+		}
+
+		/* 响应式设计 */
+		@media (max-width: 768px) {
+			.content-container {
+				padding: 1rem;
+			}
+
+			.breadcrumb-list {
+				font-size: 0.75rem;
+			}
+
+			.breadcrumb-separator {
+				width: 0.875rem;
+				height: 0.875rem;
+				margin: 0 0.25rem;
+			}
+		}
+
+		@media (min-width: 1280px) {
+			.content-container {
+				padding: 2rem 3rem;
+			}
+		}
+	</style>
+</Layout>
