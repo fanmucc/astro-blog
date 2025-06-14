@@ -1,5 +1,5 @@
 ---
-// src/layouts/Layout.astro - 更新后的Layout组件
+// src/layouts/Layout.astro - 修复后的Layout组件
 export interface Props {
 	title: string;
 	description?: string;
@@ -103,21 +103,44 @@ const socialImage = new URL(image, Astro.site);
 			}
 		</script>
 
-		<!-- 主题初始化脚本（避免闪烁） -->
+		<!-- 主题初始化脚本（避免闪烁） - 必须在页面加载前执行 -->
 		<script is:inline>
-			function initTheme() {
+			// 立即执行的主题初始化函数
+			(function initTheme() {
+				console.log("🎨 初始化主题系统...");
+
+				// 获取存储的主题
 				const savedTheme = localStorage.getItem("theme");
+				// 检查系统偏好
 				const prefersDark = window.matchMedia(
 					"(prefers-color-scheme: dark)"
 				).matches;
 
-				if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-					document.documentElement.classList.add("dark");
+				// 确定要应用的主题
+				let theme;
+				if (savedTheme) {
+					theme = savedTheme;
+					console.log("📦 使用存储的主题:", theme);
+				} else if (prefersDark) {
+					theme = "dark";
+					console.log("🌙 使用系统偏好: 深色模式");
+				} else {
+					theme = "light";
+					console.log("☀️ 使用默认主题: 浅色模式");
 				}
-			}
 
-			// 立即执行，避免主题闪烁
-			initTheme();
+				// 应用主题到文档
+				if (theme === "dark") {
+					document.documentElement.classList.add("dark");
+				} else {
+					document.documentElement.classList.remove("dark");
+				}
+
+				// 保存到 localStorage
+				localStorage.setItem("theme", theme);
+
+				console.log("✅ 主题初始化完成:", theme);
+			})();
 		</script>
 	</head>
 
@@ -289,33 +312,6 @@ const socialImage = new URL(image, Astro.site);
 				}
 			});
 
-			// 主题切换动画增强
-			function enhanceThemeTransition() {
-				const body = document.body;
-				body.style.transition = "none";
-
-				requestAnimationFrame(() => {
-					body.style.transition = "background-color 0.3s ease, color 0.3s ease";
-				});
-			}
-
-			// 监听主题变化
-			const observer = new MutationObserver((mutations) => {
-				mutations.forEach((mutation) => {
-					if (
-						mutation.type === "attributes" &&
-						mutation.attributeName === "class"
-					) {
-						enhanceThemeTransition();
-					}
-				});
-			});
-
-			observer.observe(document.documentElement, {
-				attributes: true,
-				attributeFilter: ["class"],
-			});
-
 			// 平滑滚动增强
 			document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
 				anchor.addEventListener("click", function (this: HTMLAnchorElement, e) {
@@ -334,6 +330,37 @@ const socialImage = new URL(image, Astro.site);
 						});
 					}
 				});
+			});
+
+			// 主题系统增强
+			function enhanceThemeSystem() {
+				// 监听系统主题变化
+				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+				mediaQuery.addEventListener("change", (e) => {
+					const savedTheme = localStorage.getItem("theme");
+					// 只有在没有用户偏好时才跟随系统变化
+					if (!savedTheme) {
+						const newTheme = e.matches ? "dark" : "light";
+						console.log("🔄 系统主题变化，切换到:", newTheme);
+						document.documentElement.classList.toggle("dark", e.matches);
+						localStorage.setItem("theme", newTheme);
+					}
+				});
+			}
+
+			// 初始化主题系统增强功能
+			document.addEventListener("DOMContentLoaded", enhanceThemeSystem);
+
+			// 支持 Astro View Transitions
+			document.addEventListener("astro:after-swap", () => {
+				console.log("🔄 页面切换，重新初始化主题...");
+				const savedTheme = localStorage.getItem("theme");
+				if (savedTheme === "dark") {
+					document.documentElement.classList.add("dark");
+				} else {
+					document.documentElement.classList.remove("dark");
+				}
+				enhanceThemeSystem();
 			});
 
 			// 性能监控（开发环境）
