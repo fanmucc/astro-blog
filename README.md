@@ -45,3 +45,4 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+# Node.js 安装完成测试 - 2025年 6月15日 星期日 23时44分24秒 CST
