@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://your-blog-domain.com',
+  site: 'https://yancode.life',
 
   // 重定向配置 - 这是 Astro 的内置重定向功能
   redirects: {
