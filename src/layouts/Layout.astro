@@ -411,13 +411,13 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 				async updatePage(newDoc, url, addToHistory) {
 					// 添加页面切换过渡效果
 					const mainContent = document.querySelector('.main-content');
-					const contentArea = document.querySelector('.content-area');
+					// const contentArea = document.querySelector('.content-area');
 					
-					if (contentArea) {
-						contentArea.style.opacity = '0.7';
-						contentArea.style.transform = 'translateY(10px)';
-						contentArea.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-					}
+					// if (contentArea) {
+					// 	contentArea.style.opacity = '0.7';
+					// 	contentArea.style.transform = 'translateY(10px)';
+					// 	contentArea.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+					// }
 
 					// 短暂延迟后开始更新内容
 					await new Promise(resolve => setTimeout(resolve, 150));

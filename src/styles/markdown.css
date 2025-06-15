@@ -1,0 +1,615 @@
+/* ============== Markdown 内容样式 - Spring 主题 ============== */
+
+/* 主题色配置 */
+:root {
+	/* 主色调 - 绿色系 */
+	--md-primary: rgb(var(--color-primary));
+	--md-primary-dark: var(--color-primary-dark);
+	--md-primary-light: var(--color-primary-light);
+
+	/* 文本颜色 */
+	--md-text: #282c34;
+	--md-text-secondary: #737373;
+	--md-text-muted: #9ca3af;
+
+	/* 背景色 */
+	--md-bg: #fefefe;
+	--md-bg-accent: rgba(var(--color-primary), 0.05);
+	--md-bg-hover: rgba(var(--color-primary), 0.1);
+
+	/* 边框色 */
+	--md-border: #e8f4ee;
+	--md-border-accent: var(--md-primary);
+
+	/* 选中色 */
+	--md-selection: #def2e8;
+
+	/* 代码相关 */
+	--md-code-bg: rgba(var(--color-primary), 0.08);
+	--md-code-text: rgb(var(--color-primary));
+	--md-code-border: rgba(var(--color-primary), 0.2);
+
+	/* 引用块 */
+	--md-quote-border: var(--md-primary);
+	--md-quote-bg: rgba(var(--color-primary), 0.06);
+
+	/* 链接 */
+	--md-link: rgb(var(--color-secondary));
+	--md-link-hover: rgb(var(--color-secondary-dark));
+
+	/* 高亮 */
+	--md-mark-bg: rgba(var(--color-primary), 0.15);
+	--md-mark-text: var(--md-text);
+
+	/* 动画配置 */
+	--md-transition: all 0.3s ease;
+	--md-hover-scale: 1.02;
+}
+
+/* 暗色模式 */
+.dark {
+	--md-text: #e2e8f0;
+	--md-text-secondary: #cbd5e1;
+	--md-text-muted: #94a3b8;
+
+	--md-bg: #1e293b;
+	--md-bg-accent: rgba(var(--color-primary), 0.1);
+	--md-bg-hover: rgba(var(--color-primary), 0.15);
+
+	--md-border: #475569;
+	--md-selection: #2f5233;
+
+	--md-code-bg: rgba(var(--color-primary), 0.15);
+	--md-code-text: rgb(var(--color-primary));
+	--md-code-border: rgba(var(--color-primary), 0.3);
+
+	--md-quote-bg: rgba(var(--color-primary), 0.1);
+	--md-mark-bg: rgba(var(--color-primary), 0.2);
+}
+
+/* ============== 基础选择样式 ============== */
+::selection {
+	background-color: var(--md-selection);
+}
+
+/* ============== 文章内容容器 ============== */
+.article-content {
+	color: var(--md-text);
+	line-height: 1.9;
+	text-align: justify;
+	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+		sans-serif;
+}
+
+/* ============== 标题样式 - 统一左对齐 ============== */
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6,
+.article-heading {
+	font-style: normal;
+	color: var(--md-text);
+	scroll-margin-top: 6rem;
+	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+		sans-serif;
+	font-weight: 600;
+	line-height: 1.2;
+	text-align: left;
+	transition: var(--md-transition);
+}
+
+/* H1 - 主标题：大字体，左对齐，下边框 */
+.article-content h1,
+.article-h1,
+.article-heading.article-h1 {
+	font-size: 2.2rem !important;
+	font-weight: 800 !important;
+	margin: 2.5rem 0 1.5rem 0 !important;
+	padding-bottom: 0.8rem;
+	/* border-bottom: 3px solid var(--md-primary); */
+	color: var(--md-text) !important;
+	letter-spacing: -0.02em;
+	position: relative;
+}
+
+.article-content h1:hover,
+.article-h1:hover,
+.article-heading.article-h1:hover {
+	color: var(--md-primary);
+	transform: translateX(4px);
+}
+
+/* H2 - 章节标题：大字体，左对齐，左边框 */
+.article-content h2,
+.article-h2,
+.article-heading.article-h2 {
+	font-size: 1.9rem !important;
+	font-weight: 700 !important;
+	margin: 2.2rem 0 1.2rem 0 !important;
+	padding-left: 1rem;
+	border-left: 4px solid var(--md-primary);
+	color: var(--md-text) !important;
+	letter-spacing: -0.01em;
+	transition: var(--md-transition);
+}
+
+.article-content h2:hover,
+.article-h2:hover,
+.article-heading.article-h2:hover {
+	border-left-color: var(--md-primary-dark);
+	border-left-width: 6px;
+	transform: translateX(6px);
+}
+
+/* H3 - 小节标题：中等字体，左边框装饰 */
+.article-content h3,
+.article-h3,
+.article-heading.article-h3 {
+	font-size: 1.6rem !important;
+	font-weight: 650 !important;
+	margin: 2rem 0 1rem 0 !important;
+	border-left: 4px solid var(--md-primary);
+	padding-left: 1rem;
+	color: var(--md-text) !important;
+	transition: var(--md-transition);
+}
+
+.article-content h3:hover,
+.article-h3:hover,
+.article-heading.article-h3:hover {
+	border-left-color: var(--md-primary-dark);
+	border-left-width: 5px;
+	transform: translateX(4px);
+}
+
+/* H4 - 子小节标题：圆点装饰 */
+.article-content h4,
+.article-h4,
+.article-heading.article-h4 {
+	font-size: 1.4rem !important;
+	font-weight: 600 !important;
+	margin: 1.8rem 0 0.8rem 0 !important;
+	position: relative;
+	padding-left: 1.2rem;
+	color: var(--md-text) !important;
+}
+
+.article-content h4:before,
+.article-h4:before,
+.article-heading.article-h4:before {
+	content: "●";
+	position: absolute;
+	left: 0;
+	color: var(--md-primary);
+	font-size: 1rem;
+	top: 0.2rem;
+	transition: var(--md-transition);
+}
+
+.article-content h4:hover:before,
+.article-h4:hover:before,
+.article-heading.article-h4:hover:before {
+	color: var(--md-primary-dark);
+	transform: scale(1.2);
+}
+
+/* H5 - 细分标题：下划线装饰 */
+.article-content h5,
+.article-h5,
+.article-heading.article-h5 {
+	font-size: 1.2rem !important;
+	font-weight: 550 !important;
+	margin: 1.5rem 0 0.6rem 0 !important;
+	color: var(--md-primary) !important;
+	text-decoration: underline;
+	text-decoration-color: transparent;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+	transition: var(--md-transition);
+}
+
+.article-content h5:hover,
+.article-h5:hover,
+.article-heading.article-h5:hover {
+	color: var(--md-primary-dark) !important;
+	text-decoration-color: var(--md-primary-dark);
+	transform: translateX(2px);
+}
+
+/* H6 - 最小标题：斜体，灰色 */
+.article-content h6,
+.article-h6,
+.article-heading.article-h6 {
+	font-size: 1.1rem !important;
+	font-weight: 500 !important;
+	font-style: italic;
+	margin: 1.2rem 0 0.5rem 0 !important;
+	color: var(--md-text-secondary) !important;
+	transition: var(--md-transition);
+	opacity: 0.9;
+}
+
+.article-content h6:hover,
+.article-h6:hover,
+.article-heading.article-h6:hover {
+	color: var(--md-primary) !important;
+	opacity: 1;
+	transform: translateX(2px);
+}
+
+/* ============== 段落样式 ============== */
+.article-content p {
+	word-spacing: 0.1rem;
+	line-height: 1.9rem;
+	margin: 0.5rem 0 1rem 0;
+	padding: 0 0.3rem;
+	transition: var(--md-transition);
+}
+
+.article-content p:not(:has(img)):hover {
+	background-color: var(--md-bg-hover);
+	border-radius: 4px;
+}
+
+/* ============== 链接样式 ============== */
+.article-content a {
+	color: var(--md-link);
+	text-decoration: none;
+	font-weight: 500;
+	transition: var(--md-transition);
+	border-bottom: 1px solid transparent;
+}
+
+.article-content a:hover {
+	color: var(--md-link-hover);
+	border-bottom-color: var(--md-link-hover);
+}
+
+/* ============== 列表样式 ============== */
+.article-content ul,
+.article-content ol {
+	margin: 0 0 1rem 1.5rem;
+	padding-left: 1rem;
+}
+
+.article-content ul li {
+	margin-bottom: 0.5rem;
+	position: relative;
+}
+
+.article-content ul li::marker {
+	color: var(--md-primary);
+	font-size: 1.2em;
+}
+
+.article-content ol li::marker {
+	color: var(--md-primary);
+	font-weight: 600;
+}
+
+.article-content li {
+	line-height: 1.7;
+}
+
+/* ============== 引用块样式 ============== */
+.article-content blockquote {
+	padding: 1rem 1.5rem;
+	margin: 1.5rem 0;
+	border-left: 4px solid var(--md-quote-border);
+	background-color: var(--md-quote-bg);
+	border-radius: 0 8px 8px 0;
+	font-style: italic;
+	transition: var(--md-transition);
+}
+
+.article-content blockquote:hover {
+	border-left-width: 6px;
+	background-color: var(--md-bg-hover);
+	transform: translateX(4px);
+}
+
+.article-content blockquote p {
+	margin: 0.5rem 0;
+	color: var(--md-text);
+}
+
+/* ============== 代码样式 ============== */
+.article-content code {
+	background-color: var(--md-code-bg);
+	color: var(--md-code-text);
+	font-family: "Fira Code", Consolas, "Lucida Console", "Courier", monospace;
+	font-size: 0.9rem;
+	font-weight: 550;
+	margin: 0 2px;
+	padding: 3px 6px;
+	border-radius: 4px;
+	border: 1px solid var(--md-code-border);
+	transition: var(--md-transition);
+}
+
+.article-content code:hover {
+	background-color: var(--md-bg-hover);
+	border-color: var(--md-primary);
+	transform: scale(1.02);
+}
+
+/* ============== 代码块样式 ============== */
+.article-content pre {
+	font-family: "Fira Code", Consolas, "Lucida Console", "Courier", monospace;
+	background-color: var(--md-bg);
+	border: 1px solid var(--md-border);
+	border-radius: 8px;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+	overflow-x: auto;
+	position: relative;
+	transition: var(--md-transition);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.article-content pre:hover {
+	border-color: var(--md-primary);
+	box-shadow: 0 4px 12px rgba(var(--color-primary), 0.15);
+}
+
+.article-content pre code {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font-size: 0.875rem;
+	color: var(--md-text);
+}
+
+/* ============== 表格样式 ============== */
+.article-content table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.5rem 0;
+	border: 1px solid var(--md-border);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.article-content th,
+.article-content td {
+	padding: 0.75rem 1rem;
+	text-align: left;
+	border-bottom: 1px solid var(--md-border);
+}
+
+.article-content th {
+	background-color: var(--md-bg-accent);
+	font-weight: 600;
+	color: var(--md-primary-dark);
+}
+
+.article-content tr:hover {
+	background-color: var(--md-bg-hover);
+}
+
+/* ============== 图片样式 ============== */
+.article-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	margin: 1.5rem auto;
+	display: block;
+	transition: var(--md-transition);
+	border: 2px solid var(--md-border);
+}
+
+.article-content img:hover {
+	transform: scale(var(--md-hover-scale));
+	border-color: var(--md-primary);
+	box-shadow: 0 8px 25px rgba(var(--color-primary), 0.2);
+}
+
+/* ============== 水平线样式 ============== */
+.article-content hr {
+	border: none;
+	height: 2px;
+	background: linear-gradient(
+		90deg,
+		var(--md-primary-light),
+		var(--md-primary),
+		var(--md-primary-dark)
+	);
+	margin: 2rem 0;
+	border-radius: 2px;
+	transition: var(--md-transition);
+}
+
+.article-content hr:hover {
+	height: 3px;
+	transform: scaleX(1.02);
+}
+
+/* ============== 强调文本样式 ============== */
+.article-content strong {
+	font-weight: 700;
+	color: var(--md-primary-dark);
+	transition: var(--md-transition);
+}
+
+.article-content strong:hover {
+	color: var(--md-primary);
+	text-shadow: 0 0 2px rgba(var(--color-primary), 0.3);
+}
+
+.article-content em {
+	color: var(--md-text);
+	font-style: italic;
+	transition: var(--md-transition);
+}
+
+.article-content em:hover {
+	color: var(--md-primary);
+}
+
+/* ============== 高亮文本样式 ============== */
+.article-content mark {
+	background-color: var(--md-mark-bg);
+	color: var(--md-mark-text);
+	padding: 2px 4px;
+	border-radius: 3px;
+	transition: var(--md-transition);
+}
+
+.article-content mark:hover {
+	background-color: var(--md-primary);
+	color: white;
+}
+
+/* ============== 删除线样式 ============== */
+.article-content del {
+	color: var(--md-text-muted);
+	text-decoration: line-through;
+	text-decoration-color: var(--md-primary);
+	opacity: 0.7;
+	transition: var(--md-transition);
+}
+
+.article-content del:hover {
+	opacity: 1;
+}
+
+/* ============== 响应式设计 ============== */
+@media (max-width: 1024px) {
+	.article-content h1 {
+		font-size: 2rem !important;
+	}
+	.article-content h2 {
+		font-size: 1.7rem !important;
+	}
+	.article-content h3 {
+		font-size: 1.4rem !important;
+	}
+	.article-content h4 {
+		font-size: 1.25rem !important;
+	}
+	.article-content h5 {
+		font-size: 1.1rem !important;
+	}
+	.article-content h6 {
+		font-size: 1rem !important;
+	}
+}
+
+@media (max-width: 768px) {
+	.article-content h1 {
+		font-size: 1.8rem !important;
+		margin: 2rem 0 1rem 0 !important;
+	}
+	.article-content h2 {
+		font-size: 1.5rem !important;
+		margin: 1.8rem 0 1rem 0 !important;
+	}
+	.article-content h3 {
+		font-size: 1.3rem !important;
+	}
+	.article-content h4 {
+		font-size: 1.2rem !important;
+	}
+	.article-content h5 {
+		font-size: 1.05rem !important;
+	}
+	.article-content h6 {
+		font-size: 1rem !important;
+	}
+
+	.article-content ul,
+	.article-content ol {
+		margin-left: 1rem;
+		padding-left: 0.5rem;
+	}
+
+	.article-content blockquote {
+		padding: 0.8rem 1rem;
+		margin: 1rem 0;
+	}
+
+	.article-content pre {
+		padding: 1rem;
+		font-size: 0.8rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.article-content h1 {
+		font-size: 1.6rem !important;
+	}
+	.article-content h2 {
+		font-size: 1.4rem !important;
+	}
+	.article-content h3 {
+		font-size: 1.25rem !important;
+	}
+	.article-content h4 {
+		font-size: 1.1rem !important;
+	}
+	.article-content h5 {
+		font-size: 1rem !important;
+	}
+	.article-content h6 {
+		font-size: 0.95rem !important;
+	}
+}
+
+/* ============== 大屏幕优化 ============== */
+@media (min-width: 1400px) {
+	.article-content h1 {
+		font-size: 2.5rem !important;
+	}
+	.article-content h2 {
+		font-size: 2.1rem !important;
+	}
+	.article-content h3 {
+		font-size: 1.8rem !important;
+	}
+	.article-content h4 {
+		font-size: 1.6rem !important;
+	}
+	.article-content h5 {
+		font-size: 1.4rem !important;
+	}
+	.article-content h6 {
+		font-size: 1.2rem !important;
+	}
+}
+
+/* 复制按钮样式 */
+.copy-btn {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(var(--color-primary), 0.1);
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+	color: var(--body-text-color);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	opacity: 0.7;
+	z-index: 10;
+}
+
+.copy-btn:hover {
+	opacity: 1;
+	background-color: rgba(var(--color-primary), 0.2);
+	color: var(--border-hover-color);
+	border-color: var(--border-hover-color);
+	transform: scale(1.05);
+}
+
+.copy-btn.copied {
+	color: var(--border-hover-color);
+	background-color: rgba(var(--color-primary), 0.3);
+}

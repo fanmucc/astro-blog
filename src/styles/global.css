@@ -44,13 +44,13 @@
 		--a-submenu-children-border-left: #e4e4e7;
 
 		/* 主菜单 */
-		--a-main-bg: #fafafa;
+		--a-main-bg: #f4f4f5;
 		--a-main-item-bg: transparent;
-		--a-main-item-bg-hover: #f5f5f5;
+		--a-main-item-bg-hover: rgb(var(--color-primary) / 0.1);
 		--a-main-item-bg-active: #ffffff;
 		--a-main-item-text: #404040;
-		--a-main-item-text-hover: #171717;
-		--a-main-item-text-active: #171717;
+		--a-main-item-text-hover: rgb(var(--color-primary));
+		--a-main-item-text-active: rgb(var(--color-primary));
 		--a-main-icon: rgb(var(--color-primary));
 		--a-main-icon-active: rgb(var(--color-primary));
 
@@ -336,10 +336,10 @@
 		outline: none;
 	}
 
-	.main-menu-item:hover {
+	/* .main-menu-item:hover {
 		background-color: var(--a-main-item-bg-hover);
 		color: var(--a-main-item-text-hover);
-	}
+	} */
 
 	.main-menu-item.active {
 		background-color: var(--a-main-item-bg-active);
