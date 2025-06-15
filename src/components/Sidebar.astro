@@ -1,9 +1,10 @@
 ---
 // src/components/Sidebar.astro - 侧边栏组件
 import Icon from "./Icon.astro";
+import type { MenuItem } from "../utils/menu";
 
 export interface Props {
-	menuTree: any[];
+	menuTree: MenuItem[];
 	currentPath: string;
 	showMainMenu?: boolean;
 	showSubMenu?: boolean;
@@ -34,6 +35,7 @@ const currentMainMenu = menuTree.find((item) =>
 								href={menuItem.path}
 								data-menu={menuItem.value}
 								data-path={menuItem.path}
+								data-astro-prefetch
 								class={`main-menu-item ${
 									currentPath.startsWith(menuItem.path) ? "active" : ""
 								}`}
@@ -74,6 +76,7 @@ const currentMainMenu = menuTree.find((item) =>
 									<div class='submenu-group'>
 										<a
 											href={subItem.path}
+											data-astro-prefetch
 											class={`submenu-group-header ${isActive ? "active" : ""}`}
 										>
 											{hasChildren && (
@@ -102,6 +105,7 @@ const currentMainMenu = menuTree.find((item) =>
 													<div class='submenu-item'>
 														<a
 															href={childItem.path}
+															data-astro-prefetch
 															class={`submenu-item-link ${
 																currentPath === childItem.path ? "active" : ""
 															}`}
@@ -149,25 +153,47 @@ const currentMainMenu = menuTree.find((item) =>
 <style>
 	/* 侧边栏基础样式 */
 	.sidebar {
+		position: fixed;
+		top: 4rem; /* header高度 */
+		left: 0;
 		width: 16rem;
-		flex-shrink: 0;
+		height: calc(100vh - 4rem); /* 有header时的高度 */
 		border-right: 1px solid var(--a-sidebar-border);
 		background-color: var(--a-sidebar-bg);
 		display: flex;
 		flex-direction: column;
-		height: 100%;
+		overflow: hidden;
+		z-index: 10; /* 确保在内容之上，但在header(z-index:50)之下 */
+		/* 平滑过渡效果 */
+		transition:
+			top 0.3s ease,
+			height 0.3s ease;
+	}
+
+	/* 无header时的侧边栏位置和高度 */
+	.main-layout.no-header .sidebar {
+		top: 0;
+		height: 100vh;
 	}
 
 	.sidebar-content {
-		flex: 1;
-		overflow-y: auto;
+		flex: 1 1 auto;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
 		padding: 1rem 0.5rem;
 		scrollbar-width: thin;
 		scrollbar-color: var(--g-border) transparent;
+		/* 确保能够正确滚动 */
+		min-height: 0 !important;
+		max-height: 100% !important;
+		/* 平滑滚动 */
+		scroll-behavior: smooth;
+		/* 在 iOS 上启用惯性滚动 */
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.sidebar-content::-webkit-scrollbar {
-		width: 3px;
+		width: 4px;
 	}
 
 	.sidebar-content::-webkit-scrollbar-track {
@@ -177,10 +203,11 @@ const currentMainMenu = menuTree.find((item) =>
 	.sidebar-content::-webkit-scrollbar-thumb {
 		background: var(--g-border);
 		border-radius: 2px;
+		transition: background-color 0.2s ease;
 	}
 
 	.sidebar-content::-webkit-scrollbar-thumb:hover {
-		background: var(--g-border-dark);
+		background: rgba(var(--color-primary), 0.6);
 	}
 
 	/* 主菜单样式 */
@@ -395,6 +422,13 @@ const currentMainMenu = menuTree.find((item) =>
 	@media (max-width: 768px) {
 		.sidebar {
 			width: 14rem;
+			top: 3.5rem; /* 移动端header高度调整 */
+			height: calc(100vh - 3.5rem);
+		}
+
+		.main-layout.no-header .sidebar {
+			top: 0;
+			height: 100vh;
 		}
 
 		.main-menu-item {
@@ -409,6 +443,11 @@ const currentMainMenu = menuTree.find((item) =>
 		.submenu-group-title,
 		.submenu-item-text {
 			font-size: 0.75rem;
+		}
+
+		/* 移动端滚动条优化 */
+		.sidebar-content::-webkit-scrollbar {
+			width: 2px;
 		}
 	}
 

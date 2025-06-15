@@ -1,425 +1,1424 @@
 ---
 export interface Props {
-  title: string;
-  description: string;
-  pubDate: Date;
-  updatedDate?: Date;
-  heroImage?: string;
-  tags: string[];
-  category: string;
-  author?: string;
-  readingTime?: number;
+	title: string;
+	description: string;
+	pubDate: Date;
+	updatedDate?: Date;
+	heroImage?: string;
+	tags: string[];
+	category: string;
+	author?: string;
+	readingTime?: number;
 }
 
-const { 
-  title, 
-  description, 
-  pubDate, 
-  updatedDate, 
-  heroImage, 
-  tags, 
-  category, 
-  author = '博主',
-  readingTime 
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags,
+	category,
+	author = "博主",
+	readingTime,
 } = Astro.props;
 
 // 格式化日期
 const formatDate = (date: Date) => {
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+	return date.toLocaleDateString("zh-CN", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
 };
 
 // 生成目录
-const headings = await Astro.slots.render('default').then(content => {
-  const headingRegex = /<h([2-4])[^>]*id="([^"]*)"[^>]*>([^<]*)<\/h[2-4]>/g;
-  const headings = [];
-  let match;
-  
-  while ((match = headingRegex.exec(content)) !== null) {
-    headings.push({
-      level: parseInt(match[1]),
-      id: match[2],
-      text: match[3]
-    });
-  }
-  
-  return headings;
+const headings = await Astro.slots.render("default").then((content) => {
+	const headingRegex = /<h([2-4])[^>]*id="([^"]*)"[^>]*>([^<]*)<\/h[2-4]>/g;
+	const headings = [];
+	let match;
+
+	while ((match = headingRegex.exec(content)) !== null) {
+		headings.push({
+			level: parseInt(match[1]),
+			id: match[2],
+			text: match[3],
+		});
+	}
+
+	return headings;
 });
 ---
 
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title} - 我的博客</title>
-    <meta name="description" content={description} />
-    
-    <!-- SEO Meta Tags -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="article" />
-    <meta property="article:published_time" content={pubDate.toISOString()} />
-    {updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
-    <meta property="article:author" content={author} />
-    <meta property="article:section" content={category} />
-    {tags.map(tag => <meta property="article:tag" content={tag} />)}
-    {heroImage && <meta property="og:image" content={heroImage} />}
-  </head>
-  
-  <body class="min-h-screen bg-gray-50 dark:bg-gray-900 m-0">
-    <!-- 顶部导航 -->
-    <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
-      <div class="px-4 lg:px-6">
-        <div class="flex h-16 items-center justify-between">
-          <!-- Logo -->
-          <div class="flex items-center space-x-4">
-            <a href="/" class="flex items-center space-x-3 group">
-              <!-- Logo图标 -->
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200">
-                <svg viewBox="0 0 120 120" class="h-10 w-10">
-                  <!-- 定义渐变 -->
-                  <defs>
-                    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-                      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-                    </linearGradient>
-                    
-                    <!-- 阴影滤镜 -->
-                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.2" flood-color="#000"/>
-                    </filter>
-                  </defs>
-                  
-                  <!-- 背景圆形 -->
-                  <circle cx="60" cy="60" r="56" fill="url(#primaryGradient)" filter="url(#shadow)"/>
-                  
-                  <!-- 代码符号 "{}" -->
-                  <g transform="translate(60, 60)">
-                    <!-- 左大括号 -->
-                    <path d="M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15" 
-                          stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    
-                    <!-- 右大括号 -->
-                    <path d="M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15" 
-                          stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    
-                    <!-- 中间的点 -->
-                    <circle cx="-8" cy="-3" r="2" fill="white"/>
-                    <circle cx="0" cy="3" r="2" fill="white"/>
-                    <circle cx="8" cy="-3" r="2" fill="white"/>
-                  </g>
-                  
-                  <!-- 装饰性几何元素 -->
-                  <g opacity="0.3">
-                    <!-- 左上角三角形 -->
-                    <polygon points="15,25 25,15 35,25" fill="white"/>
-                    <!-- 右下角菱形 -->
-                    <polygon points="85,85 95,90 85,95 75,90" fill="white"/>
-                  </g>
-                </svg>
-              </div>
-              <!-- 博客名称和副标题 -->
-              <div class="flex flex-col">
-                <span class="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight">
-                  Fanmu
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-none">
-                  yancode.life
-                </span>
-              </div>
-            </a>
-          </div>
-          
-          <!-- 导航菜单 -->
-          <nav class="hidden md:flex items-center space-x-6">
-            <a href="/" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">首页</a>
-            <a href="/blog" class="text-orange-600 font-medium">博客</a>
-            <a href="/categories" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">分类</a>
-            <a href="/about" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">关于</a>
-          </nav>
-          
-          <!-- 功能按钮 -->
-          <div class="flex items-center space-x-3">
-            <button class="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            <button id="theme-toggle" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-none bg-none" style="border: none; background: none; padding: 0; margin: 0;">
-              <svg class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-              </svg>
-              <svg class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+<html lang='zh-CN'>
+	<head>
+		<meta charset='utf-8' />
+		<link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+		<meta name='viewport' content='width=device-width' />
+		<meta name='generator' content={Astro.generator} />
+		<title>{title} - 我的博客</title>
+		<meta name='description' content={description} />
 
-    <!-- 面包屑导航 -->
-    <nav class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-      <div class="container mx-auto px-4 py-3">
-        <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-          <li><a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">首页</a></li>
-          <li class="flex items-center">
-            <svg class="h-4 w-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            <a href="/blog" class="hover:text-gray-700 dark:hover:text-gray-300">博客</a>
-          </li>
-          <li class="flex items-center">
-            <svg class="h-4 w-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            <span class="text-gray-900 dark:text-gray-100">{title}</span>
-          </li>
-        </ol>
-      </div>
-    </nav>
+		<!-- SEO Meta Tags -->
+		<meta property='og:title' content={title} />
+		<meta property='og:description' content={description} />
+		<meta property='og:type' content='article' />
+		<meta property='article:published_time' content={pubDate.toISOString()} />
+		{
+			updatedDate && (
+				<meta
+					property='article:modified_time'
+					content={updatedDate.toISOString()}
+				/>
+			)
+		}
+		<meta property='article:author' content={author} />
+		<meta property='article:section' content={category} />
+		{tags.map((tag) => <meta property='article:tag' content={tag} />)}
+		{heroImage && <meta property='og:image' content={heroImage} />}
+	</head>
 
-    <!-- 主要内容区域 -->
-    <div class="flex min-h-screen">
-      <!-- 左侧边栏 -->
-      <aside class="w-64 flex-shrink-0 border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-        <div class="flex-1 px-4 py-6">
-          <!-- 分类导航 -->
-          <div class="mb-8">
-            <h3 class="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">
-              分类
-            </h3>
-            <nav class="space-y-2">
-              <a href="/categories/技术" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
-                <span class="w-2 h-2 rounded-full bg-blue-500 mr-3"></span>
-                技术文章
-              </a>
-              <a href="/categories/生活" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
-                <span class="w-2 h-2 rounded-full bg-green-500 mr-3"></span>
-                生活分享
-              </a>
-              <a href="/categories/公告" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
-                <span class="w-2 h-2 rounded-full bg-orange-500 mr-3"></span>
-                网站公告
-              </a>
-            </nav>
-          </div>
+	<body class='min-h-screen bg-white dark:bg-gray-900'>
+		<!-- 顶部导航 -->
+		<header
+			class='sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80'
+		>
+			<div class='px-4 lg:px-6'>
+				<div class='flex h-16 items-center justify-between'>
+					<!-- Logo -->
+					<div class='flex items-center space-x-4'>
+						<a href='/' class='flex items-center space-x-3 group'>
+							<!-- Logo图标 -->
+							<div
+								class='flex h-10 w-10 items-center justify-center rounded-lg shadow-sm group-hover:shadow-md transition-all duration-200'
+							>
+								<svg viewBox='0 0 120 120' class='h-10 w-10'>
+									<!-- 定义渐变 -->
+									<defs>
+										<linearGradient
+											id='primaryGradient'
+											x1='0%'
+											y1='0%'
+											x2='100%'
+											y2='100%'
+										>
+											<stop
+												offset='0%'
+												style='stop-color:#f59e0b;stop-opacity:1'></stop>
+											<stop
+												offset='100%'
+												style='stop-color:#d97706;stop-opacity:1'></stop>
+										</linearGradient>
 
-          <!-- 目录导航 -->
-          {headings.length > 0 && (
-            <div>
-              <h3 class="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                目录
-              </h3>
-              <nav class="space-y-1">
-                {headings.map((heading) => (
-                  <a 
-                    href={`#${heading.id}`}
-                    class={`block py-1 text-sm text-gray-600 hover:text-orange-600 dark:text-gray-400 dark:hover:text-orange-400 transition-colors ${
-                      heading.level === 3 ? 'pl-4' : heading.level === 4 ? 'pl-8' : ''
-                    }`}
-                  >
-                    {heading.text}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          )}
-        </div>
-      </aside>
+										<!-- 阴影滤镜 -->
+										<filter
+											id='shadow'
+											x='-20%'
+											y='-20%'
+											width='140%'
+											height='140%'
+										>
+											<feDropShadow
+												dx='1'
+												dy='2'
+												stdDeviation='2'
+												flood-opacity='0.2'
+												flood-color='#000'></feDropShadow>
+										</filter>
+									</defs>
 
-      <!-- 主内容区 -->
-      <main class="flex-1 px-6 py-8 lg:px-8 max-w-none">
-        <!-- 文章头部 -->
-        <header class="mb-8">
-          {heroImage && (
-            <img 
-              src={heroImage} 
-              alt={title}
-              class="w-full h-64 object-cover rounded-lg mb-6"
-            />
-          )}
-          
-          <div class="flex items-center mb-4">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
-              {category}
-            </span>
-            {readingTime && (
-              <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">
-                阅读时间 {readingTime} 分钟
-              </span>
-            )}
-          </div>
-          
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            {title}
-          </h1>
-          
-          <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
-            {description}
-          </p>
-          
-          <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-6">
-            <div class="flex items-center space-x-4">
-              <span>作者: {author}</span>
-              <span>发布于 {formatDate(pubDate)}</span>
-              {updatedDate && (
-                <span>更新于 {formatDate(updatedDate)}</span>
-              )}
-            </div>
-          </div>
-        </header>
+									<!-- 背景圆形 -->
+									<circle
+										cx='60'
+										cy='60'
+										r='56'
+										fill='url(#primaryGradient)'
+										filter='url(#shadow)'></circle>
 
-        <!-- 文章内容 -->
-        <article class="prose prose-lg max-w-none prose-gray dark:prose-invert">
-          <slot />
-        </article>
+									<!-- 代码符号 "{}" -->
+									<g transform='translate(60, 60)'>
+										<!-- 左大括号 -->
+										<path
+											d='M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15'
+											stroke='white'
+											stroke-width='3'
+											fill='none'
+											stroke-linecap='round'></path>
 
-        <!-- 文章标签 -->
-        {tags.length > 0 && (
-          <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">标签</h3>
-            <div class="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <a 
-                  href={`/tags/${tag}`}
-                  class="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
-                >
-                  #{tag}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+										<!-- 右大括号 -->
+										<path
+											d='M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15'
+											stroke='white'
+											stroke-width='3'
+											fill='none'
+											stroke-linecap='round'></path>
 
-        <!-- 导航到上一篇/下一篇 -->
-        <nav class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a href="#" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 transition-colors">
-              <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">← 上一篇</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">文章标题</div>
-            </a>
-            <a href="#" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 transition-colors text-right">
-              <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">下一篇 →</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">文章标题</div>
-            </a>
-          </div>
-        </nav>
-      </main>
-    </div>
+										<!-- 中间的点 -->
+										<circle cx='-8' cy='-3' r='2' fill='white'></circle>
+										<circle cx='0' cy='3' r='2' fill='white'></circle>
+										<circle cx='8' cy='-3' r='2' fill='white'></circle>
+									</g>
 
-    <!-- 主题切换脚本 -->
-    <script>
-      // 主题切换功能
-      const themeToggle = document.getElementById('theme-toggle');
-      
-      function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.classList.contains('dark');
-        
-        if (isDark) {
-          html.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-        } else {
-          html.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        }
-      }
-      
-      function initTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      }
-      
-      // 初始化主题
-      initTheme();
-      
-      // 绑定点击事件
-      themeToggle?.addEventListener('click', toggleTheme);
+									<!-- 装饰性几何元素 -->
+									<g opacity='0.3'>
+										<!-- 左上角三角形 -->
+										<polygon points='15,25 25,15 35,25' fill='white'></polygon>
+										<!-- 右下角菱形 -->
+										<polygon points='85,85 95,90 85,95 75,90' fill='white'
+										></polygon>
+									</g>
+								</svg>
+							</div>
+							<!-- 博客名称和副标题 -->
+							<div class='flex flex-col'>
+								<span
+									class='text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 leading-tight'
+								>
+									Fanmu
+								</span>
+								<span
+									class='text-xs text-gray-500 dark:text-gray-400 font-medium leading-none'
+								>
+									yancode.life
+								</span>
+							</div>
+						</a>
+					</div>
 
-      // 平滑滚动到锚点
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-        });
-      });
-    </script>
+					<!-- 导航菜单 -->
+					<nav class='hidden md:flex items-center space-x-6'>
+						<a
+							href='/'
+							class='text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+							>首页</a
+						>
+						<a href='/blog' class='text-orange-600 font-medium'>博客</a>
+						<a
+							href='/categories'
+							class='text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+							>分类</a
+						>
+						<a
+							href='/about'
+							class='text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+							>关于</a
+						>
+					</nav>
 
-    <style>
-      @import '../styles/global.css';
-      
-      /* 增强的 prose 样式 */
-      .prose {
-        @apply text-gray-800 dark:text-gray-200;
-      }
-      
-      .prose h2, .prose h3, .prose h4 {
-        @apply scroll-mt-24;
-      }
-      
-      .prose h2 {
-        @apply text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4;
-      }
-      
-      .prose h3 {
-        @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3;
-      }
-      
-      .prose h4 {
-        @apply text-lg font-medium text-gray-900 dark:text-gray-100 mt-4 mb-2;
-      }
-      
-      .prose p {
-        @apply mb-4 leading-relaxed;
-      }
-      
-      .prose a {
-        @apply text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium no-underline;
-      }
-      
-      .prose a:hover {
-        @apply underline;
-      }
-      
-      .prose code {
-        @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono;
-      }
-      
-      .prose pre {
-        @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto;
-      }
-      
-      .prose pre code {
-        @apply bg-transparent text-gray-100 p-0;
-      }
-      
-      .prose blockquote {
-        @apply border-l-4 border-orange-500 bg-orange-50 dark:bg-orange-900/20 pl-4 py-2 italic;
-      }
-      
-      .prose ul, .prose ol {
-        @apply mb-4;
-      }
-      
-      .prose li {
-        @apply mb-1;
-      }
-    </style>
-  </body>
+					<!-- 功能按钮 -->
+					<div class='flex items-center space-x-3'>
+						<button
+							class='p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+						>
+							<svg
+								class='h-5 w-5'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+							>
+								<path
+									stroke-linecap='round'
+									stroke-linejoin='round'
+									stroke-width='2'
+									d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'></path>
+							</svg>
+						</button>
+						<button
+							id='theme-toggle'
+							class='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+						>
+							<svg
+								class='h-5 w-5 hidden dark:block'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+								stroke-width='1.5'
+							>
+								<path
+									stroke-linecap='round'
+									stroke-linejoin='round'
+									d='M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z'
+								></path>
+							</svg>
+							<svg
+								class='h-5 w-5 block dark:hidden'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+								stroke-width='1.5'
+							>
+								<path
+									stroke-linecap='round'
+									stroke-linejoin='round'
+									d='M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z'
+								></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- 面包屑导航 -->
+		<nav
+			class='border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
+		>
+			<div class='max-w-7xl mx-auto px-6 py-3'>
+				<ol
+					class='flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400'
+				>
+					<li>
+						<a href='/' class='hover:text-gray-700 dark:hover:text-gray-300'
+							>首页</a
+						>
+					</li>
+					<li class='flex items-center'>
+						<svg class='h-4 w-4 mx-2' fill='currentColor' viewBox='0 0 20 20'>
+							<path
+								fill-rule='evenodd'
+								d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+								clip-rule='evenodd'></path>
+						</svg>
+						<a href='/blog' class='hover:text-gray-700 dark:hover:text-gray-300'
+							>博客</a
+						>
+					</li>
+					<li class='flex items-center'>
+						<svg class='h-4 w-4 mx-2' fill='currentColor' viewBox='0 0 20 20'>
+							<path
+								fill-rule='evenodd'
+								d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+								clip-rule='evenodd'></path>
+						</svg>
+						<span class='text-gray-900 dark:text-gray-100'>{title}</span>
+					</li>
+				</ol>
+			</div>
+		</nav>
+
+		<!-- 主要内容区域 -->
+		<main class='blog-post'>
+			<div class='content-wrapper'>
+				<!-- 主内容区 -->
+				<article class='main-content'>
+					<!-- 文章头部信息 -->
+					<header class='article-header'>
+						{
+							heroImage && (
+								<img src={heroImage} alt={title} class='hero-image' />
+							)
+						}
+
+						<div class='article-meta'>
+							<span class='category-badge'>{category}</span>
+							{
+								readingTime && (
+									<span class='reading-time'>阅读时间 {readingTime} 分钟</span>
+								)
+							}
+						</div>
+
+						<h1 class='article-title'>{title}</h1>
+
+						<p class='article-description'>{description}</p>
+
+						<div class='article-info'>
+							<span>作者: {author}</span>
+							<span>发布于 {formatDate(pubDate)}</span>
+							{updatedDate && <span>更新于 {formatDate(updatedDate)}</span>}
+						</div>
+					</header>
+
+					<!-- 文章内容 -->
+					<div class='prose'>
+						<slot />
+					</div>
+
+					<!-- 文章标签 -->
+					{
+						tags.length > 0 && (
+							<footer class='article-footer'>
+								<h3>标签</h3>
+								<div class='tags-list'>
+									{tags.map((tag) => (
+										<a href={`/tags/${tag}`} class='tag-link'>
+											#{tag}
+										</a>
+									))}
+								</div>
+							</footer>
+						)
+					}
+
+					<!-- 导航到上一篇/下一篇 -->
+					<nav class='post-navigation'>
+						<a href='#' class='nav-link prev'>
+							<div class='nav-label'>← 上一篇</div>
+							<div class='nav-title'>文章标题</div>
+						</a>
+						<a href='#' class='nav-link next'>
+							<div class='nav-label'>下一篇 →</div>
+							<div class='nav-title'>文章标题</div>
+						</a>
+					</nav>
+				</article>
+
+				<!-- 右侧目录导航 -->
+				<aside class='toc-sidebar'>
+					{
+						headings.length > 0 && (
+							<div class='toc-container'>
+								<h3 class='toc-title'>本页内容</h3>
+								<nav class='toc-nav'>
+									{headings.map((heading) => (
+										<a
+											href={`#${heading.id}`}
+											class={`toc-link toc-level-${heading.level}`}
+											data-id={heading.id}
+										>
+											{heading.text}
+										</a>
+									))}
+								</nav>
+							</div>
+						)
+					}
+				</aside>
+			</div>
+		</main>
+
+		<!-- Toast 提示 -->
+		<div id='toast' class='toast'>
+			<div class='toast-content'>
+				<span class='toast-icon'>✓</span>
+				<span class='toast-message'>链接已复制到剪贴板</span>
+			</div>
+		</div>
+
+		<script>
+			// 主题切换功能
+			const themeToggle = document.getElementById("theme-toggle");
+
+			function toggleTheme() {
+				const html = document.documentElement;
+				const isDark = html.classList.contains("dark");
+
+				if (isDark) {
+					html.classList.remove("dark");
+					localStorage.setItem("theme", "light");
+				} else {
+					html.classList.add("dark");
+					localStorage.setItem("theme", "dark");
+				}
+			}
+
+			function initTheme() {
+				const savedTheme = localStorage.getItem("theme");
+				const prefersDark = window.matchMedia(
+					"(prefers-color-scheme: dark)"
+				).matches;
+
+				if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+					document.documentElement.classList.add("dark");
+				}
+			}
+
+			// 初始化主题
+			initTheme();
+
+			// 绑定点击事件
+			themeToggle?.addEventListener("click", toggleTheme);
+
+			// 平滑滚动到锚点
+			document.querySelectorAll(".toc-link").forEach((link) => {
+				link.addEventListener("click", function (e) {
+					e.preventDefault();
+					const href = link.getAttribute("href");
+					if (href) {
+						const target = document.querySelector(href);
+						if (target) {
+							target.scrollIntoView({
+								behavior: "smooth",
+								block: "start",
+							});
+						}
+					}
+				});
+			});
+
+			// 当前位置高亮
+			function highlightCurrentSection() {
+				const sections = document.querySelectorAll("h2[id], h3[id], h4[id]");
+				const tocLinks = document.querySelectorAll(".toc-link");
+
+				let currentSection = "";
+
+				sections.forEach((section) => {
+					const rect = section.getBoundingClientRect();
+					if (rect.top <= 100) {
+						const sectionId = section.getAttribute("id");
+						if (sectionId) {
+							currentSection = sectionId;
+						}
+					}
+				});
+
+				tocLinks.forEach((link) => {
+					link.classList.remove("active");
+					if (link.getAttribute("data-id") === currentSection) {
+						link.classList.add("active");
+					}
+				});
+			}
+
+			// 滚动监听
+			window.addEventListener("scroll", highlightCurrentSection);
+			highlightCurrentSection();
+
+			// 章节链接复制功能
+			document.querySelectorAll("h2, h3, h4").forEach((heading) => {
+				const headingId = heading.getAttribute("id");
+				if (headingId) {
+					const linkIcon = document.createElement("button");
+					linkIcon.className = "heading-link";
+					linkIcon.innerHTML = "🔗";
+					linkIcon.setAttribute("aria-label", "复制链接");
+
+					linkIcon.addEventListener("click", async () => {
+						const url = window.location.href.split("#")[0] + "#" + headingId;
+						try {
+							await navigator.clipboard.writeText(url);
+							showToast();
+						} catch (err) {
+							console.error("复制失败:", err);
+						}
+					});
+
+					heading.appendChild(linkIcon);
+				}
+			});
+
+			// 显示 Toast 提示
+			function showToast() {
+				const toast = document.getElementById("toast");
+				if (toast) {
+					toast.classList.add("show");
+					setTimeout(() => {
+						toast.classList.remove("show");
+					}, 3000);
+				}
+			}
+		</script>
+
+		<style>
+			/* 全局样式重置和基础设置 */
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+					"Oxygen", "Ubuntu", "Cantarell", sans-serif;
+				line-height: 1.6;
+				color: #1a1a1a;
+			}
+
+			.dark body {
+				color: #e2e8f0;
+			}
+
+			/* 主要布局样式 */
+			.blog-post {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 48px 24px;
+			}
+
+			.content-wrapper {
+				display: grid;
+				grid-template-columns: 1fr 300px;
+				gap: 48px;
+				align-items: start;
+			}
+
+			.main-content {
+				min-width: 0;
+			}
+
+			/* 文章头部样式 */
+			.article-header {
+				margin-bottom: 48px;
+				padding-bottom: 32px;
+				border-bottom: 1px solid #e2e8f0;
+			}
+
+			.dark .article-header {
+				border-bottom-color: #475569;
+			}
+
+			.hero-image {
+				width: 100%;
+				height: 300px;
+				object-fit: cover;
+				border-radius: 10px;
+				margin-bottom: 32px;
+				transition:
+					transform 0.15s ease,
+					border-radius 0.15s ease;
+			}
+
+			.hero-image:hover {
+				transform: scale(
+					calc(1 + 0.02 * var(--img-hover-effect) * var(--use-dynamic-effect))
+				);
+				border-radius: calc(
+					10px - 10px * var(--img-hover-effect) * var(--use-dynamic-effect)
+				);
+			}
+
+			.prose img {
+				border-radius: 10px;
+				max-width: 100%;
+				display: block;
+				margin: 1em auto;
+				transition:
+					transform 0.15s ease,
+					border-radius 0.15s ease;
+			}
+
+			.prose img:hover {
+				transform: scale(
+					calc(1 + 0.02 * var(--img-hover-effect) * var(--use-dynamic-effect))
+				);
+				border-radius: calc(
+					10px - 10px * var(--img-hover-effect) * var(--use-dynamic-effect)
+				);
+			}
+
+			.article-meta {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				margin-bottom: 24px;
+			}
+
+			.category-badge {
+				display: inline-flex;
+				align-items: center;
+				padding: 6px 12px;
+				background-color: #fef3c7;
+				color: #92400e;
+				border-radius: 20px;
+				font-size: 14px;
+				font-weight: 500;
+			}
+
+			.dark .category-badge {
+				background-color: #451a03;
+				color: #fbbf24;
+			}
+
+			.reading-time {
+				font-size: 14px;
+				color: #6b7280;
+			}
+
+			.dark .reading-time {
+				color: #9ca3af;
+			}
+
+			.article-title {
+				font-size: 2rem;
+				font-weight: 700;
+				color: var(--body-text-color);
+				margin: 1.5rem 0 1rem 0;
+				line-height: 1.2;
+				text-align: center;
+				position: relative;
+				overflow: hidden;
+				transition: transform 0.4s ease;
+			}
+
+			.article-title:before {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: var(--write-h1-before-bg);
+				transition: transform 0.4s ease;
+				transform: scaleX(0);
+				transform-origin: center;
+				z-index: -1;
+				display: calc(var(--h1-hover-effect) * var(--use-dynamic-effect));
+			}
+
+			.article-title:hover {
+				transform: scale(
+					calc(1 + 0.1 * var(--h1-hover-effect) * var(--use-dynamic-effect))
+				);
+			}
+
+			.article-title:hover:before {
+				transform: scaleX(
+					calc(var(--h1-hover-effect) * var(--use-dynamic-effect))
+				);
+			}
+
+			.article-description {
+				font-size: 1.25rem;
+				line-height: 1.6;
+				color: #4a5568;
+				margin-bottom: 24px;
+			}
+
+			.dark .article-description {
+				color: #cbd5e1;
+			}
+
+			.article-info {
+				display: flex;
+				gap: 24px;
+				font-size: 14px;
+				color: #6b7280;
+			}
+
+			.dark .article-info {
+				color: #9ca3af;
+			}
+
+			/* 正文内容样式 */
+			.prose {
+				font-size: 1rem;
+				line-height: 1.75;
+				color: #4a5568;
+				max-width: none;
+			}
+
+			.dark .prose {
+				color: #e2e8f0;
+			}
+
+			.prose h2 {
+				font-size: 1.8rem;
+				font-weight: 700;
+				color: var(--body-text-color);
+				margin: 3rem 0 1rem 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				scroll-margin-top: 80px;
+				text-align: center;
+				justify-content: center;
+				padding-bottom: 0rem;
+				margin-bottom: 0rem;
+			}
+
+			.prose h2:after {
+				content: "";
+				display: block;
+				width: 30rem;
+				height: 2.5px;
+				margin: 0.5rem auto 0.3rem;
+				background: var(--write-h2-after-bg);
+				border-radius: 10px;
+				transform: scaleX(0);
+				transition:
+					transform 0.4s ease,
+					background 0.4s ease;
+				position: absolute;
+				bottom: -0.5rem;
+				left: 50%;
+				transform-origin: center;
+				transform: translateX(-50%) scaleX(0);
+			}
+
+			.prose h2:hover:after {
+				transform: translateX(-50%)
+					scaleX(calc(1 * var(--h2-after-effect) * var(--use-dynamic-effect)));
+			}
+
+			.prose h3 {
+				font-size: 1.6rem;
+				font-weight: 600;
+				color: var(--body-text-color);
+				margin: 1rem 0 0.5rem 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				scroll-margin-top: 80px;
+				transition: transform 0.3s ease;
+			}
+
+			.prose h4 {
+				font-size: 1.4rem;
+				font-weight: 600;
+				color: var(--body-text-color);
+				margin: 1rem 0 0.5rem 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				scroll-margin-top: 80px;
+				transition: transform 0.3s ease;
+			}
+
+			.prose h5 {
+				font-size: 1.2rem;
+				font-weight: 600;
+				color: var(--body-text-color);
+				margin: 1rem 0 0.5rem 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				scroll-margin-top: 80px;
+				transition: transform 0.3s ease;
+			}
+
+			.prose h6 {
+				font-size: 1rem;
+				font-weight: 600;
+				color: var(--body-text-color);
+				margin: 1rem 0 0.5rem 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				scroll-margin-top: 80px;
+				transition: transform 0.3s ease;
+			}
+
+			.prose h3:hover,
+			.prose h4:hover,
+			.prose h5:hover,
+			.prose h6:hover {
+				transform: scale(
+					calc(1 + 0.05 * var(--h3-6-hover-effect) * var(--use-dynamic-effect))
+				);
+			}
+
+			.prose p {
+				font-size: 1rem;
+				line-height: 1.9rem;
+				margin-bottom: 1.5rem;
+				padding: 0 0.3rem;
+				transition: all 0.25s ease;
+				word-spacing: 0.1rem;
+			}
+
+			.prose p:not(:has(img)):hover {
+				background-color: var(--p-hover-bg-color);
+			}
+
+			.prose a {
+				background-color: inherit;
+				color: var(--a-color);
+				text-decoration: none;
+				transition: color 0.3s ease;
+			}
+
+			.prose a:hover {
+				text-decoration: underline;
+				color: var(--a-hover-color);
+			}
+
+			.prose blockquote {
+				padding: 0.5rem 1rem;
+				border-left: 8px solid var(--blockquote-border-color);
+				background-color: var(--blockquote-bg-color);
+				border-radius: 7px;
+				margin: 2rem 0;
+				font-style: italic;
+				transition:
+					box-shadow 0.3s ease,
+					border-radius 0.3s ease,
+					border-left 0.3s ease;
+			}
+
+			.prose blockquote:hover {
+				border-left: calc(
+						8px + 1px * var(--blockquote-hover-effect) *
+							var(--use-dynamic-effect)
+					)
+					solid var(--blockquote-hover-border-color);
+				box-shadow: calc(
+						0px + 1px * var(--blockquote-hover-effect) *
+							var(--use-dynamic-effect)
+					)
+					calc(
+						0px + 1px * var(--blockquote-hover-effect) *
+							var(--use-dynamic-effect)
+					)
+					calc(
+						1px + 1px * var(--blockquote-hover-effect) *
+							var(--use-dynamic-effect)
+					)
+					rgba(
+						0,
+						0,
+						0,
+						calc(
+							0.1 * var(--blockquote-hover-effect) * var(--use-dynamic-effect)
+						)
+					);
+				border-radius: calc(
+					7px + 8px * var(--blockquote-hover-effect) * var(--use-dynamic-effect)
+				);
+			}
+
+			.prose blockquote p {
+				margin: 0.1rem 0;
+			}
+
+			.prose code {
+				background-color: var(--code-bg-color);
+				color: var(--code-color);
+				font-family: "Fira Code", Consolas, "Lucida Console", "Courier",
+					monospace;
+				font-size: 1rem;
+				font-weight: 550;
+				margin: 0 2px;
+				padding: 3px 3px 1px;
+				border-radius: 7px;
+				transition: all 0.3s ease;
+			}
+
+			.prose code:hover {
+				background-color: var(--code-hover-bg-color);
+				font-weight: calc(
+					550 + 150 * var(--code-hover-effect) * var(--use-dynamic-effect)
+				);
+				padding: 3px 3px
+					calc(1px + 2px * var(--code-hover-effect) * var(--use-dynamic-effect));
+			}
+
+			.prose pre {
+				font-family: "Fira Code", Consolas, "Lucida Console", "Courier",
+					monospace;
+				color: var(--code-fences-color);
+				background-color: var(--code-fences-bg-color);
+				padding: 17px;
+				padding-top: 32px;
+				border-radius: 10px;
+				box-shadow: var(--code-fences-box-shadow);
+				transition:
+					transform 0.3s ease,
+					box-shadow 0.3s ease;
+				position: relative;
+				overflow-x: auto;
+				margin: 2rem 0;
+			}
+
+			.prose pre::before {
+				background: var(--code-fences-before-bg);
+				border-radius: 50%;
+				box-shadow:
+					20px 0 var(--code-fences-before-bg),
+					40px 0 var(--code-fences-before-bg);
+				content: " ";
+				height: 12px;
+				width: 12px;
+				position: absolute;
+				left: 13px;
+				top: 12px;
+				transition: all 0.3s ease;
+			}
+
+			@keyframes bounce-code {
+				0%,
+				100% {
+					width: 100%;
+					height: 100%;
+					transform: translate(0, 0);
+				}
+				50% {
+					transform: translate(
+						calc(-3px * var(--fence-hover-effect) * var(--use-dynamic-effect)),
+						calc(-3px * var(--fence-hover-effect) * var(--use-dynamic-effect))
+					);
+				}
+			}
+
+			.prose pre:hover {
+				animation: bounce-code 0.5s ease-in-out;
+				box-shadow: 0
+					calc(
+						1px + 1px * var(--fence-hover-effect) * var(--use-dynamic-effect)
+					)
+					calc(
+						3px + 1px * var(--fence-hover-effect) * var(--use-dynamic-effect)
+					)
+					rgba(
+						0,
+						0,
+						0,
+						calc(
+							0.15 + 0.05 * var(--fence-hover-effect) *
+								var(--use-dynamic-effect)
+						)
+					);
+			}
+
+			.prose pre:hover::before {
+				background: var(--code-fences-3circle-1);
+				box-shadow:
+					20px 0 var(--code-fences-3circle-2),
+					40px 0 var(--code-fences-3circle-3);
+			}
+
+			.prose pre code {
+				background-color: transparent;
+				color: inherit;
+				padding: 0;
+				font-weight: normal;
+			}
+
+			.prose ul,
+			.prose ol {
+				margin: 1rem 0 1.5rem 1.5rem;
+			}
+
+			.prose li {
+				margin-bottom: 0.5rem;
+			}
+
+			/* 水平线样式 */
+			.prose hr {
+				position: relative;
+				margin-top: 2rem;
+				margin-bottom: 2rem;
+				border: none;
+				border-top: 2px solid transparent;
+				background-image: var(--hr-bg-image);
+				height: 1.5px;
+				overflow: visible;
+				opacity: 0.8;
+				border-radius: 5px;
+				box-shadow: var(--hr-box-shadow);
+				animation: dashAnimation 0.5s ease-in-out;
+				transition:
+					transform 0.3s ease,
+					background-position 0.3s ease,
+					height 0.3s ease;
+				background-size: 200% 100%;
+				background-position: 0 0;
+			}
+
+			.prose hr:hover {
+				background-position: 100% 0;
+				transform: scale(1.02);
+				height: 2.5px;
+			}
+
+			@keyframes dashAnimation {
+				0% {
+					width: 0%;
+					opacity: 0;
+				}
+				100% {
+					width: 100%;
+					opacity: 1;
+				}
+			}
+
+			.prose strong {
+				font-weight: bold;
+				color: var(--strong-color);
+				font-size: 1.05rem;
+				transition:
+					font-size 0.3s ease,
+					padding 0.3s ease;
+				display: inline-block;
+				margin: 0 2px;
+			}
+
+			.prose strong:hover {
+				font-size: calc(
+					1.05rem + 0.05rem * var(--strong-hover-effect) *
+						var(--use-dynamic-effect)
+				);
+				padding: calc(
+					0px + 3px * var(--strong-hover-effect) * var(--use-dynamic-effect)
+				);
+			}
+
+			.prose em {
+				background-color: inherit;
+				color: var(--em-color);
+				transition: all 0.3s ease;
+				padding-left: 1px;
+				padding-right: 1px;
+			}
+
+			.prose em:hover {
+				color: var(--em-hover-color);
+				font-weight: calc(
+					500 + 100 * var(--em-hover-effect) * var(--use-dynamic-effect)
+				);
+				padding-left: calc(
+					1px + 2px * var(--em-hover-effect) * var(--use-dynamic-effect)
+				);
+				padding-right: calc(
+					1px + 2px * var(--em-hover-effect) * var(--use-dynamic-effect)
+				);
+			}
+
+			/* 章节链接图标 */
+			.heading-link {
+				opacity: 0;
+				background: none;
+				border: none;
+				font-size: 1rem;
+				cursor: pointer;
+				padding: 4px;
+				margin-left: 8px;
+				border-radius: 4px;
+				transition:
+					opacity 0.2s ease,
+					background-color 0.2s ease;
+			}
+
+			.prose h2:hover .heading-link,
+			.prose h3:hover .heading-link,
+			.prose h4:hover .heading-link {
+				opacity: 1;
+			}
+
+			.heading-link:hover {
+				background-color: #f3f4f6;
+			}
+
+			.dark .heading-link:hover {
+				background-color: #374151;
+			}
+
+			/* 右侧目录样式 */
+			.toc-sidebar {
+				position: sticky;
+				top: 24px;
+			}
+
+			.toc-container {
+				background: white;
+				border: 1px solid #e2e8f0;
+				border-radius: 8px;
+				padding: 24px;
+				box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+				min-width: 240px;
+			}
+
+			.dark .toc-container {
+				background: #1e293b;
+				border-color: #475569;
+			}
+
+			.toc-title {
+				font-size: 1.125rem;
+				font-weight: 600;
+				color: #2d3748;
+				margin: 0 0 16px 0;
+				padding-bottom: 8px;
+				border-bottom: 1px solid #e2e8f0;
+			}
+
+			.dark .toc-title {
+				color: #f1f5f9;
+				border-bottom-color: #475569;
+			}
+
+			.toc-nav {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+			}
+
+			.toc-link {
+				display: block;
+				font-size: 0.875rem;
+				color: #4a5568;
+				text-decoration: none;
+				padding: 6px 0;
+				line-height: 1.5;
+				transition: all 0.2s ease;
+				border-radius: 4px;
+			}
+
+			.toc-link:hover {
+				color: #2b6cb0;
+				transform: translateX(4px);
+			}
+
+			.toc-link.active {
+				color: #2b6cb0;
+				font-weight: 600;
+			}
+
+			.dark .toc-link {
+				color: #cbd5e1;
+			}
+
+			.dark .toc-link:hover,
+			.dark .toc-link.active {
+				color: #63b3ed;
+			}
+
+			.toc-level-3 {
+				padding-left: 16px;
+			}
+
+			.toc-level-4 {
+				padding-left: 32px;
+			}
+
+			/* 文章页脚样式 */
+			.article-footer {
+				margin-top: 48px;
+				padding-top: 32px;
+				border-top: 1px solid #e2e8f0;
+			}
+
+			.dark .article-footer {
+				border-top-color: #475569;
+			}
+
+			.article-footer h3 {
+				font-size: 1.125rem;
+				font-weight: 600;
+				color: #2d3748;
+				margin: 0 0 16px 0;
+			}
+
+			.dark .article-footer h3 {
+				color: #f1f5f9;
+			}
+
+			.tags-list {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			.tag-link {
+				display: inline-flex;
+				align-items: center;
+				padding: 6px 12px;
+				background-color: #f3f4f6;
+				color: #374151;
+				border-radius: 16px;
+				font-size: 14px;
+				font-weight: 500;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.tag-link:hover {
+				background-color: #e5e7eb;
+				transform: translateY(-1px);
+			}
+
+			.dark .tag-link {
+				background-color: #374151;
+				color: #d1d5db;
+			}
+
+			.dark .tag-link:hover {
+				background-color: #4b5563;
+			}
+
+			/* 文章导航样式 */
+			.post-navigation {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 16px;
+				margin-top: 48px;
+				padding-top: 32px;
+				border-top: 1px solid #e2e8f0;
+			}
+
+			.dark .post-navigation {
+				border-top-color: #475569;
+			}
+
+			.nav-link {
+				display: block;
+				padding: 16px;
+				border: 1px solid #e2e8f0;
+				border-radius: 8px;
+				text-decoration: none;
+				transition: all 0.2s ease;
+			}
+
+			.nav-link:hover {
+				background-color: #f9fafb;
+				border-color: #d1d5db;
+			}
+
+			.dark .nav-link {
+				border-color: #475569;
+			}
+
+			.dark .nav-link:hover {
+				background-color: #1e293b;
+				border-color: #64748b;
+			}
+
+			.nav-link.next {
+				text-align: right;
+			}
+
+			.nav-label {
+				font-size: 14px;
+				color: #6b7280;
+				margin-bottom: 4px;
+			}
+
+			.dark .nav-label {
+				color: #9ca3af;
+			}
+
+			.nav-title {
+				font-weight: 600;
+				color: #1f2937;
+			}
+
+			.dark .nav-title {
+				color: #f9fafb;
+			}
+
+			/* Toast 提示样式 */
+			.toast {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				z-index: 1000;
+				opacity: 0;
+				transform: translateY(-20px);
+				transition: all 0.3s ease;
+			}
+
+			.toast.show {
+				opacity: 1;
+				transform: translateY(0);
+			}
+
+			.toast-content {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				background: #10b981;
+				color: white;
+				padding: 12px 16px;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+			}
+
+			.toast-icon {
+				font-size: 16px;
+			}
+
+			.toast-message {
+				font-size: 14px;
+				font-weight: 500;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 1024px) {
+				.content-wrapper {
+					grid-template-columns: 1fr;
+					gap: 32px;
+				}
+
+				.toc-sidebar {
+					order: -1;
+					position: static;
+				}
+
+				.toc-container {
+					max-width: 100%;
+				}
+
+				/* 移动端关闭部分动画效果 */
+				.prose pre:hover {
+					animation: none;
+				}
+			}
+
+			@media (max-width: 768px) {
+				.blog-post {
+					padding: 24px 16px;
+				}
+
+				.article-title {
+					font-size: 1.8rem;
+				}
+
+				.prose h2 {
+					font-size: 1.5rem;
+				}
+
+				.prose h2:after {
+					width: 20rem;
+				}
+
+				.prose h3 {
+					font-size: 1.3rem;
+				}
+
+				.prose h4 {
+					font-size: 1.2rem;
+				}
+
+				.prose h5 {
+					font-size: 1.1rem;
+				}
+
+				.prose h6 {
+					font-size: 1rem;
+				}
+
+				.post-navigation {
+					grid-template-columns: 1fr;
+				}
+
+				.nav-link.next {
+					text-align: left;
+				}
+
+				.article-meta {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+				}
+
+				.article-info {
+					flex-direction: column;
+					gap: 8px;
+				}
+
+				/* 移动端减少动画强度 */
+				:root {
+					--use-dynamic-effect: 0.5;
+				}
+			}
+
+			/* 大屏幕优化 */
+			@media (min-width: 1400px) {
+				.blog-post {
+					max-width: 1200px;
+				}
+
+				.prose hr {
+					height: 2px;
+				}
+
+				.prose pre:hover {
+					animation: none;
+				}
+			}
+		</style>
+	</body>
 </html>

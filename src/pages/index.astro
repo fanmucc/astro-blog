@@ -1,12 +1,8 @@
 ---
+// src/pages/index.astro - 首页，专注于整体控制和首页逻辑
 import Layout from "../layouts/Layout.astro";
-import { buildMenuTree, getPageByPath } from "../utils/menu";
-import {
-	getRedirectConfig,
-	shouldRedirect,
-	clientRedirect,
-} from "../utils/redirects.ts";
-import Icon from "../components/Icon.astro";
+import { getPageByPath } from "../utils/menu";
+import { getRedirectConfig, shouldRedirect } from "../utils/redirects.ts";
 
 // 获取重定向配置
 const redirectConfig = await getRedirectConfig();
@@ -18,13 +14,11 @@ const redirectRule = shouldRedirect(currentPath, redirectConfig);
 // 如果需要重定向，执行服务端重定向
 if (redirectRule && currentPath === "/") {
 	console.log(`服务端重定向: ${currentPath} -> ${redirectRule.to}`);
-	return Astro.redirect(redirectRule.to, redirectRule.status || 302);
+	const status = "status" in redirectRule ? redirectRule.status || 302 : 302;
+	return Astro.redirect(redirectRule.to, status);
 }
 
-// 构建菜单树
-const menuTree = await buildMenuTree();
-
-// 默认显示首页内容
+// 获取默认首页内容
 const defaultPage = await getPageByPath("home/index");
 const { Content: DefaultContent } = defaultPage
 	? await defaultPage.render()
@@ -32,10 +26,16 @@ const { Content: DefaultContent } = defaultPage
 ---
 
 <Layout
-	title='Fanmu - yancode.life'
+	title='首页'
 	description='分享技术见解、生活感悟和学习心得'
+	currentPath={currentPath}
+	showSidebar={true}
+	showHeader={true}
+	showBreadcrumb={false}
+	theme='auto'
+	pageType='home'
 >
-	<!-- 客户端重定向脚本 -->
+	<!-- 客户端重定向脚本（如果需要） -->
 	<script define:vars={{ redirectConfig, currentPath }}>
 		// 客户端重定向检查（用于动态路由和特殊情况）
 		function checkClientRedirect() {
@@ -46,8 +46,6 @@ const { Content: DefaultContent } = defaultPage
 			const rule = redirectConfig.rules.find((r) => r.from === pathname);
 			if (rule) {
 				console.log(`客户端重定向: ${pathname} -> ${rule.to}`);
-
-				// 根据重定向类型选择方法
 				if (rule.type === "permanent") {
 					window.location.replace(rule.to);
 				} else {
@@ -73,7 +71,6 @@ const { Content: DefaultContent } = defaultPage
 		if (typeof window !== "undefined") {
 			// 立即检查重定向
 			if (checkClientRedirect()) {
-				// 如果发生了重定向，停止后续脚本执行
 				throw new Error("Redirected");
 			}
 
@@ -84,534 +81,118 @@ const { Content: DefaultContent } = defaultPage
 		}
 	</script>
 
-	<!-- 使用 CSS 变量的统一样式系统 -->
-	<div class='page-container'>
-		<!-- 顶部导航栏 -->
-		<header class='header-nav'>
-			<div class='max-w-full mx-auto px-4 sm:px-6 lg:px-8'>
-				<div class='flex items-center justify-between h-16'>
-					<!-- 左侧：Logo -->
-					<div class='flex items-center'>
-						<a href='/' class='flex items-center space-x-3 group'>
-							<div class='relative'>
-								<svg viewBox='0 0 120 120' class='h-10 w-10'>
-									<defs>
-										<linearGradient
-											id='primaryGradient'
-											x1='0%'
-											y1='0%'
-											x2='100%'
-											y2='100%'
-										>
-											<stop
-												offset='0%'
-												style='stop-color:#f59e0b;stop-opacity:1'></stop>
-											<stop
-												offset='100%'
-												style='stop-color:#d97706;stop-opacity:1'></stop>
-										</linearGradient>
-										<filter
-											id='shadow'
-											x='-20%'
-											y='-20%'
-											width='140%'
-											height='140%'
-										>
-											<feDropShadow
-												dx='1'
-												dy='2'
-												stdDeviation='2'
-												flood-opacity='0.2'
-												flood-color='#000'></feDropShadow>
-										</filter>
-									</defs>
-									<circle
-										cx='60'
-										cy='60'
-										r='56'
-										fill='url(#primaryGradient)'
-										filter='url(#shadow)'></circle>
-									<g transform='translate(60, 60)'>
-										<path
-											d='M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15'
-											stroke='white'
-											stroke-width='3'
-											fill='none'
-											stroke-linecap='round'></path>
-										<path
-											d='M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15'
-											stroke='white'
-											stroke-width='3'
-											fill='none'
-											stroke-linecap='round'></path>
-										<circle cx='-8' cy='-3' r='2' fill='white'></circle>
-										<circle cx='0' cy='3' r='2' fill='white'></circle>
-										<circle cx='8' cy='-3' r='2' fill='white'></circle>
-									</g>
-									<g opacity='0.3'>
-										<polygon points='15,25 25,15 35,25' fill='white'></polygon>
-										<polygon points='85,85 95,90 85,95 75,90' fill='white'
-										></polygon>
-									</g>
-								</svg>
-							</div>
-							<div class='flex flex-col'>
-								<span class='logo-title'> Fanmu </span>
-								<span class='logo-subtitle'> yancode.life </span>
-							</div>
+	<!-- 首页内容 -->
+	<div class='home-container content-area'>
+		{
+			defaultPage && DefaultContent ? (
+				<article class='home-content'>
+					<header class='home-header'>
+						<h1 class='home-title'>{defaultPage.data.title}</h1>
+						{defaultPage.data.description && (
+							<p class='home-description'>{defaultPage.data.description}</p>
+						)}
+						<div class='home-meta'>
+							<span>作者: {defaultPage.data.author}</span>
+							<span>
+								创建于: {defaultPage.data.createdAt.toLocaleDateString("zh-CN")}
+							</span>
+							{defaultPage.data.readingTime && (
+								<span>阅读时间: {defaultPage.data.readingTime} 分钟</span>
+							)}
+						</div>
+					</header>
+					<div class='home-body'>
+						<DefaultContent />
+					</div>
+				</article>
+			) : (
+				<div class='welcome-content'>
+					<div class='welcome-icon'>
+						<svg
+							fill='none'
+							stroke='currentColor'
+							viewBox='0 0 24 24'
+							class='w-16 h-16'
+						>
+							<path
+								stroke-linecap='round'
+								stroke-linejoin='round'
+								stroke-width='2'
+								d='M9 12h6M9 16h6M9 8h6M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002 2V8'
+							/>
+						</svg>
+					</div>
+					<h1 class='welcome-title'>欢迎来到 Fanmu 的博客</h1>
+					<p class='welcome-text'>分享技术见解、生活感悟和学习心得</p>
+					<div class='welcome-actions'>
+						<a href='/home' class='welcome-btn primary'>
+							开始阅读
+						</a>
+						<a href='/about' class='welcome-btn secondary'>
+							了解更多
 						</a>
 					</div>
-
-					<!-- 右侧：搜索 + 主题切换 + 快捷链接 -->
-					<div class='flex items-center space-x-3'>
-						<!-- 快捷外部链接 -->
-						<div class='hidden md:flex items-center space-x-2'>
-							<button
-								onclick="window.open('/github', '_blank')"
-								class='nav-button'
-								title='GitHub'
-							>
-								<svg class='h-5 w-5' fill='currentColor' viewBox='0 0 24 24'>
-									<path
-										d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'
-									></path>
-								</svg>
-							</button>
-						</div>
-
-						<!-- 搜索框 -->
-						<div class='relative group'>
-							<div class='relative'>
-								<input
-									type='search'
-									placeholder='搜索'
-									id='global-search'
-									class='search-input w-64 pl-10 pr-4 py-2.5 text-sm rounded-lg focus:outline-none transition-all duration-200'
-								/>
-								<div
-									class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'
-								>
-									<svg
-										class='h-4 w-4 search-icon'
-										fill='none'
-										stroke='currentColor'
-										viewBox='0 0 24 24'
-									>
-										<path
-											stroke-linecap='round'
-											stroke-linejoin='round'
-											stroke-width='2'
-											d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'></path>
-									</svg>
-								</div>
-								<div class='absolute inset-y-0 right-0 pr-3 flex items-center'>
-									<kbd
-										class='search-kbd hidden sm:inline-flex h-5 select-none items-center gap-1 rounded px-1.5 font-mono text-xs'
-									>
-										<span class='text-xs'>⌘</span>K
-									</kbd>
-								</div>
-							</div>
-						</div>
-
-						<!-- 主题切换按钮 -->
-						<button id='theme-toggle' class='nav-button' aria-label='切换主题'>
-							<svg
-								class='h-5 w-5 theme-icon-sun'
-								fill='none'
-								stroke='currentColor'
-								viewBox='0 0 24 24'
-								stroke-width='1.5'
-							>
-								<path
-									stroke-linecap='round'
-									stroke-linejoin='round'
-									d='M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z'
-								></path>
-							</svg>
-							<svg
-								class='h-5 w-5 theme-icon-moon'
-								fill='none'
-								stroke='currentColor'
-								viewBox='0 0 24 24'
-								stroke-width='1.5'
-							>
-								<path
-									stroke-linecap='round'
-									stroke-linejoin='round'
-									d='M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z'
-								></path>
-							</svg>
-						</button>
-					</div>
 				</div>
-			</div>
-		</header>
-
-		<!-- 主要内容区域 -->
-		<div class='main-layout'>
-			<!-- 左侧边栏 -->
-			<aside class='sidebar'>
-				<div class='sidebar-content'>
-					<!-- 主菜单 -->
-					<div class='main-menu mb-6'>
-						<nav class='space-y-1' id='main-menu'>
-							{
-								menuTree.map((menuItem) => (
-									<button
-										data-menu={menuItem.value}
-										data-path={menuItem.path}
-										data-has-index={menuItem.hasIndex}
-										class='main-menu-item group flex items-center w-full text-sm font-medium text-left focus:outline-none'
-									>
-										{menuItem.icon && (
-											<span class='main-menu-icon mr-3 h-5 w-5 flex items-center justify-center'>
-												<Icon name={menuItem.icon as any} />
-											</span>
-										)}
-										<span class='flex-1'>{menuItem.label}</span>
-									</button>
-								))
-							}
-						</nav>
-					</div>
-
-					<!-- 子菜单区域 -->
-					<div class='submenu-section'>
-						<div class='sub-menu-title px-3 mb-3' id='submenu-title'>
-							子菜单
-						</div>
-
-						<!-- 动态子菜单内容 -->
-						<div id='submenu-container' class='space-y-1'>
-							<div class='submenu-placeholder'>选择上方菜单查看子选项</div>
-						</div>
-					</div>
-				</div>
-			</aside>
-
-			<!-- 主内容区 -->
-			<main class='main-content'>
-				<div class='content-padding'>
-					<!-- 面包屑导航 -->
-					<nav
-						class='breadcrumb-nav'
-						id='breadcrumb-nav'
-						style='display: none;'
-					>
-						<ol class='flex items-center space-x-2 text-sm'>
-							<!-- 面包屑将通过 JavaScript 动态生成 -->
-						</ol>
-					</nav>
-
-					<!-- 内容区域 -->
-					<div id='content-area'>
-						{
-							defaultPage && DefaultContent ? (
-								<article class='content-article'>
-									<header class='content-header'>
-										<h1 class='content-title'>{defaultPage.data.title}</h1>
-										{defaultPage.data.description && (
-											<p class='content-description'>
-												{defaultPage.data.description}
-											</p>
-										)}
-										<div class='content-meta'>
-											<span>作者: {defaultPage.data.author}</span>
-											<span>
-												创建于:{" "}
-												{defaultPage.data.createdAt.toLocaleDateString("zh-CN")}
-											</span>
-											{defaultPage.data.readingTime && (
-												<span>
-													阅读时间: {defaultPage.data.readingTime} 分钟
-												</span>
-											)}
-										</div>
-									</header>
-									<DefaultContent />
-								</article>
-							) : (
-								<div class='welcome-content'>
-									<svg
-										class='welcome-icon'
-										fill='none'
-										stroke='currentColor'
-										viewBox='0 0 24 24'
-									>
-										<path
-											stroke-linecap='round'
-											stroke-linejoin='round'
-											stroke-width='2'
-											d='M9 12h6M9 16h6M9 8h6M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2M3 8v10a2 2 0 002 2h14a2 2 0 002 2V8'
-										/>
-									</svg>
-									<h2 class='welcome-title'>欢迎来到 Fanmu 的博客</h2>
-									<p class='welcome-text'>请选择左侧菜单开始浏览内容</p>
-								</div>
-							)
-						}
-					</div>
-				</div>
-			</main>
-		</div>
+			)
+		}
 	</div>
 
-	<!-- 页面脚本（保持不变）-->
-	<script define:vars={{ menuTree, redirectConfig }}>
-		// 全局变量
-		window.menuTree = menuTree;
-		window.redirectConfig = redirectConfig;
-		let currentMenu = "home";
-		let currentSubmenu = null;
-		let selectedMenuItem = null;
-		let expandedSections = new Set();
-
-		// 主题切换功能
-		const themeToggle = document.getElementById("theme-toggle");
-
-		function toggleTheme() {
-			const html = document.documentElement;
-			const isDark = html.classList.contains("dark");
-
-			if (isDark) {
-				html.classList.remove("dark");
-				localStorage.setItem("theme", "light");
-			} else {
-				html.classList.add("dark");
-				localStorage.setItem("theme", "dark");
-			}
-		}
-
-		function initTheme() {
-			const savedTheme = localStorage.getItem("theme");
-			const prefersDark = window.matchMedia(
-				"(prefers-color-scheme: dark)"
-			).matches;
-
-			if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-				document.documentElement.classList.add("dark");
-			}
-		}
-
-		// 其余 JavaScript 代码保持不变...
-		// [省略重复的脚本代码以节省空间]
-
-		// 初始化
+	<!-- 首页特定脚本 -->
+	<script>
+		// 首页特定的交互功能
 		document.addEventListener("DOMContentLoaded", function () {
-			console.log("页面加载完成，当前路径:", window.location.pathname);
+			console.log("首页加载完成");
 
-			initTheme();
-			themeToggle?.addEventListener("click", toggleTheme);
-			// 其他初始化代码...
+			// 添加首页特有的交互效果
+			initHomePageFeatures();
 		});
+
+		function initHomePageFeatures() {
+			// 为欢迎按钮添加动画效果
+			const welcomeButtons = document.querySelectorAll(".welcome-btn");
+			welcomeButtons.forEach((btn) => {
+				if (btn instanceof HTMLElement) {
+					btn.addEventListener("mouseenter", () => {
+						btn.style.transform = "translateY(-2px)";
+					});
+
+					btn.addEventListener("mouseleave", () => {
+						btn.style.transform = "translateY(0)";
+					});
+				}
+			});
+		}
 	</script>
 
 	<style>
-		/* 导入全局样式 */
-		@import "../styles/global.css";
-
-		/* 页面容器 */
-		.page-container {
-			height: 100vh;
-			background-color: var(--g-bg);
-			margin: 0;
-			overflow: hidden;
-		}
-
-		/* 顶部导航样式 */
-		.header-nav {
-			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 50;
-			border-bottom: 1px solid var(--h-nav-border);
-			background-color: var(--h-nav-bg);
-			backdrop-filter: blur(12px);
-		}
-
-		.logo-title {
-			font-size: 1.25rem;
-			font-weight: 700;
-			color: var(--h-nav-text);
-			transition: color var(--transition-fast);
-			line-height: 1.2;
-		}
-
-		.logo-subtitle {
-			font-size: 0.75rem;
-			font-weight: 500;
-			color: var(--g-text-tertiary);
-			line-height: 1;
-		}
-
-		.nav-button {
-			padding: 0.5rem;
-			border-radius: 0.5rem;
-			transition: all var(--transition-fast);
-			color: var(--g-text-secondary);
-			background-color: transparent;
-			border: none;
-			cursor: pointer;
-		}
-
-		.nav-button:hover {
-			color: var(--h-nav-text-hover);
-			background-color: var(--a-main-item-bg-hover);
-		}
-
-		.nav-button:focus {
-			outline: none;
-		}
-
-		/* 搜索框样式 */
-		.search-input {
-			background-color: var(--s-input-bg);
-			border: 1px solid var(--s-input-border);
-			color: var(--s-input-text);
-			transition: border-color var(--transition-fast);
-		}
-
-		.search-input:focus {
-			border-color: var(--s-input-border-focus);
-			box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
-		}
-
-		.search-input::placeholder {
-			color: var(--s-input-placeholder);
-		}
-
-		.search-icon {
-			color: var(--s-input-placeholder);
-		}
-
-		.search-kbd {
-			border: 1px solid var(--g-border);
-			background-color: var(--g-bg-tertiary);
-			color: var(--g-text-tertiary);
-		}
-
-		/* 主题切换图标 */
-		.theme-icon-sun {
-			display: none;
-		}
-
-		.theme-icon-moon {
-			display: block;
-		}
-
-		.dark .theme-icon-sun {
-			display: block;
-		}
-
-		.dark .theme-icon-moon {
-			display: none;
-		}
-
-		/* 主布局 */
-		.main-layout {
-			display: flex;
-			height: calc(100vh - 4rem);
-		}
-
-		/* 侧边栏 */
-		.sidebar {
-			width: 16rem;
-			flex-shrink: 0;
-			border-right: 1px solid var(--a-sidebar-border);
-			background-color: var(--a-sidebar-bg);
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-
-		.sidebar-content {
-			flex: 1;
-			overflow-y: auto;
-			padding: 0.5rem 0.5rem 1rem;
-			scrollbar-width: thin;
-			scrollbar-color: var(--g-border) transparent;
-		}
-
-		.sidebar-content::-webkit-scrollbar {
-			width: 3px;
-		}
-
-		.sidebar-content::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		.sidebar-content::-webkit-scrollbar-thumb {
-			background: var(--g-border);
-			border-radius: 2px;
-		}
-
-		.sidebar-content::-webkit-scrollbar-thumb:hover {
-			background: var(--g-border-dark);
-		}
-
-		/* 子菜单区域 */
-		.submenu-section {
-			padding: 0.5rem 1rem 0;
-			border-color: var(--a-sidebar-border);
-		}
-
-		.submenu-placeholder {
-			font-size: 0.75rem;
-			padding: 0.75rem;
-			color: var(--g-text-muted);
-		}
-
-		/* 主内容区 */
-		.main-content {
-			flex: 1;
-			overflow-y: auto;
-			height: 100%;
-			background-color: var(--m-content-bg);
-		}
-
-		.content-padding {
-			padding: 1.5rem 1.5rem;
-		}
-
-		@media (min-width: 1024px) {
-			.content-padding {
-				padding: 1.5rem 2rem;
-			}
-		}
-
-		/* 面包屑导航 */
-		.breadcrumb-nav {
-			background-color: var(--b-crumb-bg);
-			border-bottom: 1px solid var(--b-crumb-border);
-			margin-bottom: 1.5rem;
-			padding-bottom: 1rem;
-		}
-
-		/* 内容区域 */
-		.content-article {
+		/* 首页特定样式 */
+		.home-container {
 			max-width: none;
 		}
 
-		.content-header {
+		/* 首页内容样式 */
+		.home-content {
+			max-width: none;
+		}
+
+		.home-header {
 			margin-bottom: 2rem;
 		}
 
-		.content-title {
+		.home-title {
 			font-size: 2.25rem;
 			font-weight: 700;
 			color: var(--m-content-heading);
 			margin-bottom: 1rem;
 		}
 
-		.content-description {
+		.home-description {
 			font-size: 1.25rem;
 			color: var(--g-text-secondary);
 			margin-bottom: 1.5rem;
 		}
 
-		.content-meta {
+		.home-meta {
 			display: flex;
 			align-items: center;
 			gap: 1rem;
@@ -621,133 +202,130 @@ const { Content: DefaultContent } = defaultPage
 			padding-bottom: 1rem;
 		}
 
-		/* 欢迎内容 */
+		.home-body {
+			color: var(--m-content-text);
+		}
+
+		/* 欢迎内容样式 */
 		.welcome-content {
 			text-align: center;
-			padding: 3rem 0;
+			padding: 4rem 2rem;
+			max-width: 600px;
+			margin: 0 auto;
 		}
 
 		.welcome-icon {
-			width: 4rem;
-			height: 4rem;
-			margin: 0 auto 1rem;
-			color: var(--g-text-muted);
+			display: flex;
+			justify-content: center;
+			margin-bottom: 2rem;
+			color: var(--color-primary);
 		}
 
 		.welcome-title {
-			font-size: 1.5rem;
+			font-size: 2.5rem;
 			font-weight: 700;
 			color: var(--m-content-heading);
 			margin-bottom: 1rem;
+			line-height: 1.2;
 		}
 
 		.welcome-text {
-			font-size: 1.125rem;
+			font-size: 1.25rem;
 			color: var(--g-text-secondary);
-			margin-bottom: 1.5rem;
+			margin-bottom: 2rem;
+			line-height: 1.6;
 		}
 
-		/* 移除所有按钮的默认样式 */
-		button:focus,
-		button:active,
-		button:hover,
-		input:focus,
-		input:active,
-		a:focus,
-		a:active {
-			outline: none !important;
-			border: none !important;
-			box-shadow: none !important;
+		.welcome-actions {
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			flex-wrap: wrap;
 		}
 
-		/* 菜单样式使用 CSS 变量 */
-		.main-menu-item {
-			background-color: var(--a-main-item-bg);
-			color: var(--a-main-item-text);
-			transition: all var(--transition-normal);
+		.welcome-btn {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.75rem 2rem;
+			font-size: 1rem;
+			font-weight: 600;
 			border-radius: 0.5rem;
-			padding: 0.625rem 0.75rem;
-			border: none;
+			text-decoration: none;
+			transition: all var(--transition-fast);
+			border: 2px solid transparent;
 		}
 
-		.main-menu-item:hover {
-			background-color: var(--a-main-item-bg-hover);
-			color: var(--a-main-item-text-hover);
+		.welcome-btn.primary {
+			background-color: var(--btn-primary-bg);
+			color: var(--btn-primary-text);
 		}
 
-		.main-menu-item.active {
-			background-color: var(--a-main-item-bg-active);
-			color: var(--a-main-item-text-active);
-			box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+		.welcome-btn.primary:hover {
+			background-color: var(--btn-primary-bg-hover);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
 		}
 
-		.main-menu-icon {
-			color: var(--a-main-icon);
+		.welcome-btn.secondary {
+			background-color: transparent;
+			color: var(--g-text-primary);
+			border-color: var(--g-border);
 		}
 
-		.main-menu-item.active .main-menu-icon {
-			color: var(--a-main-icon-active);
-		}
-
-		/* 子菜单样式 */
-		.sub-menu-item {
-			background-color: var(--a-sub-item-bg);
-			color: var(--a-sub-item-text);
-			transition: all var(--transition-normal);
-			border-radius: 0.375rem;
-			margin-bottom: 0.125rem;
-		}
-
-		.sub-menu-item:hover {
-			background-color: var(--a-sub-item-bg-hover);
-			color: var(--a-sub-item-text-hover);
-		}
-
-		.sub-menu-item.active {
-			background-color: var(--a-sub-item-bg-active);
-			color: var(--a-sub-item-text-active);
-			font-weight: 500;
-		}
-
-		.sub-menu-item.active a {
-			color: var(--a-sub-item-text-active);
-			font-weight: 500;
-		}
-
-		.sub-menu-item:hover:not(.active) a {
-			color: var(--a-sub-item-text-hover);
-		}
-
-		/* 子菜单竖线样式 */
-		.sub-menu-border {
-			border-color: var(--a-sub-border);
-			transition: all var(--transition-normal);
-			transform-origin: center;
-		}
-
-		.sub-menu-item:hover .sub-menu-border {
-			border-color: var(--a-sub-border-active);
-			transform: scaleX(2);
-		}
-
-		.sub-menu-item.active .sub-menu-border {
-			border-color: var(--a-sub-border-active);
-			transform: scaleX(3);
-			filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.6));
+		.welcome-btn.secondary:hover {
+			background-color: var(--g-bg-secondary);
+			border-color: var(--color-primary);
+			color: var(--color-primary);
+			transform: translateY(-2px);
 		}
 
 		/* 响应式设计 */
 		@media (max-width: 768px) {
-			.sidebar {
-				width: 14rem;
-			}
-
-			.content-padding {
-				padding: 1rem;
-			}
-
-			.content-title {
+			.home-title {
 				font-size: 1.875rem;
+			}
+
+			.home-description {
+				font-size: 1.125rem;
+			}
+
+			.home-meta {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 0.5rem;
+			}
+
+			.welcome-content {
+				padding: 2rem 1rem;
+			}
+
+			.welcome-title {
+				font-size: 2rem;
+			}
+
+			.welcome-text {
+				font-size: 1.125rem;
+			}
+
+			.welcome-actions {
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.welcome-btn {
+				width: 100%;
+				max-width: 200px;
+				justify-content: center;
+			}
+		}
+
+		@media (min-width: 1280px) {
+			.welcome-title {
+				font-size: 3rem;
+			}
+
+			.welcome-text {
+				font-size: 1.375rem;
 			}
 		}
 	</style>

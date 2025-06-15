@@ -1,11 +1,29 @@
 ---
-// src/layouts/Layout.astro - 修复后的Layout组件
+// src/layouts/Layout.astro - 主要页面布局组件
+import { ViewTransitions } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { buildMenuTree } from '../utils/menu';
+
 export interface Props {
+	// 基础页面属性
 	title: string;
 	description?: string;
 	image?: string;
 	canonical?: string;
 	noindex?: boolean;
+	
+	// 布局控制
+	currentPath?: string;
+	showSidebar?: boolean;
+	showHeader?: boolean;
+	showBreadcrumb?: boolean;
+	
+	// 主题控制
+	theme?: 'light' | 'dark' | 'auto';
+	
+	// 页面类型
+	pageType?: 'home' | 'article' | 'index' | 'search';
 }
 
 const {
@@ -14,11 +32,20 @@ const {
 	image = "/og-image.jpg",
 	canonical,
 	noindex = false,
+	currentPath = Astro.url.pathname,
+	showSidebar = true,
+	showHeader = true,
+	showBreadcrumb = false,
+	theme = 'auto',
+	pageType = 'article'
 } = Astro.props;
 
 // 获取当前 URL
 const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(image, Astro.site);
+
+// 构建菜单树（如果需要sidebar）
+const menuTree = showSidebar ? await buildMenuTree() : [];
 ---
 
 <!doctype html>
@@ -59,20 +86,9 @@ const socialImage = new URL(image, Astro.site);
 		<meta name='author' content='Fanmu' />
 		<meta name='theme-color' content='#f97316' />
 
-		<!-- RSS 订阅 -->
-		<link
-			rel='alternate'
-			type='application/rss+xml'
-			title='Fanmu - RSS Feed'
-			href='/rss.xml'
-		/>
-
-		<!-- 预连接到外部资源 -->
+		<!-- 字体和预连接 -->
 		<link rel='preconnect' href='https://fonts.googleapis.com' />
 		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
-		<link rel='preconnect' href='https://images.unsplash.com' />
-
-		<!-- 字体 -->
 		<link
 			href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'
 			rel='stylesheet'
@@ -82,329 +98,1253 @@ const socialImage = new URL(image, Astro.site);
 			rel='stylesheet'
 		/>
 
-		<!-- 结构化数据 -->
-		<script type='application/ld+json'>
-			{
-				"@context": "https://schema.org",
-				"@type": "WebSite",
-				"name": "Fanmu - yancode.life",
-				"description": "分享技术见解、生活感悟和学习心得",
-				"url": "https://yancode.life",
-				"author": {
-					"@type": "Person",
-					"name": "Fanmu",
-					"url": "https://yancode.life/about"
-				},
-				"potentialAction": {
-					"@type": "SearchAction",
-					"target": "https://yancode.life/search?q={search_term_string}",
-					"query-input": "required name=search_term_string"
-				}
-			}
-		</script>
+		<!-- 启用 View Transitions 以获得平滑的页面切换体验 -->
+		<ViewTransitions />
 
-		<!-- 主题初始化脚本（避免闪烁） - 必须在页面加载前执行 -->
-		<script is:inline>
-			// 立即执行的主题初始化函数
+		<!-- 主题初始化脚本 -->
+		<script is:inline define:vars={{ theme }}>
 			(function initTheme() {
 				console.log("🎨 初始化主题系统...");
 
-				// 获取存储的主题
 				const savedTheme = localStorage.getItem("theme");
-				// 检查系统偏好
-				const prefersDark = window.matchMedia(
-					"(prefers-color-scheme: dark)"
-				).matches;
+				const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+				const propTheme = theme;
 
-				// 确定要应用的主题
-				let theme;
+				let finalTheme;
 				if (savedTheme) {
-					theme = savedTheme;
-					console.log("📦 使用存储的主题:", theme);
+					finalTheme = savedTheme;
+				} else if (propTheme && propTheme !== 'auto') {
+					finalTheme = propTheme;
 				} else if (prefersDark) {
-					theme = "dark";
-					console.log("🌙 使用系统偏好: 深色模式");
+					finalTheme = "dark";
 				} else {
-					theme = "light";
-					console.log("☀️ 使用默认主题: 浅色模式");
+					finalTheme = "light";
 				}
 
-				// 应用主题到文档
-				if (theme === "dark") {
+				if (finalTheme === "dark") {
 					document.documentElement.classList.add("dark");
 				} else {
 					document.documentElement.classList.remove("dark");
 				}
 
-				// 保存到 localStorage
-				localStorage.setItem("theme", theme);
-
-				console.log("✅ 主题初始化完成:", theme);
+				localStorage.setItem("theme", finalTheme);
+				console.log("✅ 主题初始化完成:", finalTheme);
 			})();
 		</script>
 	</head>
 
-	<body class='min-h-screen transition-all duration-300 animate-fade-in'>
+	<body class='min-h-screen transition-all duration-300'>
+		<div class='app-layout' data-page-type={pageType}>
+			<!-- 顶部导航 -->
+			{showHeader && (
+				<Header 
+					currentPath={currentPath} 
+					showSearch={true} 
+					showThemeToggle={true} 
+				/>
+			)}
+
+			<!-- 主要内容区域 -->
+			<div class={`main-layout ${!showHeader ? 'no-header' : ''}`}>
+				<!-- 左侧边栏 -->
+				{showSidebar && (
+					<Sidebar 
+						menuTree={menuTree} 
+						currentPath={currentPath} 
+					/>
+				)}
+
+				<!-- 主内容区 -->
+				<main class={`main-content ${!showSidebar ? 'full-width' : ''}`}>
+					<div class='content-container'>
+						<!-- 面包屑导航 -->
+						{showBreadcrumb && (
+							<nav class='breadcrumb-nav' id='breadcrumb-nav'>
+								<!-- 面包屑将通过脚本生成 -->
+							</nav>
+						)}
+
 		<!-- 页面内容 -->
+						<div class='content-area'>
 		<slot />
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+
+		<!-- 顶部加载进度条 -->
+		<div class='page-loader' id='page-loader'>
+			<div class='page-loader-bar' id='page-loader-bar'></div>
+		</div>
 
 		<!-- 返回顶部按钮 -->
 		<button
 			id='back-to-top'
-			class='fixed bottom-6 right-6 w-12 h-12 btn-primary rounded-full shadow-lg transition-all duration-300 transform translate-y-20 opacity-0 z-50 glow-effect'
+			class='fixed bottom-6 right-6 w-12 h-12 btn-primary rounded-full shadow-lg transition-all duration-300 transform translate-y-20 opacity-0 z-50'
 			aria-label='返回顶部'
 		>
-			<svg
-				class='w-6 h-6 mx-auto'
-				fill='none'
-				stroke='currentColor'
-				viewBox='0 0 24 24'
-			>
-				<path
-					stroke-linecap='round'
-					stroke-linejoin='round'
-					stroke-width='2'
-					d='M5 10l7-7m0 0l7 7m-7-7v18'></path>
+			<svg class='w-6 h-6 mx-auto' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+				<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 10l7-7m0 0l7 7m-7-7v18'></path>
 			</svg>
 		</button>
 
 		<!-- 全局脚本 -->
-		<script>
+		<script define:vars={{ menuTree, currentPath, showBreadcrumb }}>
+			// 动态调整侧边栏位置（针对固定定位）
+			function adjustSidebarPosition() {
+				const header = document.querySelector('header');
+				const sidebar = document.querySelector('.sidebar');
+				const mainLayout = document.querySelector('.main-layout');
+				
+				if (sidebar) {
+					let headerHeight = 0;
+					
+					if (header && header.offsetHeight > 0 && !mainLayout?.classList.contains('no-header')) {
+						headerHeight = header.offsetHeight;
+					}
+					
+					sidebar.style.top = headerHeight + 'px';
+					sidebar.style.height = `calc(100vh - ${headerHeight}px)`;
+					
+					console.log("🔧 调整固定侧边栏位置:", {
+						headerHeight,
+						top: headerHeight + 'px',
+						height: `calc(100vh - ${headerHeight}px)`,
+						hasHeader: !!header && !mainLayout?.classList.contains('no-header')
+					});
+				}
+			}
+
+			// 全局功能初始化
+			function initializeApp() {
 			// 返回顶部功能
-			const backToTopButton = document.getElementById("back-to-top");
-
-			// 监听滚动事件
-			window.addEventListener("scroll", () => {
-				if (window.pageYOffset > 300) {
-					backToTopButton?.classList.remove("translate-y-20", "opacity-0");
-					backToTopButton?.classList.add("translate-y-0", "opacity-100");
-				} else {
-					backToTopButton?.classList.add("translate-y-20", "opacity-0");
-					backToTopButton?.classList.remove("translate-y-0", "opacity-100");
+				initBackToTop();
+				
+				// 面包屑导航
+				if (showBreadcrumb) {
+					generateBreadcrumb();
 				}
-			});
-
-			// 点击返回顶部
-			backToTopButton?.addEventListener("click", () => {
-				window.scrollTo({
-					top: 0,
-					behavior: "smooth",
-				});
-			});
-
-			// 键盘快捷键
-			document.addEventListener("keydown", (e) => {
-				// Ctrl/Cmd + K 打开搜索
-				if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-					e.preventDefault();
-					const searchInput = document.querySelector('input[type="search"]');
-					if (searchInput) {
-						(searchInput as HTMLInputElement).focus();
-					}
-				}
-
-				// Home 键返回顶部
-				if (e.key === "Home" && e.ctrlKey) {
-					e.preventDefault();
-					window.scrollTo({ top: 0, behavior: "smooth" });
-				}
-
-				// End 键到达底部
-				if (e.key === "End" && e.ctrlKey) {
-					e.preventDefault();
-					window.scrollTo({
-						top: document.body.scrollHeight,
-						behavior: "smooth",
-					});
-				}
-			});
-
-			// 图片懒加载增强
-			if ("IntersectionObserver" in window) {
-				const imageObserver = new IntersectionObserver((entries, observer) => {
-					entries.forEach((entry) => {
-						if (entry.isIntersecting) {
-							const img = entry.target;
-							if (img instanceof HTMLImageElement && img.dataset.src) {
-								img.src = img.dataset.src;
-								img.removeAttribute("data-src");
-								img.classList.remove("blur-sm");
-								img.classList.add("animate-fade-in");
-								observer.unobserve(img);
-							}
-						}
-					});
-				});
-
-				// 观察所有带有 data-src 的图片
-				document.querySelectorAll("img[data-src]").forEach((img) => {
-					imageObserver.observe(img);
-				});
+				
+				// 其他全局功能
+				initGlobalFeatures();
 			}
 
-			// 外部链接处理
-			document.querySelectorAll('a[href^="http"]').forEach((link) => {
-				if (
-					link instanceof HTMLAnchorElement &&
-					!link.href.startsWith(window.location.origin)
-				) {
-					link.setAttribute("target", "_blank");
-					link.setAttribute("rel", "noopener noreferrer");
-					// 添加外部链接图标
-					const icon = document.createElement("span");
-					icon.innerHTML = `
-						<svg class="w-3 h-3 ml-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-						</svg>
-					`;
-					link.appendChild(icon);
-				}
+			// 页面首次加载
+			document.addEventListener("DOMContentLoaded", () => {
+				initializeApp();
+				// 动态调整侧边栏位置
+				setTimeout(() => {
+					adjustSidebarPosition();
+				}, 100);
 			});
-
-			// 代码复制功能增强
-			document.querySelectorAll("pre").forEach((pre) => {
-				const code = pre.querySelector("code");
-				if (code) {
-					const button = document.createElement("button");
-					button.innerHTML = `
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-						</svg>
-					`;
-					button.className =
-						"absolute top-3 right-3 p-2 rounded-lg transition-all duration-200 opacity-70 hover:opacity-100 btn-secondary text-sm";
-					button.setAttribute("aria-label", "复制代码");
-					button.setAttribute("data-tooltip", "复制代码");
-
-					pre.style.position = "relative";
-					pre.appendChild(button);
-
-					button.addEventListener("click", async () => {
-						try {
-							await navigator.clipboard.writeText(code.textContent || "");
-							button.innerHTML = `
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-								</svg>
-							`;
-							button.setAttribute("data-tooltip", "已复制！");
-							button.classList.add("text-green-600");
-
-							setTimeout(() => {
-								button.innerHTML = `
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-									</svg>
-								`;
-								button.setAttribute("data-tooltip", "复制代码");
-								button.classList.remove("text-green-600");
-							}, 2000);
-						} catch (err) {
-							console.error("复制失败:", err);
-							button.setAttribute("data-tooltip", "复制失败");
-							button.classList.add("text-red-600");
-							setTimeout(() => {
-								button.setAttribute("data-tooltip", "复制代码");
-								button.classList.remove("text-red-600");
-							}, 2000);
-						}
-					});
-				}
+			
+			// 确保页面完全加载后再次调整
+			window.addEventListener("load", () => {
+				setTimeout(() => {
+					adjustSidebarPosition();
+				}, 200);
 			});
-
-			// 平滑滚动增强
-			document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-				anchor.addEventListener("click", function (this: HTMLAnchorElement, e) {
-					e.preventDefault();
-					const target = document.querySelector(
-						this.getAttribute("href") || ""
-					);
-					if (target instanceof HTMLElement) {
-						const headerHeight =
-							document.querySelector("header")?.offsetHeight || 0;
-						const targetPosition = target.offsetTop - headerHeight - 20;
-
-						window.scrollTo({
-							top: targetPosition,
-							behavior: "smooth",
-						});
-					}
-				});
-			});
-
-			// 主题系统增强
-			function enhanceThemeSystem() {
-				// 监听系统主题变化
-				const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-				mediaQuery.addEventListener("change", (e) => {
-					const savedTheme = localStorage.getItem("theme");
-					// 只有在没有用户偏好时才跟随系统变化
-					if (!savedTheme) {
-						const newTheme = e.matches ? "dark" : "light";
-						console.log("🔄 系统主题变化，切换到:", newTheme);
-						document.documentElement.classList.toggle("dark", e.matches);
-						localStorage.setItem("theme", newTheme);
-					}
-				});
-			}
-
-			// 初始化主题系统增强功能
-			document.addEventListener("DOMContentLoaded", enhanceThemeSystem);
-
-			// 支持 Astro View Transitions
+			
+			// View Transitions 页面切换后重新初始化
 			document.addEventListener("astro:after-swap", () => {
-				console.log("🔄 页面切换，重新初始化主题...");
-				const savedTheme = localStorage.getItem("theme");
-				if (savedTheme === "dark") {
-					document.documentElement.classList.add("dark");
-				} else {
-					document.documentElement.classList.remove("dark");
-				}
-				enhanceThemeSystem();
+				initializeApp();
+				adjustSidebarPosition();
 			});
+			
+			// 窗口大小改变时重新调整
+			window.addEventListener("resize", adjustSidebarPosition);
+			
+			// 开发调试：添加全局函数供控制台测试
+			window.testSidebarFixed = function() {
+				const sidebar = document.querySelector('.sidebar');
+				const sidebarContent = document.querySelector('.sidebar-content');
+				
+				if (sidebar) {
+					const computedStyle = getComputedStyle(sidebar);
+					console.log("🧪 测试固定侧边栏状态:");
+					console.log("位置:", computedStyle.position);
+					console.log("top:", computedStyle.top);
+					console.log("left:", computedStyle.left);
+					console.log("z-index:", computedStyle.zIndex);
+					console.log("高度:", computedStyle.height);
+					
+					if (sidebarContent) {
+						console.log("内容滚动:", {
+							scrollTop: sidebarContent.scrollTop,
+							scrollHeight: sidebarContent.scrollHeight,
+							clientHeight: sidebarContent.clientHeight,
+							canScroll: sidebarContent.scrollHeight > sidebarContent.clientHeight
+						});
+					}
+				} else {
+					console.log("❌ 未找到侧边栏");
+				}
+			};
+			
+			// 页面加载进度条控制
+			let loadingTimer;
+			let loadingProgress = 0;
 
-			// 性能监控（开发环境）
-			if (window.location.hostname === "localhost" && "performance" in window) {
-				// 监控 LCP (Largest Contentful Paint)
-				if ("PerformanceObserver" in window) {
-					const lcpObserver = new PerformanceObserver((list) => {
-						const entries = list.getEntries();
-						const lastEntry = entries[entries.length - 1];
-						console.log("LCP:", lastEntry.startTime);
-					});
-					lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
-
-					// 监控 CLS (Cumulative Layout Shift)
-					const clsObserver = new PerformanceObserver((list) => {
-						let clsValue = 0;
-						for (const entry of list.getEntries()) {
-							if ("value" in entry) {
-								clsValue += (entry as any).value;
-							}
+			function showPageLoader() {
+				const loader = document.getElementById("page-loader");
+				const loaderBar = document.getElementById("page-loader-bar");
+				
+				if (loader && loaderBar) {
+					// 重置进度
+					loadingProgress = 0;
+					loaderBar.style.width = "0%";
+					
+					// 显示加载条
+					loader.classList.add("loading");
+					document.body.classList.add("page-transitioning");
+					
+					// 模拟加载进度
+					loadingTimer = setInterval(() => {
+						loadingProgress += Math.random() * 15 + 5; // 每次增加 5-20%
+						
+						if (loadingProgress > 90) {
+							loadingProgress = 90; // 在90%停止，等待实际完成
 						}
-						console.log("CLS:", clsValue);
-					});
-					clsObserver.observe({ entryTypes: ["layout-shift"] });
+						
+						loaderBar.style.width = loadingProgress + "%";
+					}, 100);
 				}
 			}
-		</script>
 
-		<!-- Service Worker 注册（生产环境） -->
-		<script>
-			if (
-				"serviceWorker" in navigator &&
-				window.location.hostname !== "localhost" &&
-				window.location.protocol === "https:"
-			) {
-				window.addEventListener("load", () => {
-					navigator.serviceWorker
-						.register("/sw.js")
-						.then((registration) => {
-							console.log("SW registered: ", registration);
-						})
-						.catch((registrationError) => {
-							console.log("SW registration failed: ", registrationError);
+			function hidePageLoader() {
+				const loader = document.getElementById("page-loader");
+				const loaderBar = document.getElementById("page-loader-bar");
+				
+				if (loader && loaderBar) {
+					// 清除定时器
+					if (loadingTimer) {
+						clearInterval(loadingTimer);
+						loadingTimer = null;
+					}
+					
+					// 立即完成到100%
+					loadingProgress = 100;
+					loaderBar.style.width = "100%";
+					
+					// 短暂延迟后隐藏
+					setTimeout(() => {
+						loader.classList.remove("loading");
+						document.body.classList.remove("page-transitioning");
+						
+						// 重置进度条
+						setTimeout(() => {
+							loaderBar.style.width = "0%";
+						}, 200);
+					}, 150);
+				}
+			}
+
+			// 页面切换事件监听（View Transitions）
+			document.addEventListener("astro:before-preparation", showPageLoader);
+			document.addEventListener("astro:after-swap", hidePageLoader);
+
+			// 客户端路由系统
+			class ClientRouter {
+				constructor() {
+					this.isNavigating = false;
+					this.setupEventListeners();
+					this.saveCurrentState();
+					
+					// 初始化时设置正确的菜单状态
+					setTimeout(() => {
+						this.updateSidebarMenus();
+						// 初始化时也绑定事件
+						this.bindSubmenuEvents();
+					}, 100);
+					
+					// 页面加载完成后也更新一次菜单状态
+					if (document.readyState === 'loading') {
+						document.addEventListener('DOMContentLoaded', () => {
+							setTimeout(() => {
+								this.updateSidebarMenus();
+								this.bindSubmenuEvents();
+							}, 50);
 						});
+					}
+				}
+
+				saveCurrentState() {
+					// 保存当前页面状态到历史记录
+					history.replaceState({ 
+						url: window.location.href,
+						title: document.title 
+					}, document.title, window.location.href);
+				}
+
+				async navigate(url, addToHistory = true) {
+					if (this.isNavigating || url === window.location.href) return;
+					
+					this.isNavigating = true;
+					console.log("🚀 开始客户端路由跳转:", url);
+					showPageLoader();
+
+					try {
+						// 获取新页面内容
+						const response = await fetch(url);
+						if (!response.ok) throw new Error(`HTTP ${response.status}`);
+						
+						const html = await response.text();
+						const parser = new DOMParser();
+						const newDoc = parser.parseFromString(html, 'text/html');
+
+						// 更新页面内容
+						await this.updatePage(newDoc, url, addToHistory);
+						
+						console.log("✅ 客户端路由跳转完成");
+					} catch (error) {
+						console.error("❌ 客户端路由失败，回退到普通跳转:", error);
+						// 如果失败，使用普通页面跳转
+						window.location.href = url;
+						return;
+					} finally {
+						this.isNavigating = false;
+						hidePageLoader();
+					}
+				}
+
+				async updatePage(newDoc, url, addToHistory) {
+					// 添加页面切换过渡效果
+					const mainContent = document.querySelector('.main-content');
+					const contentArea = document.querySelector('.content-area');
+					
+					if (contentArea) {
+						contentArea.style.opacity = '0.7';
+						contentArea.style.transform = 'translateY(10px)';
+						contentArea.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+					}
+
+					// 短暂延迟后开始更新内容
+					await new Promise(resolve => setTimeout(resolve, 150));
+
+					// 更新 URL 和标题
+					if (addToHistory) {
+						history.pushState({ 
+							url: url,
+							title: newDoc.title 
+						}, newDoc.title, url);
+					}
+					document.title = newDoc.title;
+
+					// 更新主要内容区域
+					const currentMain = document.querySelector('main.main-content');
+					const newMain = newDoc.querySelector('main.main-content');
+					
+					if (currentMain && newMain) {
+						// 更新内容
+						currentMain.innerHTML = newMain.innerHTML;
+						
+						// 更新页面类型数据属性
+						const currentLayout = document.querySelector('.app-layout');
+						const newLayout = newDoc.querySelector('.app-layout');
+						if (currentLayout && newLayout) {
+							const pageType = newLayout.getAttribute('data-page-type');
+							if (pageType) {
+								currentLayout.setAttribute('data-page-type', pageType);
+							}
+						}
+					}
+
+					// 更新 meta 标签和头部信息
+					this.updateMetaTags(newDoc);
+
+					// 重新初始化页面功能
+					await this.reinitializePage();
+
+					// 恢复内容显示效果
+					const updatedContentArea = document.querySelector('.content-area');
+					if (updatedContentArea) {
+						updatedContentArea.style.opacity = '1';
+						updatedContentArea.style.transform = 'translateY(0)';
+						
+						// 清理过渡样式
+						setTimeout(() => {
+							updatedContentArea.style.transition = '';
+							updatedContentArea.style.transform = '';
+						}, 300);
+					}
+
+					// 滚动到页面顶部
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				}
+
+				updateMetaTags(newDoc) {
+					// 更新需要的 meta 标签
+					const metaSelectors = [
+						'meta[name="description"]',
+						'meta[property="og:title"]',
+						'meta[property="og:description"]',
+						'meta[property="og:url"]',
+						'meta[name="twitter:title"]',
+						'meta[name="twitter:description"]'
+					];
+
+					metaSelectors.forEach(selector => {
+						const currentMeta = document.querySelector(selector);
+						const newMeta = newDoc.querySelector(selector);
+						
+						if (currentMeta && newMeta) {
+							const content = newMeta.getAttribute('content');
+							if (content) {
+								currentMeta.setAttribute('content', content);
+							}
+						} else if (!currentMeta && newMeta) {
+							document.head.appendChild(newMeta.cloneNode(true));
+						}
+					});
+
+					// 更新 canonical URL
+					const currentCanonical = document.querySelector('link[rel="canonical"]');
+					const newCanonical = newDoc.querySelector('link[rel="canonical"]');
+					if (currentCanonical && newCanonical) {
+						currentCanonical.setAttribute('href', newCanonical.getAttribute('href'));
+					}
+				}
+
+				async reinitializePage() {
+					console.log("🔄 重新初始化页面功能");
+					
+					// 重新初始化应用功能
+					initBackToTop();
+					if (showBreadcrumb) {
+						generateBreadcrumb();
+					}
+					initGlobalFeatures();
+					
+					// 更新侧边栏菜单状态
+					this.updateSidebarMenus();
+					
+					// 触发自定义事件，让其他组件知道页面已更新
+					window.dispatchEvent(new CustomEvent('clientRouteComplete', {
+						detail: { url: window.location.href }
+					}));
+
+					// 短暂延迟确保所有功能初始化完成
+					await new Promise(resolve => setTimeout(resolve, 50));
+				}
+
+				updateSidebarMenus() {
+					const currentPath = decodeURIComponent(window.location.pathname);
+					console.log("🔄 更新侧边栏菜单状态，当前路径:", currentPath);
+					console.log("🔄 原始路径:", window.location.pathname);
+					
+					// 更新主菜单状态
+					this.updateMainMenu(currentPath);
+					
+					// 更新子菜单状态
+					this.updateSubMenu(currentPath);
+				}
+
+				updateMainMenu(currentPath) {
+					const mainMenuItems = document.querySelectorAll('.main-menu-item');
+					let currentMainMenu = null;
+					
+					mainMenuItems.forEach(item => {
+						const itemPath = item.getAttribute('data-path');
+						const menuValue = item.getAttribute('data-menu');
+						
+						if (itemPath && currentPath.startsWith(itemPath)) {
+							item.classList.add('active');
+							currentMainMenu = {
+								path: itemPath,
+								value: menuValue
+							};
+						} else {
+							item.classList.remove('active');
+						}
+					});
+					
+					return currentMainMenu;
+				}
+
+				updateSubMenu(currentPath) {
+					// 检查menuTree是否可用
+					if (!menuTree || !Array.isArray(menuTree)) {
+						console.warn("⚠️ menuTree数据不可用，跳过子菜单更新");
+						return;
+					}
+
+					// 找到当前激活的主菜单
+					const activeMainMenu = document.querySelector('.main-menu-item.active');
+					if (!activeMainMenu) {
+						this.hideAllSubMenus();
+						this.showEmptySubMenu();
+						return;
+					}
+
+					const mainMenuValue = activeMainMenu.getAttribute('data-menu');
+					const mainMenuPath = activeMainMenu.getAttribute('data-path');
+					
+					// 查找对应的子菜单数据
+					const currentMainMenuData = menuTree.find(item => 
+						item.value === mainMenuValue || item.path === mainMenuPath
+					);
+					
+					if (!currentMainMenuData || !currentMainMenuData.children || currentMainMenuData.children.length === 0) {
+						this.hideAllSubMenus();
+						this.showEmptySubMenu();
+						return;
+					}
+
+					// 重新渲染子菜单
+					this.renderSubMenu(currentMainMenuData, currentPath);
+
+					// 确保当前路径对应的文件夹自动展开
+					setTimeout(() => {
+						this.ensureCorrectExpansion(currentPath);
+					}, 50);
+				}
+
+				ensureCorrectExpansion(currentPath) {
+					console.log("🔍 开始检查展开状态，当前路径:", currentPath);
+					
+					// 查找当前激活的主菜单
+					const activeMainMenu = document.querySelector('.main-menu-item.active');
+					const mainMenuPath = activeMainMenu ? decodeURIComponent(activeMainMenu.getAttribute('data-path')) : null;
+					
+					// 检查是否通过一级目录进入（访问的是主菜单路径或其直接子路径）
+					const isMainMenuAccess = currentPath === mainMenuPath;
+					
+					console.log("🔍 路径分析:", {
+						currentPath,
+						mainMenuPath,
+						isMainMenuAccess
+					});
+					
+					// 查找所有文件夹项
+					const folderItems = document.querySelectorAll('.submenu-folder-item');
+					console.log("🔍 找到文件夹项数量:", folderItems.length);
+					
+					folderItems.forEach((folderItem, index) => {
+						const folderPath = folderItem.getAttribute('data-path');
+						const expandArrow = folderItem.querySelector('.submenu-expand-arrow');
+						const itemGroup = folderItem.closest('.submenu-item-group');
+						const childrenContainer = itemGroup ? itemGroup.querySelector('.submenu-children') : null;
+						
+						console.log(`🔍 文件夹 ${index + 1}:`, {
+							folderPath,
+							hasArrow: !!expandArrow,
+							hasContainer: !!childrenContainer
+						});
+						
+						if (folderPath && childrenContainer) {
+							// 解码文件夹路径用于比较
+							const decodedFolderPath = decodeURIComponent(folderPath);
+							
+							let shouldExpand = false;
+							
+							if (isMainMenuAccess) {
+								// 如果是通过一级目录进入，展开所有子菜单
+								shouldExpand = true;
+								console.log("🔍 通过一级目录进入，展开所有子菜单");
+							} else {
+								// 否则只展开当前路径对应的文件夹
+								shouldExpand = currentPath.startsWith(decodedFolderPath + '/') || 
+											   currentPath === decodedFolderPath;
+							}
+							
+							console.log(`🔍 文件夹展开检查:`, {
+								folderPath: decodedFolderPath,
+								currentPath,
+								shouldExpand,
+								reason: isMainMenuAccess ? '一级目录进入' : '路径匹配'
+							});
+							
+							if (shouldExpand) {
+								// 展开这个文件夹
+								folderItem.classList.add('expanded');
+								if (expandArrow) {
+									expandArrow.classList.add('expanded');
+								}
+								childrenContainer.style.display = 'block';
+								
+								console.log("✅ 自动展开文件夹:", decodedFolderPath);
+							} else {
+								// 收起这个文件夹（如果当前路径不在其下）
+								folderItem.classList.remove('expanded');
+								if (expandArrow) {
+									expandArrow.classList.remove('expanded');
+								}
+								childrenContainer.style.display = 'none';
+								
+								console.log("❌ 收起文件夹:", decodedFolderPath);
+							}
+						}
+					});
+
+					// 手动设置二级目录容器的边框颜色和 active 指示器（兜底方案）
+					this.updateChildrenContainerBorders();
+					this.updateActiveIndicators();
+				}
+
+				updateChildrenContainerBorders() {
+					document.querySelectorAll('.submenu-children').forEach(container => {
+						const hasActiveChild = container.querySelector('.submenu-child-link.active');
+						if (hasActiveChild) {
+							container.style.borderLeftColor = 'var(--a-submenu-children-border-left)';
+						} else {
+							container.style.borderLeftColor = '#e4e4e7';
+						}
+					});
+				}
+
+				updateActiveIndicators() {
+					console.log("🎯 更新 active 指示器");
+					
+					// 为每个子菜单容器创建或更新 active 指示器
+					document.querySelectorAll('.submenu-children').forEach(container => {
+						this.createActiveIndicator(container);
+					});
+				}
+
+				createActiveIndicator(container) {
+					// 移除现有的指示器
+					const existingIndicator = container.querySelector('.submenu-active-indicator');
+					if (existingIndicator) {
+						existingIndicator.remove();
+					}
+
+					// 查找 active 的子链接
+					const activeLinks = container.querySelectorAll('.submenu-child-link.active');
+					if (activeLinks.length === 0) return;
+
+					// 为每个 active 链接创建指示器
+					activeLinks.forEach(activeLink => {
+						const allLinks = Array.from(container.querySelectorAll('.submenu-child-link'));
+						const index = allLinks.indexOf(activeLink);
+						
+						if (index !== -1) {
+							this.positionActiveIndicator(container, activeLink, index);
+						}
+					});
+				}
+
+				positionActiveIndicator(container, activeLink, index) {
+					// 创建指示器元素
+					const indicator = document.createElement('div');
+					indicator.className = 'submenu-active-indicator';
+					
+					// 计算位置
+					const linkHeight = activeLink.offsetHeight;
+					const linkTop = activeLink.offsetTop;
+					
+					// 设置指示器的位置和尺寸
+					indicator.style.top = `${linkTop}px`;
+					indicator.style.height = `${linkHeight}px`;
+					
+					console.log("🎯 创建 active 指示器:", {
+						index,
+						linkHeight,
+						linkTop,
+						containerHeight: container.offsetHeight
+					});
+					
+					// 添加到容器中
+					container.appendChild(indicator);
+				}
+
+				hideAllSubMenus() {
+					const subMenuSections = document.querySelectorAll('.submenu-section');
+					subMenuSections.forEach(section => {
+						section.remove();
+					});
+				}
+
+				showEmptySubMenu() {
+					// 如果没有子菜单，就不显示任何内容，保持简洁
+					const sidebar = document.querySelector('.sidebar-content');
+					const existingSubMenu = sidebar.querySelector('.submenu-section');
+					if (existingSubMenu) {
+						existingSubMenu.remove();
+					}
+				}
+
+				renderSubMenu(mainMenuData, currentPath) {
+					const subMenuHtml = this.generateSubMenuHtml(mainMenuData, currentPath);
+					
+					const sidebar = document.querySelector('.sidebar-content');
+					const existingSubMenu = sidebar.querySelector('.submenu-section');
+					
+					if (existingSubMenu) {
+						existingSubMenu.outerHTML = subMenuHtml;
+					} else {
+						sidebar.insertAdjacentHTML('beforeend', subMenuHtml);
+					}
+					
+					// 重新绑定展开收起事件
+					this.bindSubmenuEvents();
+					
+					// 更新二级目录容器边框颜色和 active 指示器
+							setTimeout(() => {
+						this.updateChildrenContainerBorders();
+						this.updateActiveIndicators();
+					}, 50);
+				}
+
+				bindSubmenuEvents() {
+					console.log("🔗 开始绑定子菜单事件");
+					
+					// 为文件夹项绑定展开收起事件
+					const itemGroups = document.querySelectorAll('.submenu-item-group');
+					console.log("🔗 找到菜单项组数量:", itemGroups.length);
+					
+					itemGroups.forEach((itemGroup, index) => {
+						const folderItem = itemGroup.querySelector('.submenu-folder-item');
+						if (!folderItem) {
+							console.log(`🔗 第 ${index + 1} 个组没有文件夹项`);
+							return;
+						}
+						
+						const folderWrapper = folderItem.querySelector('.submenu-folder-wrapper');
+						const expandArrow = folderItem.querySelector('.submenu-expand-arrow');
+						const folderLink = folderItem.querySelector('.submenu-folder-link');
+						const childrenContainer = itemGroup.querySelector('.submenu-children');
+						
+						console.log(`🔗 第 ${index + 1} 个文件夹项:`, {
+							hasWrapper: !!folderWrapper,
+							hasArrow: !!expandArrow,
+							hasLink: !!folderLink,
+							hasContainer: !!childrenContainer,
+							folderPath: folderItem.getAttribute('data-path')
+						});
+						
+						if (expandArrow && childrenContainer && folderWrapper) {
+							// 移除可能存在的旧事件监听器
+							const newExpandArrow = expandArrow.cloneNode(true);
+							expandArrow.parentNode.replaceChild(newExpandArrow, expandArrow);
+							
+							const newFolderWrapper = folderWrapper.cloneNode(true);
+							folderWrapper.parentNode.replaceChild(newFolderWrapper, folderWrapper);
+							
+							// 重新获取元素引用
+							const currentExpandArrow = folderItem.querySelector('.submenu-expand-arrow');
+							const currentFolderWrapper = folderItem.querySelector('.submenu-folder-wrapper');
+							
+							// 为箭头绑定点击事件
+							currentExpandArrow.addEventListener('click', (e) => {
+								console.log("🔗 箭头被点击");
+								e.preventDefault();
+								e.stopPropagation();
+								
+								this.toggleFolderExpansion(folderItem, currentExpandArrow, childrenContainer);
+							});
+							
+							// 为文件夹wrapper绑定点击事件（整个区域都可以点击）
+							currentFolderWrapper.addEventListener('click', (e) => {
+								// 如果点击的是链接，则不处理展开逻辑
+								if (e.target.closest('.submenu-folder-link')) {
+									console.log("🔗 点击的是链接，不处理展开");
+									return;
+								}
+								
+								console.log("🔗 文件夹区域被点击");
+								e.preventDefault();
+								e.stopPropagation();
+								
+								this.toggleFolderExpansion(folderItem, currentExpandArrow, childrenContainer);
+							});
+							
+							console.log(`✅ 第 ${index + 1} 个文件夹项事件绑定完成`);
+						} else {
+							console.warn(`⚠️ 第 ${index + 1} 个文件夹项缺少必要元素`);
+						}
+					});
+				}
+
+				toggleFolderExpansion(folderItem, expandArrow, childrenContainer) {
+					const isExpanded = folderItem.classList.contains('expanded');
+					const folderPath = folderItem.getAttribute('data-path');
+					
+					console.log("🔄 切换文件夹展开状态:", {
+						folderPath: decodeURIComponent(folderPath),
+						currentlyExpanded: isExpanded,
+						willExpand: !isExpanded
+					});
+					
+					if (isExpanded) {
+						folderItem.classList.remove('expanded');
+						expandArrow.classList.remove('expanded');
+						childrenContainer.style.display = 'none';
+						console.log("📁 收起文件夹:", decodeURIComponent(folderPath));
+					} else {
+						folderItem.classList.add('expanded');
+						expandArrow.classList.add('expanded');
+						childrenContainer.style.display = 'block';
+						console.log("📂 展开文件夹:", decodeURIComponent(folderPath));
+					}
+				}
+
+				generateSubMenuHtml(mainMenuData, currentPath) {
+					const escapeHtml = (text) => {
+						const div = document.createElement('div');
+						div.textContent = text;
+						return div.innerHTML;
+					};
+
+					let html = `<div class='submenu-section'>`;
+
+					mainMenuData.children.forEach(subItem => {
+						const isCurrentPage = currentPath === subItem.path;
+						const isParentActive = currentPath.startsWith(subItem.path + '/');
+						const isActive = isCurrentPage || isParentActive;
+						const hasChildren = subItem.children && subItem.children.length > 0;
+
+						html += `<div class='submenu-item-group'>`;
+
+						if (hasChildren) {
+							// 这是一个文件夹（一级目录），需要展开收起功能
+							html += `
+								<div class='submenu-folder-item ${isActive ? 'active expanded' : ''}' data-path="${escapeHtml(subItem.path)}">
+									<div class="submenu-folder-wrapper">
+										<span class="submenu-expand-arrow ${isActive ? 'expanded' : ''}">
+											<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+												<path d='m9 18 6-6-6-6' />
+									</svg>
+										</span>
+										<a href="${escapeHtml(subItem.path)}" 
+											 data-astro-prefetch 
+											 class="submenu-folder-link">
+											<span class='submenu-folder-text'>${escapeHtml(subItem.label)}</span>
+										</a>
+									</div>
+								</div>`;
+
+							// 显示子项容器（二级目录）
+							html += `<div class='submenu-children' style='display: ${isActive ? 'block' : 'none'}'>`;
+							subItem.children.forEach(childItem => {
+								const childActive = currentPath === childItem.path;
+								html += `
+									<a href="${escapeHtml(childItem.path)}" 
+										 data-astro-prefetch 
+										 class="submenu-child-link ${childActive ? 'active' : ''}">
+										<span class='submenu-child-text'>${escapeHtml(childItem.label)}</span>
+									</a>`;
+							});
+							html += `</div>`;
+
+						} else {
+							// 这是一个普通文章（一级目录文章）
+							html += `
+								<a href="${escapeHtml(subItem.path)}" 
+									 data-astro-prefetch 
+									 class="submenu-article-link ${isActive ? 'active' : ''}">
+									<div class="submenu-article-indicator ${isActive ? 'active' : ''}"></div>
+									<span class='submenu-article-text'>${escapeHtml(subItem.label)}</span>
+								</a>`;
+						}
+
+						html += `</div>`;
+					});
+
+					html += `</div>`;
+
+					return html;
+				}
+
+				setupEventListeners() {
+					// 拦截链接点击事件
+					document.addEventListener('click', (e) => {
+						const link = e.target.closest('a');
+						if (!link || !link.href) return;
+
+						// 检查是否应该使用客户端路由
+						if (this.shouldUseClientRouting(link)) {
+							e.preventDefault();
+							console.log("🔗 拦截链接点击，使用客户端路由:", link.href);
+							this.navigate(link.href);
+						}
+					});
+
+					// 处理浏览器前进后退
+					window.addEventListener('popstate', (e) => {
+						console.log("⬅️ 浏览器前进后退事件:", e.state);
+						if (e.state && e.state.url) {
+							this.navigate(e.state.url, false);
+						} else {
+							// 兜底处理
+							window.location.reload();
+						}
+					});
+
+					// 页面可见性变化处理
+					document.addEventListener('visibilitychange', () => {
+						if (!document.hidden && this.isNavigating) {
+							// 页面重新可见且正在导航中，确保隐藏加载条
+							setTimeout(() => {
+								if (this.isNavigating) {
+									hidePageLoader();
+									this.isNavigating = false;
+								}
+							}, 100);
+						}
+					});
+				}
+
+				shouldUseClientRouting(link) {
+					const href = link.href;
+					
+					// 基本检查
+					if (!href || href === '#') return false;
+					
+					// 检查是否为站内链接
+					const isInternalLink = href.startsWith(window.location.origin);
+					if (!isInternalLink) return false;
+					
+					// 排除锚点链接
+					const isHashLink = href.includes('#') && 
+						href.split('#')[0] === window.location.href.split('#')[0];
+					if (isHashLink) return false;
+					
+					// 排除外部链接
+					const isExternalLink = link.hasAttribute('target') && 
+						link.getAttribute('target') === '_blank';
+					if (isExternalLink) return false;
+					
+					// 排除下载链接
+					const hasDownload = link.hasAttribute('download');
+					if (hasDownload) return false;
+					
+					// 排除特殊协议
+					if (href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+					
+					// 排除 API 路径
+					if (href.includes('/api/')) return false;
+					
+					console.log("✅ 链接符合客户端路由条件:", href);
+					return true;
+				}
+			}
+
+			// 初始化客户端路由（仅在支持时）
+			let clientRouter = null;
+			if (typeof window !== 'undefined' && 'history' in window && 'pushState' in history) {
+				clientRouter = new ClientRouter();
+				console.log("🚀 客户端路由系统已启动");
+			} else {
+				console.warn("⚠️ 浏览器不支持客户端路由，使用传统页面跳转");
+				// 回退到传统链接监听
+				setupFallbackLinkListeners();
+			}
+
+			// 传统链接监听（兜底方案）
+			function setupFallbackLinkListeners() {
+				document.addEventListener("click", (e) => {
+					const link = e.target.closest("a");
+					if (!link || !link.href) return;
+
+					const isInternalLink = link.href.startsWith(window.location.origin);
+					const isHashLink = link.href.includes("#") && 
+						link.href.split("#")[0] === window.location.href.split("#")[0];
+					const isExternalLink = link.hasAttribute("target") && 
+						link.getAttribute("target") === "_blank";
+
+					if (isInternalLink && !isHashLink && !isExternalLink) {
+						console.log("传统页面跳转:", link.href);
+						showPageLoader();
+						setTimeout(hidePageLoader, 2000);
+					}
+				});
+
+				window.addEventListener("popstate", () => {
+					showPageLoader();
+					setTimeout(hidePageLoader, 1000);
+				});
+
+				// 为现有的子菜单绑定事件
+				setTimeout(() => {
+					bindInitialSubmenuEvents();
+				}, 100);
+			}
+
+			// 为初始页面的子菜单绑定事件
+			function bindInitialSubmenuEvents() {
+				console.log("🔗 初始绑定子菜单事件");
+				
+				const itemGroups = document.querySelectorAll('.submenu-item-group');
+				console.log("🔗 初始绑定：找到菜单项组数量:", itemGroups.length);
+				
+				itemGroups.forEach((itemGroup, index) => {
+					const folderItem = itemGroup.querySelector('.submenu-folder-item');
+					if (!folderItem) {
+						console.log(`🔗 初始绑定：第 ${index + 1} 个组没有文件夹项`);
+						return;
+					}
+					
+					const folderWrapper = folderItem.querySelector('.submenu-folder-wrapper');
+					const expandArrow = folderItem.querySelector('.submenu-expand-arrow');
+					const folderLink = folderItem.querySelector('.submenu-folder-link');
+					const childrenContainer = itemGroup.querySelector('.submenu-children');
+					
+					console.log(`🔗 初始绑定：第 ${index + 1} 个文件夹项:`, {
+						hasWrapper: !!folderWrapper,
+						hasArrow: !!expandArrow,
+						hasLink: !!folderLink,
+						hasContainer: !!childrenContainer,
+						folderPath: folderItem.getAttribute('data-path')
+					});
+					
+					if (expandArrow && childrenContainer && folderWrapper) {
+						// 简化的切换函数
+						const toggleExpansion = () => {
+							const isExpanded = folderItem.classList.contains('expanded');
+							console.log("🔄 初始绑定：切换展开状态", {
+								folderPath: decodeURIComponent(folderItem.getAttribute('data-path')),
+								isExpanded,
+								willExpand: !isExpanded
+							});
+							
+							if (isExpanded) {
+								folderItem.classList.remove('expanded');
+								expandArrow.classList.remove('expanded');
+								childrenContainer.style.display = 'none';
+							} else {
+								folderItem.classList.add('expanded');
+								expandArrow.classList.add('expanded');
+								childrenContainer.style.display = 'block';
+							}
+						};
+						
+						// 为箭头绑定点击事件
+						expandArrow.addEventListener('click', (e) => {
+							console.log("🔗 初始绑定：箭头被点击");
+							e.preventDefault();
+							e.stopPropagation();
+							toggleExpansion();
+						});
+						
+						// 为整个wrapper绑定点击事件
+						folderWrapper.addEventListener('click', (e) => {
+							// 如果点击的是链接，则不处理展开逻辑
+							if (e.target.closest('.submenu-folder-link')) {
+								console.log("🔗 初始绑定：点击的是链接，不处理展开");
+								return;
+							}
+							
+							console.log("🔗 初始绑定：文件夹区域被点击");
+							e.preventDefault();
+							e.stopPropagation();
+							toggleExpansion();
+						});
+						
+						console.log(`✅ 初始绑定：第 ${index + 1} 个文件夹项事件绑定完成`);
+					} else {
+						console.warn(`⚠️ 初始绑定：第 ${index + 1} 个文件夹项缺少必要元素`);
+					}
+				});
+			}
+
+			// 返回顶部功能
+			function initBackToTop() {
+				const backToTopButton = document.getElementById("back-to-top");
+				if (!backToTopButton) return;
+
+				window.addEventListener("scroll", () => {
+					if (window.pageYOffset > 300) {
+						backToTopButton.classList.remove("translate-y-20", "opacity-0");
+						backToTopButton.classList.add("translate-y-0", "opacity-100");
+				} else {
+						backToTopButton.classList.add("translate-y-20", "opacity-0");
+						backToTopButton.classList.remove("translate-y-0", "opacity-100");
+					}
+				});
+
+				backToTopButton.addEventListener("click", () => {
+					window.scrollTo({ top: 0, behavior: "smooth" });
+				});
+			}
+
+			// 生成面包屑导航
+			function generateBreadcrumb() {
+				const breadcrumbNav = document.getElementById("breadcrumb-nav");
+				if (!breadcrumbNav || !currentPath || currentPath === '/') return;
+
+				const pathParts = currentPath.split("/").filter(Boolean);
+				if (pathParts.length === 0) return;
+
+				let html = '<ol class="flex items-center space-x-2 text-sm">';
+				html += '<li><a href="/" class="text-gray-500 hover:text-gray-700">首页</a></li>';
+
+				let builtPath = "";
+				pathParts.forEach((part, index) => {
+					builtPath += "/" + part;
+					const isLast = index === pathParts.length - 1;
+					const menuItem = findMenuItemByPath(menuTree, builtPath);
+					const label = menuItem ? menuItem.label : decodeURIComponent(part);
+
+					html += `
+						<li class="flex items-center">
+							<svg class="w-4 h-4 mx-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+							</svg>
+							${isLast 
+								? `<span class="text-gray-700 font-medium">${label}</span>`
+								: `<a href="${builtPath}" class="text-gray-500 hover:text-gray-700">${label}</a>`
+							}
+						</li>
+					`;
+				});
+
+				html += '</ol>';
+				breadcrumbNav.innerHTML = html;
+			}
+
+			// 查找菜单项
+			function findMenuItemByPath(menuTree, targetPath) {
+				function searchMenu(items) {
+					for (const item of items) {
+						if (item.path === targetPath) return item;
+						if (item.children?.length > 0) {
+							const found = searchMenu(item.children);
+							if (found) return found;
+						}
+					}
+					return null;
+				}
+				return searchMenu(menuTree);
+			}
+
+			// 其他全局功能
+			function initGlobalFeatures() {
+				// 外部链接处理
+				document.querySelectorAll('a[href^="http"]').forEach((link) => {
+					if (!link.href.startsWith(window.location.origin)) {
+						link.setAttribute("target", "_blank");
+						link.setAttribute("rel", "noopener noreferrer");
+					}
+				});
+
+				// 平滑滚动
+				document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+					anchor.addEventListener("click", function (e) {
+						e.preventDefault();
+						const target = document.querySelector(this.getAttribute("href"));
+						if (target) {
+							const headerHeight = document.querySelector("header")?.offsetHeight || 0;
+							const targetPosition = target.offsetTop - headerHeight - 20;
+							window.scrollTo({ top: targetPosition, behavior: "smooth" });
+						}
+					});
+				});
+
+				// 初始化子菜单事件绑定
+				bindInitialSubmenuEvents();
+
+				// 确保初始页面加载时的正确展开状态
+				setTimeout(() => {
+					ensureInitialExpansion();
+					initializeActiveIndicators();
+				}, 200);
+			}
+
+			// 初始化 active 指示器（兜底方案）
+			function initializeActiveIndicators() {
+				console.log("🎯 初始化 active 指示器");
+				
+				document.querySelectorAll('.submenu-children').forEach(container => {
+					createInitialActiveIndicator(container);
+				});
+			}
+
+			function createInitialActiveIndicator(container) {
+				// 移除现有的指示器
+				const existingIndicator = container.querySelector('.submenu-active-indicator');
+				if (existingIndicator) {
+					existingIndicator.remove();
+				}
+
+				// 查找 active 的子链接
+				const activeLinks = container.querySelectorAll('.submenu-child-link.active');
+				if (activeLinks.length === 0) return;
+
+				// 为每个 active 链接创建指示器
+				activeLinks.forEach(activeLink => {
+					const allLinks = Array.from(container.querySelectorAll('.submenu-child-link'));
+					const index = allLinks.indexOf(activeLink);
+					
+					if (index !== -1) {
+						// 创建指示器元素
+						const indicator = document.createElement('div');
+						indicator.className = 'submenu-active-indicator';
+						
+						// 计算位置
+						const linkHeight = activeLink.offsetHeight;
+						const linkTop = activeLink.offsetTop;
+						
+						// 设置指示器的位置和尺寸
+						indicator.style.top = `${linkTop}px`;
+						indicator.style.height = `${linkHeight}px`;
+						
+						console.log("🎯 初始创建 active 指示器:", {
+							index,
+							linkHeight,
+							linkTop
+						});
+						
+						// 添加到容器中
+						container.appendChild(indicator);
+					}
+				});
+			}
+
+			// 确保初始页面的正确展开状态
+			function ensureInitialExpansion() {
+				const currentPath = decodeURIComponent(window.location.pathname);
+				console.log("🔍 初始页面展开检查，当前路径:", currentPath);
+				
+				// 查找当前激活的主菜单
+				const activeMainMenu = document.querySelector('.main-menu-item.active');
+				const mainMenuPath = activeMainMenu ? decodeURIComponent(activeMainMenu.getAttribute('data-path')) : null;
+				
+				// 检查是否通过一级目录进入
+				const isMainMenuAccess = currentPath === mainMenuPath;
+				
+				console.log("🔍 初始路径分析:", {
+					currentPath,
+					mainMenuPath,
+					isMainMenuAccess
+				});
+				
+				document.querySelectorAll('.submenu-folder-item').forEach(folderItem => {
+					const folderPath = folderItem.getAttribute('data-path');
+					const expandArrow = folderItem.querySelector('.submenu-expand-arrow');
+					const itemGroup = folderItem.closest('.submenu-item-group');
+					const childrenContainer = itemGroup ? itemGroup.querySelector('.submenu-children') : null;
+					
+					if (folderPath && childrenContainer) {
+						const decodedFolderPath = decodeURIComponent(folderPath);
+						
+						let shouldExpand = false;
+						
+						if (isMainMenuAccess) {
+							// 如果是通过一级目录进入，展开所有子菜单
+							shouldExpand = true;
+						} else {
+							// 否则只展开当前路径对应的文件夹
+							shouldExpand = currentPath.startsWith(decodedFolderPath + '/') || 
+										   currentPath === decodedFolderPath;
+						}
+						
+						console.log("🔍 初始展开检查:", {
+							folderPath: decodedFolderPath,
+							currentPath,
+							shouldExpand,
+							reason: isMainMenuAccess ? '一级目录进入' : '路径匹配'
+						});
+						
+						if (shouldExpand) {
+							folderItem.classList.add('expanded');
+							if (expandArrow) {
+								expandArrow.classList.add('expanded');
+							}
+							childrenContainer.style.display = 'block';
+							console.log("✅ 初始展开文件夹:", decodedFolderPath);
+						}
+					}
 				});
 			}
 		</script>
@@ -412,24 +1352,89 @@ const socialImage = new URL(image, Astro.site);
 </html>
 
 <style is:global>
-	/* 导入优化后的全局样式 */
+	/* 导入全局样式 */
 	@import "../styles/global.css";
 
-	/* 组件特定样式 */
-
-	/* 页面加载动画 */
-	@keyframes pageLoad {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
+	/* 应用布局 */
+	.app-layout {
+		min-height: 100vh;
+		background-color: var(--g-bg);
+		display: flex;
+		flex-direction: column;
 	}
 
-	/* 返回顶部按钮特殊效果 */
+	/* 主布局 */
+	.main-layout {
+		display: block; /* 改为block布局，因为侧边栏现在是fixed */
+		flex: 1;
+		height: calc(100vh - 4rem);
+	}
+
+	.main-layout.no-header {
+		height: 100vh;
+	}
+
+
+
+	/* 主内容区 */
+	.main-content {
+		margin-left: 16rem; /* 为固定侧边栏留出空间 */
+		overflow-y: auto;
+		overflow-x: hidden;
+		background-color: var(--m-content-bg);
+		height: 100%;
+		/* Firefox 滚动条样式 */
+		scrollbar-width: thin;
+		scrollbar-color: var(--g-border) transparent;
+		/* 平滑滚动 */
+		scroll-behavior: smooth;
+		/* 在 iOS 上启用惯性滚动 */
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.main-content.full-width {
+		margin-left: 0; /* 无侧边栏时取消左边距 */
+		width: 100%;
+	}
+
+	/* 主内容区滚动条样式 */
+	.main-content::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	.main-content::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.main-content::-webkit-scrollbar-thumb {
+		background: var(--g-border);
+		border-radius: 3px;
+		transition: background-color 0.2s ease;
+	}
+
+	.main-content::-webkit-scrollbar-thumb:hover {
+		background: rgba(var(--color-primary), 0.6);
+	}
+
+
+
+	.content-container {
+		padding: 1.5rem 2rem;
+		max-width: none;
+	}
+
+	.content-area {
+		max-width: none;
+	}
+
+	/* 面包屑导航 */
+	.breadcrumb-nav {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--b-crumb-border);
+	}
+
+	/* 返回顶部按钮 */
 	#back-to-top {
 		background: var(--btn-primary-bg);
 		color: var(--btn-primary-text);
@@ -440,166 +1445,400 @@ const socialImage = new URL(image, Astro.site);
 		transform: translateY(-1px) scale(1.05);
 	}
 
-	/* 选择文本样式增强 */
-	::selection {
-		background-color: rgba(249, 115, 22, 0.2);
-		color: #c2410c;
+	/* 响应式设计 */
+	@media (max-width: 768px) {
+		.content-container {
+			padding: 1rem;
+		}
+
+		/* 移动端主内容区域适配 */
+		.main-content {
+			margin-left: 14rem; /* 适配移动端侧边栏宽度 */
+		}
+
+		.main-content.full-width {
+			margin-left: 0;
+		}
+
+		/* 移动端隐藏滚动条但保持功能 */
+		.main-content::-webkit-scrollbar {
+			width: 2px;
+		}
 	}
 
-	.dark ::selection {
-		background-color: rgba(251, 146, 60, 0.3);
-		color: #fed7aa;
+	@media (min-width: 1280px) {
+		.content-container {
+			padding: 2rem 3rem;
+		}
+
+		/* 大屏幕主内容区域适配 */
+		.main-content {
+			margin-left: 18rem; /* 适配大屏幕侧边栏宽度 */
+		}
+
+		.main-content.full-width {
+			margin-left: 0;
+		}
 	}
 
-	/* 焦点样式增强 */
-	:focus-visible {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
-		border-radius: 4px;
-		transition: outline var(--transition-fast);
+	/* 页面类型特定样式 */
+	.app-layout[data-page-type="home"] {
+		/* 首页特定样式 */
 	}
 
-	/* 工具提示样式 */
-	[data-tooltip] {
-		position: relative;
+	.app-layout[data-page-type="article"] {
+		/* 文章页面特定样式 */
 	}
 
-	[data-tooltip]:hover::after {
-		content: attr(data-tooltip);
-		position: absolute;
-		bottom: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		background: rgba(0, 0, 0, 0.9);
-		color: white;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		white-space: nowrap;
-		z-index: 50;
+	/* View Transitions 配置 - 禁用所有动画，使用顶部加载条 */
+	@view-transition {
+		navigation: auto;
+	}
+
+	/* 完全禁用所有 View Transitions 动画 */
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
+	}
+
+	/* 顶部加载进度条 */
+	.page-loader {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		z-index: 9999;
 		pointer-events: none;
-		animation: fadeIn 0.2s ease-in-out;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		opacity: 0;
+		transition: opacity 0.2s ease-in-out;
 	}
 
-	[data-tooltip]:hover::before {
-		content: "";
-		position: absolute;
-		bottom: 100%;
-		left: 50%;
-		transform: translateX(-50%) translateY(2px);
-		border: 4px solid transparent;
-		border-top-color: rgba(0, 0, 0, 0.9);
-		z-index: 50;
-		pointer-events: none;
-		animation: fadeIn 0.2s ease-in-out;
+	.page-loader.loading {
+		opacity: 1;
 	}
 
-	.dark [data-tooltip]:hover::after {
-		background: rgba(241, 245, 249, 0.95);
-		color: #0f172a;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-	}
-
-	.dark [data-tooltip]:hover::before {
-		border-top-color: rgba(241, 245, 249, 0.95);
-	}
-
-	/* 代码块增强样式 */
-	pre {
+	.page-loader-bar {
+		height: 100%;
+		background: linear-gradient(
+			90deg,
+			rgb(var(--color-primary)) 0%,
+			rgba(251, 146, 60, 0.8) 50%,
+			rgb(var(--color-primary)) 100%
+		);
+		border-radius: 0 2px 2px 0;
 		position: relative;
-		background: var(--code-block-bg) !important;
-		border: 1px solid var(--code-block-border);
-		border-radius: 8px;
 		overflow: hidden;
+		width: 0%;
+		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
-	pre code {
-		background: transparent !important;
-		color: var(--code-block-text) !important;
-		font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace !important;
+	.page-loader-bar::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(255, 255, 255, 0.4) 50%,
+			transparent 100%
+		);
+		animation: shimmer 1.5s infinite;
 	}
 
-	/* 行内代码样式 */
-	:not(pre) > code {
-		background: var(--code-bg) !important;
-		color: var(--code-text) !important;
-		padding: 0.125rem 0.375rem;
-		border-radius: 0.25rem;
-		font-size: 0.875em;
-		font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace !important;
-		border: 1px solid var(--g-border-light);
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 
-	/* 链接悬停效果增强 */
+	/* 页面切换时的反馈 */
+	.page-transitioning {
+		cursor: wait;
+	}
+
+	.page-transitioning .main-content {
+		pointer-events: none;
+	}
+	
+	/* 客户端路由页面切换效果 */
+	.content-area {
+		transition: opacity 0.2s ease, transform 0.2s ease;
+	}
+	
+	.content-area.transitioning {
+		opacity: 0.7;
+		transform: translateY(10px);
+	}
+	
+	/* 优化链接点击反馈 */
 	a {
-		transition: all var(--transition-fast);
+		transition: opacity 0.1s ease;
+	}
+	
+	a:active {
+		opacity: 0.7;
+	}
+	
+	/* 客户端路由专用加载状态 */
+	.client-routing-active {
+		position: relative;
+	}
+	
+	.client-routing-active::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(255, 255, 255, 0.1);
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+	}
+	
+	.client-routing-active.loading::before {
+		opacity: 1;
 	}
 
-	a:hover {
-		text-decoration: none;
-		transform: translateY(-1px);
+	/* 主菜单字体样式调整 */
+	.main-menu-item {
+		font-size: 0.8125rem !important;
+		font-weight: 500 !important;
 	}
 
-	/* 图片加载效果 */
-	img {
-		transition: all var(--transition-normal);
+	.main-menu-text {
+		font-size: inherit;
 	}
 
-	img[data-src] {
-		filter: blur(4px);
-		transition: filter var(--transition-normal);
+	/* 子菜单基础样式 */
+	.submenu-section {
+		padding: 0;
+		margin-top: 0.5rem;
 	}
 
-	/* 表单元素样式统一 */
-	input,
-	textarea,
-	select {
-		background: var(--s-input-bg);
-		border: 1px solid var(--s-input-border);
-		color: var(--s-input-text);
-		border-radius: 0.5rem;
-		padding: 0.75rem;
-		transition: all var(--transition-fast);
+	.submenu-item-group {
+		margin-bottom: 0.125rem;
 	}
 
-	input:focus,
-	textarea:focus,
-	select:focus {
-		outline: none;
-		border-color: var(--s-input-border-focus);
-		box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+	/* 文件夹项样式（一级目录） */
+	.submenu-folder-item {
+		position: relative;
+		margin-bottom: 0.25rem;
 	}
 
-	input::placeholder,
-	textarea::placeholder {
-		color: var(--s-input-placeholder);
-	}
-
-	/* 按钮样式统一 */
-	button {
-		transition: all var(--transition-fast);
-		border-radius: 0.5rem;
-		font-weight: 500;
+	.submenu-folder-wrapper {
+		display: flex;
+		align-items: center;
+		padding: 0.625rem 1rem 0.625rem 0.75rem;
+		border-radius: 0.375rem;
+		transition: all 0.15s ease;
 		cursor: pointer;
-		border: none;
 	}
 
-	button:focus-visible {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
+	.submenu-folder-wrapper:hover {
+		/* 取消背景色，只保留子元素的颜色变化 */
 	}
 
-	button:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-		transform: none !important;
+	.submenu-folder-item.active .submenu-folder-wrapper {
+		/* 取消背景色，只保留子元素的颜色变化 */
 	}
 
-	/* 滚动行为优化 */
-	html {
-		scroll-behavior: smooth;
-		scroll-padding-top: 5rem;
+	.submenu-folder-wrapper:active {
+		/* 取消背景色和缩放效果 */
+	}
+
+	/* 展开收起箭头（左侧） */
+	.submenu-expand-arrow {
+		width: 1.75rem;
+		height: 1.7rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--g-text-muted);
+		transition: transform 0.2s ease, color 0.15s ease;
+		cursor: pointer;
+		margin-right: 0.5rem;
+		border-radius: 0.25rem;
+		padding: 0.125rem;
+	}
+
+	.submenu-expand-arrow:hover {
+		color: rgb(var(--color-primary));
+		background-color: rgba(251, 146, 60, 0.15);
+		transform: scale(1.05);
+	}
+
+	.submenu-expand-arrow.expanded {
+		transform: rotate(90deg);
+		color: rgb(var(--color-primary));
+	}
+
+	.submenu-expand-arrow.expanded:hover {
+		transform: rotate(90deg) scale(1.05);
+	}
+
+	.submenu-expand-arrow svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.submenu-folder-link {
+		flex: 1;
+		text-decoration: none;
+		color: var(--g-text-primary);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		transition: all 0.2s ease;
+	}
+
+	.submenu-folder-link:hover {
+		color: rgba(var(--color-primary), 0.8);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: rgba(var(--color-primary), 0.6);
+		transform: translateX(2px);
+		/* fallback for older browsers */
+		-webkit-text-decoration-line: underline;
+		-webkit-text-underline-offset: 3px;
+	}
+
+	.submenu-folder-item.active .submenu-folder-link {
+		color: rgb(var(--color-primary));
+	}
+
+	.submenu-folder-text {
+		display: block;
+	}
+
+	/* 文章项样式（一级目录文章） */
+	.submenu-article-link {
+		display: flex;
+		align-items: center;
+		padding: 0.625rem 1rem 0.625rem 2.25rem;
+		text-decoration: none;
+		border-radius: 0.375rem;
+		transition: all 0.2s ease;
+		color: var(--g-text-primary);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		margin-bottom: 0.25rem;
+	}
+
+	.submenu-article-link:hover {
+		color: rgba(var(--color-primary), 0.8);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: rgba(var(--color-primary), 0.6);
+		transform: translateX(2px);
+		/* fallback for older browsers */
+		-webkit-text-decoration-line: underline;
+		-webkit-text-underline-offset: 3px;
+	}
+
+	.submenu-article-link.active {
+		color: rgb(var(--color-primary));
+	}
+
+	.submenu-article-indicator {
+		width: 4px;
+		height: 4px;
+		border-radius: 50%;
+		background-color: var(--g-text-muted);
+		margin-right: 0.75rem;
+		transition: all 0.15s ease;
+	}
+
+	.submenu-article-link:hover .submenu-article-indicator {
+		background-color: rgb(var(--color-primary));
+		transform: scale(1.3);
+	}
+
+	.submenu-article-link.active .submenu-article-indicator {
+		background-color: rgb(var(--color-primary));
+		transform: scale(1.4);
+		box-shadow: 0 0 6px rgba(251, 146, 60, 0.6);
+	}
+
+	.submenu-article-text {
+		flex: 1;
+	}
+
+	/* 子项容器（二级目录） */
+	.submenu-children {
+		margin-left: 1.6rem;
+		margin-top: 0.375rem;
+		position: relative;
+		border-left: 2px solid #e4e4e7;
+		padding-left: 0.75rem;
+		transition: border-left-color 0.15s ease;
+	}
+
+	/* 子项链接（二级目录） */
+	.submenu-child-link {
+		display: flex;
+		align-items: center;
+		padding: 0.5rem 0.75rem;
+		text-decoration: none;
+		border-radius: 0.375rem;
+		transition: all 0.2s ease;
+		color: var(--g-text-secondary);
+		font-size: 0.875rem;
+		font-weight: 500;
+		margin-bottom: 0.25rem;
+		position: relative;
+	}
+
+	.submenu-child-link:hover {
+		color: rgba(var(--color-primary), 0.8);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: rgba(var(--color-primary), 0.6);
+		transform: translateX(1px);
+		/* fallback for older browsers */
+		-webkit-text-decoration-line: underline;
+		-webkit-text-underline-offset: 2px;
+	}
+
+	.submenu-child-link.active {
+		color: rgb(var(--color-primary));
+		font-weight: 600;
+	}
+
+	/* Active 指示器 - 定位到左侧边框线上 */
+	.submenu-active-indicator {
+		position: absolute;
+		left: -2px; /* 完全覆盖左边框 */
+		width: 2px;
+		background: rgb(var(--color-primary));
+		z-index: 10;
+	}
+
+	/* 当二级目录容器激活时，左边框变为橙色 */
+	.submenu-children:has(.submenu-child-link.active) {
+		border-left-color: var(--a-submenu-children-border-left);
+	}
+
+	.submenu-child-text {
+		flex: 1;
+		margin-left: 0.25rem;
+	}
+
+	/* 优化字体渲染 */
+	.content-area {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
 	}
 
 	/* 减少动画（用户偏好） */
@@ -612,148 +1851,27 @@ const socialImage = new URL(image, Astro.site);
 			transition-duration: 0.01ms !important;
 			scroll-behavior: auto !important;
 		}
-	}
 
-	/* 高对比度模式 */
-	@media (prefers-contrast: high) {
-		:root {
-			--g-text-secondary: var(--g-text-primary);
-			--g-text-tertiary: var(--g-text-primary);
-			--g-border: #000000;
+		/* 为偏好减少动画的用户禁用 View Transitions */
+		::view-transition-old(root),
+		::view-transition-new(root),
+		::view-transition-old(main-content),
+		::view-transition-new(main-content),
+		::view-transition-old(content-area),
+		::view-transition-new(content-area) {
+			animation: none !important;
 		}
 
-		.dark {
-			--g-text-secondary: var(--g-text-primary);
-			--g-text-tertiary: var(--g-text-primary);
-			--g-border: #ffffff;
-		}
-	}
-
-	/* 打印样式 */
-	@media print {
-		* {
-			background: white !important;
-			color: black !important;
-			box-shadow: none !important;
-			text-shadow: none !important;
+		/* 禁用页面切换反馈 */
+		.page-transitioning .content-area {
+			opacity: 1 !important;
+			transform: none !important;
+			transition: none !important;
 		}
 
-		a[href]:after {
-			content: " (" attr(href) ")";
-			font-size: 0.8em;
-			color: #666;
-		}
-
-		img {
-			max-width: 100% !important;
-			height: auto !important;
-			page-break-inside: avoid;
-		}
-
-		h1,
-		h2,
-		h3,
-		h4,
-		h5,
-		h6 {
-			page-break-after: avoid;
-			page-break-inside: avoid;
-		}
-
-		p,
-		li {
-			page-break-inside: avoid;
-		}
-
-		.no-print {
-			display: none !important;
-		}
-	}
-
-	/* 移动端优化 */
-	@media (max-width: 768px) {
-		html {
-			scroll-padding-top: 4rem;
-		}
-
-		/* 触摸优化 */
-		button,
-		a,
-		input,
-		textarea,
-		select {
-			min-height: 44px;
-			min-width: 44px;
-		}
-
-		/* 字体大小调整 */
-		body {
-			font-size: 16px;
-			line-height: 1.6;
-		}
-
-		/* 间距调整 */
-		.container {
-			padding-left: 1rem;
-			padding-right: 1rem;
-		}
-	}
-
-	/* 深色模式特殊处理 */
-	@media (prefers-color-scheme: dark) {
-		:root:not(.dark) {
-			color-scheme: light;
-		}
-	}
-
-	.dark {
-		color-scheme: dark;
-	}
-
-	/* 性能优化 - 硬件加速 */
-	.gpu-accelerated {
-		transform: translateZ(0);
-		backface-visibility: hidden;
-		perspective: 1000px;
-	}
-
-	/* 内容加载状态 */
-	.content-loading {
-		position: relative;
-		overflow: hidden;
-	}
-
-	.content-loading::after {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(
-			90deg,
-			transparent 0%,
-			rgba(255, 255, 255, 0.2) 50%,
-			transparent 100%
-		);
-		animation: shimmer 1.5s infinite;
-	}
-
-	.dark .content-loading::after {
-		background: linear-gradient(
-			90deg,
-			transparent 0%,
-			rgba(255, 255, 255, 0.1) 50%,
-			transparent 100%
-		);
-	}
-
-	@keyframes shimmer {
-		0% {
-			left: -100%;
-		}
-		100% {
-			left: 100%;
+		.content-area {
+			transition: none !important;
 		}
 	}
 </style>
+

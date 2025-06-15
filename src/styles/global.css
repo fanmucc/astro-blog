@@ -41,6 +41,7 @@
 		/* 侧边栏 */
 		--a-sidebar-bg: #ffffff;
 		--a-sidebar-border: #e5e5e5;
+		--a-submenu-children-border-left: #e4e4e7;
 
 		/* 主菜单 */
 		--a-main-bg: #fafafa;
@@ -134,6 +135,7 @@
 		/* 侧边栏 */
 		--a-sidebar-bg: #1e293b;
 		--a-sidebar-border: #334155;
+		--a-submenu-children-border-left: rgb(var(--color-primary));
 
 		/* 主菜单 */
 		--a-main-bg: #334155;
