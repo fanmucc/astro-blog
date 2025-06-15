@@ -182,9 +182,21 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			document.querySelectorAll("pre").forEach((pre) => {
 				const code = pre.querySelector("code");
 				if (code) {
+					// 检测语言类型并添加标识
+					const languageClass = code.className.match(/language-(\w+)/);
+					const language = languageClass ? languageClass[1] : "text";
+
+					// 添加语言标识
+					if (language !== "text") {
+						const langLabel = document.createElement("span");
+						langLabel.className = "code-language";
+						langLabel.textContent = getLanguageDisplayName(language);
+						pre.appendChild(langLabel);
+					}
+
 					const button = document.createElement("button");
 					button.innerHTML = `
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
 						</svg>
 					`;
@@ -199,7 +211,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 						try {
 							await navigator.clipboard.writeText(code.textContent || "");
 							button.innerHTML = `
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 								</svg>
 							`;
@@ -207,7 +219,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 
 							setTimeout(() => {
 								button.innerHTML = `
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
 									</svg>
 								`;
@@ -219,6 +231,76 @@ const seoDescription = page.data.seoDescription || page.data.description;
 					});
 				}
 			});
+		}
+
+		// 语言显示名称映射
+		function getLanguageDisplayName(lang) {
+			const langMap = {
+				js: "JavaScript",
+				javascript: "JavaScript",
+				ts: "TypeScript",
+				typescript: "TypeScript",
+				jsx: "JSX",
+				tsx: "TSX",
+				vue: "Vue",
+				react: "React",
+				html: "HTML",
+				css: "CSS",
+				scss: "SCSS",
+				sass: "Sass",
+				less: "Less",
+				stylus: "Stylus",
+				python: "Python",
+				py: "Python",
+				java: "Java",
+				cpp: "C++",
+				c: "C",
+				csharp: "C#",
+				cs: "C#",
+				php: "PHP",
+				ruby: "Ruby",
+				rb: "Ruby",
+				go: "Go",
+				golang: "Go",
+				rust: "Rust",
+				rs: "Rust",
+				swift: "Swift",
+				kotlin: "Kotlin",
+				scala: "Scala",
+				dart: "Dart",
+				shell: "Shell",
+				bash: "Bash",
+				zsh: "Zsh",
+				fish: "Fish",
+				powershell: "PowerShell",
+				sql: "SQL",
+				mysql: "MySQL",
+				postgresql: "PostgreSQL",
+				sqlite: "SQLite",
+				json: "JSON",
+				xml: "XML",
+				yaml: "YAML",
+				yml: "YAML",
+				toml: "TOML",
+				ini: "INI",
+				dockerfile: "Dockerfile",
+				docker: "Docker",
+				nginx: "Nginx",
+				apache: "Apache",
+				markdown: "Markdown",
+				md: "Markdown",
+				graphql: "GraphQL",
+				prisma: "Prisma",
+				astro: "Astro",
+				svelte: "Svelte",
+				lua: "Lua",
+				perl: "Perl",
+				r: "R",
+				matlab: "MATLAB",
+				latex: "LaTeX",
+				tex: "LaTeX",
+			};
+			return langMap[lang.toLowerCase()] || lang.toUpperCase();
 		}
 
 		// 图片点击放大
@@ -272,7 +354,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 		// 生成文章目录
 		function generateTableOfContents() {
 			const headings = document.querySelectorAll(
-				".article-content h1, .article-content h2, .article-content h3, .article-content h4"
+				".article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6"
 			);
 			if (headings.length === 0) return;
 
@@ -283,9 +365,12 @@ const seoDescription = page.data.seoDescription || page.data.description;
 
 			headings.forEach((heading, index) => {
 				const id = `heading-${index}`;
-				heading.id = id;
-
 				const level = parseInt(heading.tagName.charAt(1));
+
+				// 为标题添加 id 和 class
+				heading.id = id;
+				heading.className = `article-heading article-h${level}`;
+
 				const indent = (level - 1) * 1;
 
 				tocHtml += `
@@ -302,7 +387,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 		// 高亮当前章节
 		function highlightCurrentSection() {
 			const headings = document.querySelectorAll(
-				".article-content h1, .article-content h2, .article-content h3, .article-content h4"
+				".article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6, .article-heading"
 			);
 			const tocLinks = document.querySelectorAll(".toc-link");
 
@@ -387,7 +472,11 @@ const seoDescription = page.data.seoDescription || page.data.description;
 
 			--blockquote-border-color: #54a12b;
 			--blockquote-bg-color: #eef4e886;
-			--blockquote-hover-border-color: #54a12b;
+			--blockquote-hover-border-color: #2f845e;
+
+			/* 通用边框颜色 */
+			--border-color: #e8f4ee;
+			--border-hover-color: #54a12b;
 
 			--hr-bg-image: linear-gradient(90deg, #5ea67c, #2f845e, #5ea67c);
 			--hr-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
@@ -458,6 +547,8 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			);
 
 			--blockquote-bg-color: rgba(84, 161, 43, 0.1);
+			--blockquote-hover-border-color: #54a12b;
+
 			--code-bg-color: rgba(84, 161, 43, 0.2);
 			--code-color: #54a12b;
 			--code-hover-bg-color: rgba(
@@ -466,6 +557,10 @@ const seoDescription = page.data.seoDescription || page.data.description;
 				43,
 				calc(0.2 + 0.2 * var(--code-hover-effect) * var(--use-dynamic-effect))
 			);
+
+			/* 暗色模式边框颜色 */
+			--border-color: #475569;
+			--border-hover-color: #54a12b;
 		}
 
 		/* 基础样式 */
@@ -484,7 +579,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 		.article-header {
 			margin-bottom: 2rem;
 			padding-bottom: 1.5rem;
-			border-bottom: 1px solid var(--blockquote-border-color);
+			border-bottom: 1px solid var(--border-color);
 			text-align: center;
 		}
 
@@ -575,33 +670,33 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			background-color: var(--p-hover-bg-color);
 		}
 
-		/* 标题样式 */
+		/* 标题样式 - 清晰的层级区分 */
 		.article-content h1,
 		.article-content h2,
 		.article-content h3,
 		.article-content h4,
 		.article-content h5,
-		.article-content h6 {
+		.article-content h6,
+		.article-heading {
 			font-style: normal;
 			color: var(--body-text-color);
 			scroll-margin-top: 6rem;
 		}
 
+		/* H1 - 主标题：居中，大尺寸，背景渐变效果 */
 		.article-content h1,
-		.article-content h2 {
+		.article-h1 {
+			font-size: 2.2rem;
+			font-weight: 700;
 			text-align: center;
-			margin-top: 1.5rem;
-			margin-bottom: 1rem;
-		}
-
-		.article-content h1 {
-			font-size: 2rem;
+			margin: 2rem 0 1.5rem 0;
 			position: relative;
 			overflow: hidden;
 			transition: transform 0.4s ease;
 		}
 
-		.article-content h1:before {
+		.article-content h1:before,
+		.article-h1:before {
 			content: "";
 			position: absolute;
 			top: 0;
@@ -616,32 +711,38 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			display: calc(var(--h1-hover-effect) * var(--use-dynamic-effect));
 		}
 
-		.article-content h1:hover {
+		.article-content h1:hover,
+		.article-h1:hover {
 			transform: scale(
-				calc(1 + 0.1 * var(--h1-hover-effect) * var(--use-dynamic-effect))
+				calc(1 + 0.05 * var(--h1-hover-effect) * var(--use-dynamic-effect))
 			);
 		}
 
-		.article-content h1:hover:before {
+		.article-content h1:hover:before,
+		.article-h1:hover:before {
 			transform: scaleX(
 				calc(var(--h1-hover-effect) * var(--use-dynamic-effect))
 			);
 		}
 
-		.article-content h2 {
+		/* H2 - 章节标题：居中，下划线动画 */
+		.article-content h2,
+		.article-h2 {
 			font-size: 1.8rem;
+			font-weight: 700;
+			text-align: center;
+			margin: 2rem 0 1.2rem 0;
 			position: relative;
-			padding-bottom: 0rem;
-			font-weight: bold;
-			margin-bottom: 0rem;
+			padding-bottom: 0.8rem;
 		}
 
-		.article-content h2:after {
+		.article-content h2:after,
+		.article-h2:after {
 			content: "";
 			display: block;
-			width: 30rem;
+			width: 25rem;
 			height: 2.5px;
-			margin: 0.5rem auto 0.3rem;
+			margin: 0.5rem auto 0;
 			background: var(--write-h2-after-bg);
 			border-radius: 10px;
 			transform: scaleX(0);
@@ -650,45 +751,92 @@ const seoDescription = page.data.seoDescription || page.data.description;
 				background 0.4s ease;
 		}
 
-		.article-content h2:hover:after {
+		.article-content h2:hover:after,
+		.article-h2:hover:after {
 			transform: scaleX(
 				calc(1 * var(--h2-after-effect) * var(--use-dynamic-effect))
 			);
 		}
 
-		.article-content h3 {
-			font-size: 1.6rem;
-		}
-
-		.article-content h4 {
-			font-size: 1.4rem;
-		}
-
-		.article-content h5 {
-			font-size: 1.2rem;
-		}
-
-		.article-content h6 {
-			font-size: 1rem;
-		}
-
+		/* H3 - 小节标题：左对齐，左边框装饰 */
 		.article-content h3,
-		.article-content h4,
-		.article-content h5,
-		.article-content h6 {
-			position: relative;
-			margin-top: 1rem;
-			margin-bottom: 0.5rem;
-			transition: transform 0.3s ease;
+		.article-h3 {
+			font-size: 1.5rem;
+			font-weight: 600;
+			margin: 1.8rem 0 1rem 0;
+			text-align: left;
+			border-left: 4px solid var(--nav-link-color);
+			padding-left: 1rem;
+			transition: all 0.3s ease;
 		}
 
 		.article-content h3:hover,
-		.article-content h4:hover,
+		.article-h3:hover {
+			border-left-color: var(--nav-link-hover-color);
+			transform: translateX(4px);
+		}
+
+		/* H4 - 子小节标题：左对齐，圆点装饰 */
+		.article-content h4,
+		.article-h4 {
+			font-size: 1.3rem;
+			font-weight: 600;
+			margin: 1.5rem 0 0.8rem 0;
+			text-align: left;
+			position: relative;
+			padding-left: 1.2rem;
+		}
+
+		.article-content h4:before,
+		.article-h4:before {
+			content: "●";
+			position: absolute;
+			left: 0;
+			color: var(--nav-link-color);
+			font-size: 1rem;
+			top: 0.1rem;
+			transition: color 0.3s ease;
+		}
+
+		.article-content h4:hover:before,
+		.article-h4:hover:before {
+			color: var(--nav-link-hover-color);
+		}
+
+		/* H5 - 细分标题：左对齐，下划线装饰 */
+		.article-content h5,
+		.article-h5 {
+			font-size: 1.1rem;
+			font-weight: 500;
+			margin: 1.2rem 0 0.6rem 0;
+			text-align: left;
+			color: var(--nav-link-color);
+			text-decoration: underline;
+			text-decoration-color: transparent;
+			transition: all 0.3s ease;
+		}
+
 		.article-content h5:hover,
-		.article-content h6:hover {
-			transform: scale(
-				calc(1 + 0.01 * var(--h3-6-hover-effect) * var(--use-dynamic-effect))
-			);
+		.article-h5:hover {
+			color: var(--nav-link-hover-color);
+			text-decoration-color: var(--nav-link-hover-color);
+		}
+
+		/* H6 - 最小标题：左对齐，斜体，灰色 */
+		.article-content h6,
+		.article-h6 {
+			font-size: 1rem;
+			font-weight: 500;
+			font-style: italic;
+			margin: 1rem 0 0.5rem 0;
+			text-align: left;
+			color: var(--breadcrumb-color);
+			transition: color 0.3s ease;
+		}
+
+		.article-content h6:hover,
+		.article-h6:hover {
+			color: var(--nav-link-color);
 		}
 
 		/* 图片样式 */
@@ -937,17 +1085,18 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			color: var(--a-hover-color);
 		}
 
-		/* 代码样式 */
+		/* 内联代码样式 */
 		.article-content code {
 			background-color: var(--code-bg-color);
 			color: var(--code-color);
 			font-family: "Fira Code", Consolas, "Lucida Console", "Courier", monospace;
-			font-size: 1rem;
+			font-size: 0.9rem;
 			font-weight: 550;
 			margin: 0 2px;
-			padding: 3px 3px 1px;
-			border-radius: 7px;
+			padding: 4px 8px 3px;
+			border-radius: 6px;
 			transition: all 0.3s ease;
+			display: inline-block;
 		}
 
 		.article-content code:hover {
@@ -955,8 +1104,8 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			font-weight: calc(
 				550 + 150 * var(--code-hover-effect) * var(--use-dynamic-effect)
 			);
-			padding: 3px 3px
-				calc(1px + 2px * var(--code-hover-effect) * var(--use-dynamic-effect));
+			padding: 4px 8px
+				calc(3px + 2px * var(--code-hover-effect) * var(--use-dynamic-effect));
 		}
 
 		/* 代码块样式 */
@@ -1038,33 +1187,64 @@ const seoDescription = page.data.seoDescription || page.data.description;
 		/* 复制按钮样式 */
 		.copy-btn {
 			position: absolute;
-			top: 0.75rem;
-			right: 0.75rem;
-			padding: 0.5rem;
+			top: 12px;
+			right: 12px;
+			width: 32px;
+			height: 32px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			background-color: rgba(84, 161, 43, 0.1);
-			border: 1px solid var(--blockquote-border-color);
-			border-radius: 0.375rem;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
 			color: var(--nav-link-color);
 			cursor: pointer;
 			transition: all 0.3s ease;
 			opacity: 0.7;
+			z-index: 10;
 		}
 
 		.copy-btn:hover {
 			opacity: 1;
 			background-color: rgba(84, 161, 43, 0.2);
 			color: var(--nav-link-hover-color);
+			border-color: var(--border-hover-color);
+			transform: scale(1.05);
 		}
 
 		.copy-btn.copied {
 			color: var(--nav-link-hover-color);
+			background-color: rgba(84, 161, 43, 0.3);
+		}
+
+		/* 语言标识样式 */
+		.code-language {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			font-size: 12px;
+			font-weight: 500;
+			color: var(--breadcrumb-color);
+			background-color: rgba(255, 255, 255, 0.9);
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			z-index: 5;
+		}
+
+		.dark .code-language {
+			background-color: rgba(30, 41, 59, 0.9);
+			color: var(--nav-link-color);
 		}
 
 		/* 标签样式 */
 		.article-tags {
 			margin-top: 2rem;
 			padding-top: 2rem;
-			border-top: 1px solid var(--blockquote-border-color);
+			border-top: 1px solid var(--border-color);
 		}
 
 		.tags-title {
@@ -1105,7 +1285,7 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			width: 200px;
 			max-height: 60vh;
 			background-color: var(--content-write-bg-color);
-			border: 1px solid var(--blockquote-border-color);
+			border: 1px solid var(--border-color);
 			border-radius: 0.5rem;
 			padding: 1rem;
 			overflow-y: auto;
