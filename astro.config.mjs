@@ -17,7 +17,7 @@ export default defineConfig({
     },
 
     // 外部重定向
-    '/github': 'https://github.com/fanmu',
+    '/github': 'https://github.com/fanmucc',
   },
 
   integrations: [
