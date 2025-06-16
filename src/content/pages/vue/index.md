@@ -1,14 +1,14 @@
 ---
-title: "React 开发指南"
-description: "全面学习 React，从基础概念到高级特性"
-order: 2
+title: "Vue 开发指南"
+description: "全面学习 Vue，从基础概念到高级特性"
+order: 1
 draft: false
 published: true
 createdAt: 2024-01-02
 author: "Fanmu"
 tags: ["React", "前端", "JavaScript"]
-showInMenu: true
-menuLabel: "React 一级菜单"
+showInMenu: false
+menuLabel: "React 概览"
 ---
 
 # React 开发完整指南

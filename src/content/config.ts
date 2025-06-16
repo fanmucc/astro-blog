@@ -26,6 +26,8 @@ const pages = defineCollection({
     showInMenu: z.boolean().default(true),
     // 菜单显示名称（如果不提供，使用title）
     menuLabel: z.string().optional(),
+    // 是否显示文章目录（默认显示）
+    showMdMenu: z.boolean().default(true),
     // 图标（可选）
     icon: z.string().optional(),
     // SEO相关

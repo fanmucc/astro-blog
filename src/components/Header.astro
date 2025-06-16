@@ -178,29 +178,99 @@ const {
 
 <!-- 主题切换脚本 -->
 <script>
-	// 主题切换功能
+	// 主题切换功能 - 性能优化版
 	function initThemeToggle() {
 		const themeToggle = document.getElementById('theme-toggle');
 		
 		if (!themeToggle) return;
 
-		function toggleTheme() {
+		let isTransitioning = false;
+
+		// 创建流畅的圆形铺开动画
+		function createRippleEffect(button: HTMLElement) {
+			const rect = button.getBoundingClientRect();
+			// 计算需要覆盖整个屏幕的圆形大小
+			const maxDistance = Math.sqrt(
+				Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2)
+			);
+			
+			// 移除已存在的动画元素
+			const existingRipple = document.querySelector('.theme-ripple');
+			if (existingRipple) {
+				existingRipple.remove();
+			}
+
+			// 创建圆形动画元素
+			const ripple = document.createElement('div');
+			ripple.className = 'theme-ripple';
+			ripple.style.cssText = `
+				position: fixed;
+				top: ${rect.top + rect.height / 2}px;
+				left: ${rect.left + rect.width / 2}px;
+				width: ${maxDistance}px;
+				height: ${maxDistance}px;
+				border-radius: 50%;
+				background: var(--theme-ripple-bg);
+				pointer-events: none;
+				z-index: 9999;
+				transform: translate(-50%, -50%) scale(0);
+				animation: themeRipple 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+				will-change: transform, opacity;
+				contain: layout style paint;
+			`;
+
+			document.body.appendChild(ripple);
+
+			return ripple;
+		}
+
+		async function toggleTheme() {
+			// 防止重复点击
+			if (isTransitioning) return;
+			isTransitioning = true;
+
 			const html = document.documentElement;
 			const isDark = html.classList.contains('dark');
 
+			// 设置扇形动画的背景色
+			if (isDark) {
+				html.style.setProperty('--theme-ripple-bg', '#ffffff');
+			} else {
+				html.style.setProperty('--theme-ripple-bg', '#0f172a');
+			}
+
+			// 创建扇形动画
+			const ripple = createRippleEffect(themeToggle!);
+
+			// 添加过渡类
+			html.classList.add('theme-transitioning');
+			
+			// 让圆形动画铺开到30%后再切换主题（0.6s * 30% = 180ms）
+			await new Promise(resolve => setTimeout(resolve, 180));
+
+			// 切换主题
 			if (isDark) {
 				html.classList.remove('dark');
 				localStorage.setItem('theme', 'light');
-				console.log('切换到浅色模式');
+				console.log('🌞 切换到浅色模式');
 			} else {
 				html.classList.add('dark');
 				localStorage.setItem('theme', 'dark');
-				console.log('切换到深色模式');
+				console.log('🌙 切换到深色模式');
 			}
+
+			// 等待动画完成后清理（总时长0.6s）
+			setTimeout(() => {
+				html.classList.remove('theme-transitioning');
+				if (ripple && ripple.parentNode) {
+					ripple.remove();
+				}
+				isTransitioning = false; // 重置标志
+			}, 500);
 		}
 
 		// 绑定点击事件
-		themeToggle.addEventListener('click', toggleTheme);
+		themeToggle.addEventListener('click', () => toggleTheme());
 	}
 
 	// 页面加载时初始化

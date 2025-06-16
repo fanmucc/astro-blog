@@ -18,6 +18,12 @@
       "value": "react",
       "icon": "react",
       "order": 2
+    },
+    {
+      "label": "Vue",
+      "value": "vue",
+      "icon": "vue",
+      "order": 3
     }
   ],
   "social": [

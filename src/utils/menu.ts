@@ -140,7 +140,28 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
         return;
       }
 
-      if (pathParts.length === 3) {
+      if (pathParts.length === 2) {
+        // 二级结构处理：react/demo.md - 直接的一级目录文件
+        const fileName = pathParts[1]; // "demo"
+
+        if (page.data.showInMenu) {
+          const pageName = page.data.pageName || fileName;
+          const directItem: MenuItem = {
+            label: page.data.menuLabel || page.data.title,
+            value: pageName,
+            path: `/${pathParts[0]}/${pageName}`,
+            order: page.data.order,
+            children: [],
+            hasIndex: false,
+            pageSlug: page.slug,
+          };
+
+          // 直接添加到主菜单的子菜单中
+          if (!subMenus.has(pageName)) {
+            subMenus.set(pageName, directItem);
+          }
+        }
+      } else if (pathParts.length === 3) {
         // 三级结构处理：react/开始学习/index.md 或 react/开始学习/环境搭建.md
         const subMenuKey = pathParts[1]; // "开始学习"
         const fileName = pathParts[2]; // "index" 或 "环境搭建"
@@ -152,7 +173,7 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
             label: subMenuKey,
             value: subMenuKey,
             path: `/${pathParts[0]}/${subMenuKey}`,
-            order: 999,
+            order: 999, // 默认值，会在找到 index 页面时更新
             children: [],
             hasIndex: false,
           };
@@ -166,7 +187,7 @@ export async function buildMenuTree(): Promise<MenuItem[]> {
           subMenuItem.hasIndex = true;
           subMenuItem.indexContent = page;
           subMenuItem.label = page.data.menuLabel || page.data.title;
-          subMenuItem.order = page.data.order;
+          subMenuItem.order = page.data.order; // 使用 index.md 的 order
           subMenuItem.pageSlug = page.slug;
         } else {
           // 子菜单下的具体页面
