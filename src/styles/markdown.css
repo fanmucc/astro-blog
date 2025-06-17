@@ -128,8 +128,8 @@
 	font-size: 1.9rem !important;
 	font-weight: 700 !important;
 	margin: 2.2rem 0 1.2rem 0 !important;
-	padding-left: 1rem;
-	border-left: 4px solid var(--md-primary);
+	/* padding-left: 1rem; */
+	/* border-left: 4px solid var(--md-primary); */
 	color: var(--md-text) !important;
 	letter-spacing: -0.01em;
 	transition: var(--md-transition);
@@ -138,8 +138,8 @@
 .article-content h2:hover,
 .article-h2:hover,
 .article-heading.article-h2:hover {
-	border-left-color: var(--md-primary-dark);
-	border-left-width: 6px;
+	/* border-left-color: var(--md-primary-dark);
+	border-left-width: 6px; */
 	transform: translateX(6px);
 }
 
@@ -150,8 +150,8 @@
 	font-size: 1.6rem !important;
 	font-weight: 650 !important;
 	margin: 2rem 0 1rem 0 !important;
-	border-left: 4px solid var(--md-primary);
-	padding-left: 1rem;
+	/* border-left: 4px solid var(--md-primary); */
+	/* padding-left: 1rem; */
 	color: var(--md-text) !important;
 	transition: var(--md-transition);
 }
@@ -159,8 +159,8 @@
 .article-content h3:hover,
 .article-h3:hover,
 .article-heading.article-h3:hover {
-	border-left-color: var(--md-primary-dark);
-	border-left-width: 5px;
+	/* border-left-color: var(--md-primary-dark);
+	border-left-width: 5px; */
 	transform: translateX(4px);
 }
 
@@ -295,7 +295,7 @@
 
 /* ============== 引用块样式 ============== */
 .article-content blockquote {
-	padding: 1rem 1.5rem;
+	padding: 0.1rem 0.5rem;
 	margin: 1.5rem 0;
 	border-left: 4px solid var(--md-quote-border);
 	background-color: var(--md-quote-bg);
@@ -305,9 +305,9 @@
 }
 
 .article-content blockquote:hover {
-	border-left-width: 6px;
+	/* border-left-width: 6px; */
 	background-color: var(--md-bg-hover);
-	transform: translateX(4px);
+	/* transform: translateX(4px); */
 }
 
 .article-content blockquote p {
@@ -406,6 +406,33 @@
 	border-color: var(--md-primary);
 	box-shadow: 0 8px 25px rgba(var(--color-primary), 0.2);
 }
+
+.article-content img[data-badge] {
+	display: inline-block !important; /* 覆盖默认的 block */
+	margin: 0.25rem !important; /* 覆盖默认的 1.5rem auto */
+	padding: 0;
+	border: none !important; /* 移除边框 */
+	border-radius: 4px !important; /* 保持圆角但更小 */
+	max-width: none !important; /* 允许原始尺寸 */
+	height: auto;
+	transition: transform 0.2s ease;
+}
+
+/* 悬停效果 */
+.article-content img[data-badge]:hover {
+	transform: scale(1.05);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 确保容器居中且支持换行 */
+/* .article-content img[data-badge] {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem 0;
+} */
 
 /* ============== 水平线样式 ============== */
 .article-content hr {
@@ -574,6 +601,14 @@
 		width: calc(100% + 1rem);
 		max-width: calc(100% + 1rem);
 		border-radius: 0.5rem;
+	}
+
+	.article-content img[data-badge] {
+		gap: 0.25rem;
+	}
+
+	.article-content img[data-badge] {
+		margin: 0.125rem !important;
 	}
 }
 

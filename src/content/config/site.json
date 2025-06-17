@@ -12,24 +12,6 @@
       "value": "home",
       "icon": "home",
       "order": 1
-    },
-    {
-      "label": "React",
-      "value": "react",
-      "icon": "react",
-      "order": 2
-    },
-    {
-      "label": "Vue",
-      "value": "vue",
-      "icon": "vue",
-      "order": 3
-    },
-    {
-      "label": "Rust",
-      "value": "rust",
-      "icon": "rust",
-      "order": 4
     }
   ],
   "social": [

@@ -20,59 +20,88 @@ const {
 			<div class='logo-section'>
 				<a href='/' class='logo-link' data-astro-prefetch>
 					<div class='logo-icon'>
-						<svg viewBox='0 0 120 120' class='h-10 w-10'>
+						<svg viewBox='0 0 48 48' class='h-10 w-10'>
 							<defs>
 								<linearGradient
-									id='primaryGradient'
+									id='fanmuGradient'
 									x1='0%'
 									y1='0%'
 									x2='100%'
 									y2='100%'
 								>
-									<stop offset='0%' style='stop-color:#f59e0b;stop-opacity:1'></stop>
-									<stop offset='100%' style='stop-color:#d97706;stop-opacity:1'></stop>
+									<stop offset='0%' style='stop-color:#1e40af;stop-opacity:1'></stop>
+									<stop offset='50%' style='stop-color:#1d4ed8;stop-opacity:1'></stop>
+									<stop offset='100%' style='stop-color:#06b6d4;stop-opacity:1'></stop>
 								</linearGradient>
 								<filter
-									id='shadow'
-									x='-20%'
-									y='-20%'
-									width='140%'
-									height='140%'
+									id='glow'
+									x='-50%'
+									y='-50%'
+									width='200%'
+									height='200%'
 								>
-									<feDropShadow
-										dx='1'
-										dy='2'
-										stdDeviation='2'
-										flood-opacity='0.2'
-										flood-color='#000'></feDropShadow>
+									<feGaussianBlur stdDeviation='2' result='coloredBlur'/>
+									<feMerge>
+										<feMergeNode in='coloredBlur'/>
+										<feMergeNode in='SourceGraphic'/>
+									</feMerge>
 								</filter>
 							</defs>
+							
+							<!-- 外圆背景 -->
 							<circle
-								cx='60'
-								cy='60'
-								r='56'
-								fill='url(#primaryGradient)'
-								filter='url(#shadow)'></circle>
-							<g transform='translate(60, 60)'>
+								cx='24'
+								cy='24'
+								r='22'
+								fill='url(#fanmuGradient)'
+								opacity='0.1'
+								stroke='url(#fanmuGradient)'
+								stroke-width='1'
+							></circle>
+							
+							<!-- F字母主体 -->
+							<g transform='translate(24, 24)' filter='url(#glow)'>
+								<!-- F 的竖线 -->
+								<rect
+									x='-8'
+									y='-12'
+									width='3'
+									height='24'
+									fill='url(#fanmuGradient)'
+									rx='1.5'
+								></rect>
+								<!-- F 的上横线 -->
+								<rect
+									x='-8'
+									y='-12'
+									width='12'
+									height='3'
+									fill='url(#fanmuGradient)'
+									rx='1.5'
+								></rect>
+								<!-- F 的中横线 -->
+								<rect
+									x='-8'
+									y='-1.5'
+									width='8'
+									height='3'
+									fill='url(#fanmuGradient)'
+									rx='1.5'
+								></rect>
+								
+								<!-- 装饰性的代码元素 -->
+								<circle cx='6' cy='-8' r='1' fill='url(#fanmuGradient)' opacity='0.6'></circle>
+								<circle cx='8' cy='-4' r='0.8' fill='url(#fanmuGradient)' opacity='0.8'></circle>
+								<circle cx='4' cy='6' r='0.6' fill='url(#fanmuGradient)' opacity='0.7'></circle>
+								
+								<!-- 技术感装饰线条 -->
 								<path
-									d='M -20 -15 Q -25 -15 -25 -10 L -25 -5 Q -25 0 -30 0 Q -25 0 -25 5 L -25 10 Q -25 15 -20 15'
-									stroke='white'
-									stroke-width='3'
-									fill='none'
-									stroke-linecap='round'></path>
-								<path
-									d='M 20 -15 Q 25 -15 25 -10 L 25 -5 Q 25 0 30 0 Q 25 0 25 5 L 25 10 Q 25 15 20 15'
-									stroke='white'
-									stroke-width='3'
-									fill='none'
-									stroke-linecap='round'></path>
-								<circle cx='-8' cy='-3' r='2' fill='white'></circle>
-								<circle cx='0' cy='3' r='2' fill='white'></circle>
-								<circle cx='8' cy='-3' r='2' fill='white'></circle>
-							</g>
-							<g opacity='0.3'>
-								<polygon points='15,25 25,15 35,25' fill='white'></polygon>
-								<polygon points='85,85 95,90 85,95 75,90' fill='white'></polygon>
+									d='M 10 -10 L 12 -8 M 10 -6 L 12 -4'
+									stroke='url(#fanmuGradient)'
+									stroke-width='1'
+									opacity='0.5'
+									stroke-linecap='round'
+								></path>
 							</g>
 						</svg>
 					</div>
