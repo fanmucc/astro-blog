@@ -12,6 +12,30 @@
       "value": "home",
       "icon": "home",
       "order": 1
+    },
+    {
+      "label": "Js 基础",
+      "value": "js",
+      "icon": "/images/javascript.png",
+      "order": 2
+    },
+    {
+      "label": "React",
+      "value": "react",
+      "icon": "/images/react.png",
+      "order": 3
+    },
+    {
+      "label": "Nest",
+      "value": "nest",
+      "icon": "/images/nest.png",
+      "order": 4
+    },
+    {
+      "label": "Rust",
+      "value": "rust",
+      "icon": "/images/rust.png",
+      "order": 5
     }
   ],
   "social": [

@@ -270,27 +270,116 @@
 /* ============== 列表样式 ============== */
 .article-content ul,
 .article-content ol {
-	margin: 0 0 1rem 1.5rem;
-	padding-left: 1rem;
+	margin: 1rem 0 1.5rem 0;
+	padding-left: 0;
+}
+
+/* 无序列表样式 - 使用自定义圆点 */
+.article-content ul {
+	list-style: none;
 }
 
 .article-content ul li {
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.8rem;
 	position: relative;
+	padding-left: 1.8rem;
+	line-height: 1.7;
+	transition: var(--md-transition);
 }
 
-.article-content ul li::marker {
+.article-content ul li::before {
+	content: "·";
+	position: absolute;
+	left: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
 	color: var(--md-primary);
-	font-size: 1.2em;
+	font-size: 1.5rem;
+	font-weight: bold;
+	line-height: 1;
+	transition: var(--md-transition);
 }
 
-.article-content ol li::marker {
+.article-content ul li:hover::before {
+	color: var(--md-primary-dark);
+	transform: translateY(-50%) scale(1.3);
+}
+
+/* 有序列表样式 - 使用自定义数字 */
+.article-content ol {
+	list-style: none;
+	counter-reset: custom-counter;
+}
+
+.article-content ol li {
+	margin-bottom: 0.8rem;
+	position: relative;
+	padding-left: 2.2rem;
+	line-height: 1.7;
+	counter-increment: custom-counter;
+	transition: var(--md-transition);
+}
+
+.article-content ol li::before {
+	content: counter(custom-counter);
+	position: absolute;
+	left: 0;
+	top: 0;
 	color: var(--md-primary);
-	font-weight: 600;
+	font-weight: 700;
+	font-size: 0.9rem;
+	background-color: var(--md-bg-accent);
+	border: 2px solid var(--md-primary);
+	border-radius: 50%;
+	width: 1.8rem;
+	height: 1.8rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	transition: var(--md-transition);
 }
 
+.article-content ol li:hover::before {
+	background-color: var(--md-primary);
+	color: white;
+	transform: scale(1.1);
+	box-shadow: 0 2px 8px rgba(var(--color-primary), 0.3);
+}
+
+/* 通用列表项样式 */
 .article-content li {
 	line-height: 1.7;
+	transition: var(--md-transition);
+}
+
+.article-content li:hover {
+	color: var(--md-primary-dark);
+	padding-left: calc(1.8rem + 2px);
+}
+
+.article-content ol li:hover {
+	padding-left: calc(2.2rem + 2px);
+}
+
+/* 嵌套列表样式 */
+.article-content ul ul,
+.article-content ol ol,
+.article-content ul ol,
+.article-content ol ul {
+	margin: 0.5rem 0;
+	padding-left: 1rem;
+}
+
+.article-content ul ul li::before {
+	content: "◦";
+	font-size: 1.3rem;
+}
+
+.article-content ol ol li::before {
+	font-size: 0.8rem;
+	width: 1.5rem;
+	height: 1.5rem;
 }
 
 /* ============== 引用块样式 ============== */
