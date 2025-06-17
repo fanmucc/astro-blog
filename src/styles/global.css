@@ -107,9 +107,9 @@
 		--transition-normal: 0.25s ease-in-out;
 		--transition-slow: 0.3s ease-in-out;
 
-		/* 主题切换动画 - 流畅版 */
-		--theme-transition-duration: 0.3s;
-		--theme-transition-easing: cubic-bezier(0.2, 0, 0.2, 1);
+		/* 主题切换动画 - 高性能版 */
+		--theme-transition-duration: 0.25s;
+		--theme-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	/* ========== 深色模式变量 ========== */
@@ -865,6 +865,17 @@
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
+
+	/* 禁用主题切换动画 */
+	.theme-ripple {
+		display: none !important;
+	}
+
+	html.theme-transitioning *,
+	html.theme-transitioning *::before,
+	html.theme-transitioning *::after {
+		transition: none !important;
+	}
 }
 
 /* 高对比度模式 */
@@ -1050,7 +1061,7 @@
 	perspective: 1000px;
 }
 
-/* 主题切换时的优化过渡 */
+/* 主题切换时的优化过渡 - 高性能版 */
 html.theme-transitioning *,
 html.theme-transitioning *::before,
 html.theme-transitioning *::after {
@@ -1060,6 +1071,9 @@ html.theme-transitioning *::after {
 		color var(--theme-transition-duration) var(--theme-transition-easing),
 		box-shadow var(--theme-transition-duration) var(--theme-transition-easing) !important;
 	will-change: background-color, border-color, color, box-shadow;
+	/* 硬件加速优化 */
+	transform: translateZ(0);
+	backface-visibility: hidden;
 }
 
 /* 避免在特定元素上应用过渡 */
@@ -1077,32 +1091,16 @@ html.theme-transitioning {
 	contain: layout style paint;
 }
 
-/* 主题切换扇形动画 - 流畅版 */
+/* 主题切换扇形动画 - 高性能帧同步版 */
 .theme-ripple {
 	mix-blend-mode: difference;
-	will-change: transform;
+	will-change: transform, opacity;
 	contain: layout style paint;
 	transform-origin: center;
-}
-
-/* 流畅的圆形铺开动画 */
-@keyframes themeRipple {
-	0% {
-		transform: translate(-50%, -50%) scale(0);
-		opacity: 0.9;
-	}
-	30% {
-		transform: translate(-50%, -50%) scale(0.4);
-		opacity: 0.8;
-	}
-	60% {
-		transform: translate(-50%, -50%) scale(0.8);
-		opacity: 0.6;
-	}
-	100% {
-		transform: translate(-50%, -50%) scale(1);
-		opacity: 0.2;
-	}
+	/* 硬件加速优化 */
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	perspective: 1000px;
 }
 
 /* 正常状态下的快速过渡 */

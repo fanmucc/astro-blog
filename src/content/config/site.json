@@ -24,6 +24,12 @@
       "value": "vue",
       "icon": "vue",
       "order": 3
+    },
+    {
+      "label": "Rust",
+      "value": "rust",
+      "icon": "rust",
+      "order": 4
     }
   ],
   "social": [

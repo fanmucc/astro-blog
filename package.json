@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "create-main-menu": "node scripts/create-main-menu.js",
+    "create-submenu": "node scripts/create-submenu.js"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",
