@@ -42,7 +42,6 @@
 		/* 侧边栏 */
 		--a-sidebar-bg: var(--g-bg);
 		--a-sidebar-border: #e5e5e5;
-		--a-submenu-children-border-left: #e4e4e7;
 
 		/* 主菜单 */
 		--a-main-bg: #f4f4f5;
@@ -103,13 +102,13 @@
 		--code-block-text: #e2e8f0;
 		--code-block-border: #e5e5e5;
 
-		/* 过渡动画 */
+		/* 过渡动画 - 统一时间 */
 		--transition-fast: 0.15s ease-in-out;
-		--transition-normal: 0.25s ease-in-out;
-		--transition-slow: 0.3s ease-in-out;
+		--transition-normal: 0.3s ease-in-out;
+		--transition-slow: 0.45s ease-in-out;
 
-		/* 主题切换动画 - 高性能版 */
-		--theme-transition-duration: 0.25s;
+		/* 主题切换动画 - 统一时间 */
+		--theme-transition-duration: 0.3s;
 		--theme-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
@@ -132,7 +131,7 @@
 		--g-border-dark: #1e293b;
 
 		/* 主导航区域 */
-		--h-nav-bg: var(--g-bg);
+		--h-nav-bg: rgba(15, 23, 42, 0.8);
 		--h-nav-border: #334155;
 		--h-nav-text: #f1f5f9;
 		--h-nav-text-hover: rgb(var(--color-primary));
@@ -140,7 +139,6 @@
 		/* 侧边栏 */
 		--a-sidebar-bg: var(--g-bg);
 		--a-sidebar-border: #334155;
-		--a-submenu-children-border-left: rgb(var(--color-primary));
 
 		/* 主菜单 */
 		--a-main-bg: #334155;
@@ -319,6 +317,7 @@
 	.sidebar {
 		background-color: var(--g-bg);
 		border-color: var(--a-sidebar-border);
+		border-style: solid; /* 确保是实线边框 */
 		transition: all var(--transition-normal);
 	}
 
@@ -1191,19 +1190,22 @@
 	perspective: 1000px;
 }
 
-/* 主题切换时的优化过渡 - 高性能版 */
-html.theme-transitioning *,
-html.theme-transitioning *::before,
-html.theme-transitioning *::after {
+/* 主题切换时的优化过渡 - 确保所有内容区域同步切换 */
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning .main-content,
+html.theme-transitioning .content-container,
+html.theme-transitioning .content-area,
+html.theme-transitioning .blog-article,
+html.theme-transitioning .article-content,
+html.theme-transitioning .article-layout,
+html.theme-transitioning .article-header,
+html.theme-transitioning .prose {
 	transition: background-color var(--theme-transition-duration)
 			var(--theme-transition-easing),
 		border-color var(--theme-transition-duration) var(--theme-transition-easing),
-		color var(--theme-transition-duration) var(--theme-transition-easing),
-		box-shadow var(--theme-transition-duration) var(--theme-transition-easing) !important;
-	will-change: background-color, border-color, color, box-shadow;
-	/* 硬件加速优化 */
-	transform: translateZ(0);
-	backface-visibility: hidden;
+		color var(--theme-transition-duration) var(--theme-transition-easing) !important;
+	will-change: background-color, color !important;
 }
 
 /* 避免在特定元素上应用过渡 */
@@ -1212,30 +1214,113 @@ html.theme-transitioning video,
 html.theme-transitioning iframe,
 html.theme-transitioning embed,
 html.theme-transitioning object,
-html.theme-transitioning img {
+html.theme-transitioning img,
+html.theme-transitioning code,
+html.theme-transitioning pre,
+html.theme-transitioning .highlight,
+html.theme-transitioning .syntax-highlight {
 	transition: none !important;
+}
+
+/* 避免文字元素产生抖动 */
+html.theme-transitioning h1,
+html.theme-transitioning h2,
+html.theme-transitioning h3,
+html.theme-transitioning h4,
+html.theme-transitioning h5,
+html.theme-transitioning h6,
+html.theme-transitioning p,
+html.theme-transitioning span,
+html.theme-transitioning a,
+html.theme-transitioning li {
+	transition: color var(--theme-transition-duration)
+		var(--theme-transition-easing) !important;
+	transform: none !important;
+	will-change: color;
+}
+
+/* 防止Logo在主题切换时位移，但允许侧边栏和内容区域正常过渡 */
+html.theme-transitioning .logo-section,
+html.theme-transitioning .logo-link,
+html.theme-transitioning .logo-icon {
+	/* 锁定Logo位置，防止任何形式的位移 */
+	transform: none !important;
+	transition: none !important;
+	will-change: auto !important;
+	contain: none !important;
+	backface-visibility: visible !important;
+}
+
+/* 允许侧边栏和内容区域正常主题过渡 */
+html.theme-transitioning .sidebar,
+html.theme-transitioning .sidebar-content,
+html.theme-transitioning .main-menu-section,
+html.theme-transitioning .main-menu-nav,
+html.theme-transitioning .main-menu-item,
+html.theme-transitioning .submenu-section,
+html.theme-transitioning .submenu-content,
+html.theme-transitioning .submenu-group {
+	transition: background-color var(--theme-transition-duration)
+			var(--theme-transition-easing),
+		border-color var(--theme-transition-duration) var(--theme-transition-easing),
+		color var(--theme-transition-duration) var(--theme-transition-easing) !important;
+}
+
+/* 特别保护Logo SVG元素 - 防止F字体消失和位移 */
+html.theme-transitioning .logo-icon svg,
+html.theme-transitioning .logo-icon svg *,
+html.theme-transitioning .logo-icon svg defs,
+html.theme-transitioning .logo-icon svg linearGradient,
+html.theme-transitioning .logo-icon svg filter,
+html.theme-transitioning .logo-icon svg g,
+html.theme-transitioning .logo-icon svg circle,
+html.theme-transitioning .logo-icon svg rect,
+html.theme-transitioning .logo-icon svg path {
+	/* 完全锁定SVG元素，防止任何变化 */
+	transform: none !important;
+	transition: none !important;
+	will-change: auto !important;
+	contain: none !important;
+	opacity: inherit !important;
+	visibility: inherit !important;
+	fill: inherit !important;
+	stroke: inherit !important;
+}
+
+/* 特别处理header区域 - 允许背景色过渡但防止位移 */
+html.theme-transitioning header,
+html.theme-transitioning .header-content,
+html.theme-transitioning .header-nav {
+	transform: none !important;
+	transition: background-color var(--theme-transition-duration)
+			var(--theme-transition-easing),
+		border-color var(--theme-transition-duration) var(--theme-transition-easing),
+		color var(--theme-transition-duration) var(--theme-transition-easing) !important;
+	will-change: background-color, border-color, color !important;
 }
 
 /* 强制重绘优化 - 防止闪烁 */
 html.theme-transitioning {
-	contain: layout style paint;
+	/* 最小化重绘影响 */
+	contain: style;
 }
 
-/* 主题切换扇形动画 - 高性能帧同步版 */
-.theme-ripple {
-	mix-blend-mode: difference;
-	will-change: transform, opacity;
-	contain: layout style paint;
-	transform-origin: center;
-	/* 硬件加速优化 */
-	transform: translateZ(0);
-	backface-visibility: hidden;
-	perspective: 1000px;
+/* 正常状态下禁用过渡，避免冲突 */
+html:not(.theme-transitioning) .main-content,
+html:not(.theme-transitioning) .content-container,
+html:not(.theme-transitioning) .content-area,
+html:not(.theme-transitioning) .blog-article,
+html:not(.theme-transitioning) .article-content,
+html:not(.theme-transitioning) .article-layout,
+html:not(.theme-transitioning) .app-layout {
+	transition: none !important;
 }
 
-/* 正常状态下的快速过渡 */
-html:not(.theme-transitioning),
-html:not(.theme-transitioning) * {
+/* 其他元素保持快速过渡 */
+html:not(.theme-transitioning) .sidebar,
+html:not(.theme-transitioning) .header-nav,
+html:not(.theme-transitioning) button,
+html:not(.theme-transitioning) a {
 	transition: background-color var(--transition-fast),
 		border-color var(--transition-fast), color var(--transition-fast),
 		box-shadow var(--transition-fast);

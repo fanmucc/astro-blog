@@ -583,9 +583,9 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 
 						// 如果是同页面的锚点链接，优先处理平滑滚动
 						if (hash && linkPageUrl === currentPageUrl) {
-							e.preventDefault();
-							e.stopPropagation();
-							
+								e.preventDefault();
+								e.stopPropagation();
+								
 							const target = document.getElementById(hash);
 							if (target) {
 								const headerHeight = document.querySelector("header")?.offsetHeight || 0;
@@ -891,7 +891,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 	.main-content::-webkit-scrollbar-thumb {
 		background: var(--g-border);
 		border-radius: 3px;
-		transition: background-color 0.2s ease;
+		transition: background-color var(--transition-normal);
 	}
 
 	.main-content::-webkit-scrollbar-thumb:hover {
@@ -997,7 +997,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 		z-index: 9999;
 		pointer-events: none;
 		opacity: 0;
-		transition: opacity 0.2s ease-in-out;
+		transition: opacity var(--transition-fast) ease-in-out;
 	}
 
 	.page-loader.loading {
@@ -1016,7 +1016,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 		position: relative;
 		overflow: hidden;
 		width: 0%;
-		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: width var(--transition-normal) var(--theme-transition-easing);
 	}
 
 	.page-loader-bar::after {
@@ -1055,7 +1055,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 	
 	/* 客户端路由页面切换效果 */
 	.content-area {
-		transition: opacity 0.2s ease, transform 0.2s ease;
+		transition: opacity var(--transition-fast) ease, transform var(--transition-fast) ease;
 	}
 	
 	.content-area.transitioning {
@@ -1065,7 +1065,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 	
 	/* 优化链接点击反馈 */
 	a {
-		transition: opacity 0.1s ease;
+		transition: opacity var(--transition-fast) ease;
 	}
 	
 	a:active {
@@ -1087,7 +1087,7 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 		background: rgba(255, 255, 255, 0.1);
 		pointer-events: none;
 		opacity: 0;
-		transition: opacity 0.2s ease;
+		transition: opacity var(--transition-fast) ease;
 	}
 	
 	.client-routing-active.loading::before {

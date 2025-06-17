@@ -20,10 +20,10 @@ const {
 			<div class='logo-section'>
 				<a href='/' class='logo-link' data-astro-prefetch>
 					<div class='logo-icon'>
-						<svg viewBox='0 0 48 48' class='h-10 w-10'>
+						<svg viewBox='0 0 48 48' class='h-10 w-10 logo-svg' data-theme-protected='true'>
 							<defs>
 								<linearGradient
-									id='fanmuGradient'
+									id='fanmuGradient-logo'
 									x1='0%'
 									y1='0%'
 									x2='100%'
@@ -53,9 +53,9 @@ const {
 								cx='24'
 								cy='24'
 								r='22'
-								fill='url(#fanmuGradient)'
+								fill='url(#fanmuGradient-logo)'
 								opacity='0.1'
-								stroke='url(#fanmuGradient)'
+								stroke='url(#fanmuGradient-logo)'
 								stroke-width='1'
 							></circle>
 							
@@ -67,7 +67,7 @@ const {
 									y='-12'
 									width='3'
 									height='24'
-									fill='url(#fanmuGradient)'
+									fill='url(#fanmuGradient-logo)'
 									rx='1.5'
 								></rect>
 								<!-- F 的上横线 -->
@@ -76,7 +76,7 @@ const {
 									y='-12'
 									width='12'
 									height='3'
-									fill='url(#fanmuGradient)'
+									fill='url(#fanmuGradient-logo)'
 									rx='1.5'
 								></rect>
 								<!-- F 的中横线 -->
@@ -85,7 +85,7 @@ const {
 									y='-1.5'
 									width='8'
 									height='3'
-									fill='url(#fanmuGradient)'
+									fill='url(#fanmuGradient-logo)'
 									rx='1.5'
 								></rect>
 								
@@ -97,7 +97,7 @@ const {
 								<!-- 技术感装饰线条 -->
 								<path
 									d='M 10 -10 L 12 -8 M 10 -6 L 12 -4'
-									stroke='url(#fanmuGradient)'
+									stroke='url(#fanmuGradient-logo)'
 									stroke-width='1'
 									opacity='0.5'
 									stroke-linecap='round'
@@ -222,217 +222,67 @@ const {
 
 <!-- 主题切换脚本 -->
 <script>
-	// 主题切换功能 - 高性能帧同步版
+	// 简化的主题切换功能
 	function initThemeToggle() {
 		const themeToggle = document.getElementById('theme-toggle');
 		
 		if (!themeToggle) return;
 
 		let isTransitioning = false;
-		let animationId: number | null = null;
-		
-		// 性能检测 - 根据设备性能选择动画策略
-		const isHighPerformance = (() => {
-			// 检查是否支持 requestAnimationFrame
-			if (!window.requestAnimationFrame) return false;
-			
-			// 检查是否偏好减少动画
-			if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-			
-			// 移动端默认使用简化动画
-			if (window.innerWidth <= 768) return false;
-			
-			// 检查设备内存（如果可用）
-			const nav = navigator as any;
-			if (nav.deviceMemory && nav.deviceMemory < 4) return false;
-			
-			// 检查硬件并发（CPU 核心数）
-			if (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) return false;
-			
-			// 检查是否为触摸设备（通常性能较低）
-			if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return false;
-			
-			return true;
-		})();
 
-		// 输出性能检测结果
-		console.log(`🎨 主题切换性能模式: ${isHighPerformance ? '高性能动画' : '简化模式'}`);
-
-		// 简化版主题切换（适用于低性能设备）
-		function toggleThemeSimple() {
-			const html = document.documentElement;
-			const isDark = html.classList.contains('dark');
-
-			html.classList.add('theme-transitioning');
-
-			// 直接切换主题，无动画
-			if (isDark) {
-				html.classList.remove('dark');
-				localStorage.setItem('theme', 'light');
-				console.log('🌞 切换到浅色模式（简化版）');
-			} else {
-				html.classList.add('dark');
-				localStorage.setItem('theme', 'dark');
-				console.log('🌙 切换到深色模式（简化版）');
-			}
-
-			// 快速清理
-			requestAnimationFrame(() => {
-				html.classList.remove('theme-transitioning');
-				isTransitioning = false;
-			});
-		}
-
-		// 创建流畅的圆形扩散动画 - 基于 requestAnimationFrame
-		function createRippleEffect(button: HTMLElement): Promise<HTMLElement> {
-			return new Promise((resolve) => {
-				const rect = button.getBoundingClientRect();
-				// 计算需要覆盖整个屏幕的圆形大小
-				const maxDistance = Math.sqrt(
-					Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2)
-				) * 1.1; // 增加 10% 确保完全覆盖
-				
-				// 移除已存在的动画元素
-				const existingRipple = document.querySelector('.theme-ripple');
-				if (existingRipple) {
-					existingRipple.remove();
-				}
-
-				// 创建圆形动画元素
-				const ripple = document.createElement('div');
-				ripple.className = 'theme-ripple';
-				ripple.style.cssText = `
-					position: fixed;
-					top: ${rect.top + rect.height / 2}px;
-					left: ${rect.left + rect.width / 2}px;
-					width: ${maxDistance}px;
-					height: ${maxDistance}px;
-					border-radius: 50%;
-					background: var(--theme-ripple-bg);
-					pointer-events: none;
-					z-index: 10000;
-					transform: translate(-50%, -50%) scale(0);
-					opacity: 0.9;
-					will-change: transform, opacity;
-					contain: layout style paint;
-				`;
-
-				document.body.appendChild(ripple);
-
-				// 使用 requestAnimationFrame 进行帧同步动画
-				let startTime: number | null = null;
-				const duration = 600; // 600ms 总动画时长
-				const switchPoint = 0.3; // 30% 时切换主题
-
-				function animate(currentTime: number) {
-					if (!startTime) startTime = currentTime;
-					const elapsed = currentTime - startTime;
-					const progress = Math.min(elapsed / duration, 1);
-
-					// 使用更流畅的缓动函数（ease-out-expo）
-					const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-					
-					// 设置变换
-					ripple.style.transform = `translate(-50%, -50%) scale(${easedProgress})`;
-					ripple.style.opacity = `${0.9 - (progress * 0.7)}`; // 从 0.9 到 0.2
-
-					// 在 30% 进度时触发主题切换
-					if (progress >= switchPoint && !ripple.dataset.switched) {
-						ripple.dataset.switched = 'true';
-						resolve(ripple);
-					}
-
-					// 继续动画直到完成
-					if (progress < 1) {
-						animationId = requestAnimationFrame(animate);
-					} else {
-						// 动画完成
-						if (!ripple.dataset.switched) {
-							resolve(ripple);
-						}
-					}
-				}
-
-				animationId = requestAnimationFrame(animate);
-			});
-		}
-
-		async function toggleTheme() {
-			// 防止重复点击
+		function toggleTheme() {
 			if (isTransitioning) return;
+			
 			isTransitioning = true;
-
-			// 根据性能选择动画策略
-			if (!isHighPerformance) {
-				toggleThemeSimple();
-				return;
-			}
-
-			// 取消之前的动画
-			if (animationId) {
-				cancelAnimationFrame(animationId);
-				animationId = null;
-			}
-
 			const html = document.documentElement;
 			const isDark = html.classList.contains('dark');
+			const newTheme = isDark ? 'light' : 'dark';
 
-			// 设置扇形动画的背景色
-			if (isDark) {
-				html.style.setProperty('--theme-ripple-bg', '#ffffff');
-			} else {
-				html.style.setProperty('--theme-ripple-bg', '#0f172a');
-			}
+			console.log(`🎨 主题切换: ${isDark ? 'dark' : 'light'} → ${newTheme}`);
 
 			// 添加过渡类
 			html.classList.add('theme-transitioning');
 
-			try {
-				// 创建扇形动画并等待切换点
-				const ripple = await createRippleEffect(themeToggle!);
+			// 强制重绘
+			html.offsetHeight;
 
-				// 使用 requestAnimationFrame 确保在下一帧执行主题切换
-				requestAnimationFrame(() => {
-					// 切换主题
-					if (isDark) {
-						html.classList.remove('dark');
-						localStorage.setItem('theme', 'light');
-						console.log('🌞 切换到浅色模式');
-					} else {
-						html.classList.add('dark');
-						localStorage.setItem('theme', 'dark');
-						console.log('🌙 切换到深色模式');
+			// 在下一帧切换主题
+			requestAnimationFrame(() => {
+				if (isDark) {
+					html.classList.remove('dark');
+				} else {
+					html.classList.add('dark');
+				}
+				
+				localStorage.setItem('theme', newTheme);
+				
+				// 强制重绘关键元素
+				const elementsToRepaint = [
+					document.querySelector('header'),
+					document.querySelector('.header-nav'),
+					document.querySelector('.sidebar'),
+					document.querySelector('.main-content'),
+					document.body
+				];
+				
+				elementsToRepaint.forEach(element => {
+					if (element) {
+						(element as HTMLElement).offsetHeight; // 强制重绘
 					}
 				});
 
-				// 等待动画完全结束后清理
-				requestAnimationFrame(() => {
-					setTimeout(() => {
-						html.classList.remove('theme-transitioning');
-						if (ripple && ripple.parentNode) {
-							ripple.remove();
-						}
-						isTransitioning = false;
-					}, 300); // 给主题变量切换留出时间
-				});
+				console.log(`✅ 主题切换完成: ${newTheme}`);
+			});
 
-			} catch (error) {
-				console.error('主题切换动画出错:', error);
-				// 失败时直接切换主题
-				if (isDark) {
-					html.classList.remove('dark');
-					localStorage.setItem('theme', 'light');
-				} else {
-					html.classList.add('dark');
-					localStorage.setItem('theme', 'dark');
-				}
+			// 清理过渡状态
+			setTimeout(() => {
 				html.classList.remove('theme-transitioning');
 				isTransitioning = false;
-			}
+			}, 300);
 		}
 
 		// 绑定点击事件
-		themeToggle.addEventListener('click', () => toggleTheme());
+		themeToggle.addEventListener('click', toggleTheme);
 	}
 
 	// 移动端菜单切换功能
@@ -510,7 +360,9 @@ const {
 		border-bottom: 1px solid var(--h-nav-border);
 		background-color: var(--h-nav-bg);
 		backdrop-filter: blur(12px);
-		transition: all var(--transition-fast);
+		transition: all var(--transition-normal);
+		/* 确保主题切换时同步 */
+		will-change: background-color, border-color;
 	}
 
 	.header-container {

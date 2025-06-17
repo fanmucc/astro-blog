@@ -177,6 +177,7 @@ const currentMainMenu = menuTree.find((item) =>
 		width: 16rem;
 		height: calc(100vh - 4rem); /* 有header时的高度 */
 		border-right: 1px solid var(--a-sidebar-border);
+		border-right-style: solid !important; /* 强制实线边框 */
 		background-color: var(--a-sidebar-bg);
 		display: flex;
 		flex-direction: column;
@@ -184,8 +185,10 @@ const currentMainMenu = menuTree.find((item) =>
 		z-index: 10; /* 确保在内容之上，但在header(z-index:50)之下 */
 		/* 平滑过渡效果 */
 		transition:
-			top 0.3s ease,
-			height 0.3s ease;
+			top var(--transition-normal),
+			height var(--transition-normal),
+			background-color var(--transition-normal),
+			border-color var(--transition-normal);
 	}
 
 	/* 无header时的侧边栏位置和高度 */
@@ -221,7 +224,7 @@ const currentMainMenu = menuTree.find((item) =>
 	.sidebar-content::-webkit-scrollbar-thumb {
 		background: var(--g-border);
 		border-radius: 2px;
-		transition: background-color 0.2s ease;
+		transition: background-color var(--transition-fast);
 	}
 
 	.sidebar-content::-webkit-scrollbar-thumb:hover {
@@ -357,19 +360,12 @@ const currentMainMenu = menuTree.find((item) =>
 	/* 子菜单子项 */
 	.submenu-children {
 		position: relative;
-		margin-left: 0.75rem;
+		margin-left: 1.5rem;
 		margin-top: 0.25rem;
-		/* 添加背景连接线 */
-		background: linear-gradient(
-			to bottom,
-			transparent 0%,
-			var(--a-sub-border) 0.5rem,
-			var(--a-sub-border) calc(100% - 0.5rem),
-			transparent 100%
-		);
-		background-size: 1px 100%;
-		background-repeat: no-repeat;
-		background-position: 0.75rem 0;
+		padding-left: 0;
+		/* 使用简单的左边框而不是渐变背景 */
+		border-left: 1px solid var(--a-sub-border);
+		transition: border-color var(--transition-normal);
 	}
 
 	.submenu-item {
@@ -381,19 +377,20 @@ const currentMainMenu = menuTree.find((item) =>
 	.submenu-item::before {
 		content: "";
 		position: absolute;
-		left: 0.75rem;
+		left: -1px; /* 对齐到左边框 */
 		top: 50%;
 		width: 0.75rem;
 		height: 1px;
 		background-color: var(--a-sub-border);
 		transform: translateY(-50%);
 		opacity: 0.6;
+		transition: background-color var(--transition-normal);
 	}
 
 	.submenu-item-link {
 		display: block; /* 改为block布局以便绝对定位 */
-		padding: 0.75rem 0 0.75rem 1.5rem; /* 左侧留出指示器空间 */
-		margin-left: 1.5rem;
+		padding: 0.75rem 0 0.75rem 1rem; /* 左侧留出指示器空间 */
+		margin-left: 0.75rem;
 		text-decoration: none;
 		transition: all var(--transition-fast);
 		position: relative;
@@ -402,10 +399,10 @@ const currentMainMenu = menuTree.find((item) =>
 
 	.submenu-indicator {
 		position: absolute;
-		left: 0rem; /* 对齐到左侧边框的位置 */
+		left: -0.75rem; /* 对齐到左侧边框的位置 */
 		top: 50%;
 		transform: translateY(-50%);
-		width: 1px; /* 与边框线宽度一致 */
+		width: 2px; /* 稍微粗一点的指示器 */
 		height: 1.5rem; /* 适当的高度 */
 		background-color: var(--a-sub-border-active);
 		transition: all var(--transition-fast);
@@ -597,17 +594,10 @@ const currentMainMenu = menuTree.find((item) =>
 		position: relative;
 		margin-left: 0.75rem;
 		margin-top: 0.25rem;
-		/* 添加背景连接线 */
-		background: linear-gradient(
-			to bottom,
-			transparent 0%,
-			var(--a-sub-border) 0.5rem,
-			var(--a-sub-border) calc(100% - 0.5rem),
-			transparent 100%
-		);
-		background-size: 1px 100%;
-		background-repeat: no-repeat;
-		background-position: 0.75rem 0;
+		/* 添加背景连接线 - 使用实线而不是渐变 */
+		border-left: 1px solid var(--a-sub-border);
+		margin-left: 1.5rem;
+		padding-left: 0;
 	}
 
 	.submenu-item {
@@ -619,19 +609,20 @@ const currentMainMenu = menuTree.find((item) =>
 	.submenu-item::before {
 		content: "";
 		position: absolute;
-		left: 0.75rem;
+		left: -1px; /* 对齐到左边框 */
 		top: 50%;
 		width: 0.75rem;
 		height: 1px;
 		background-color: var(--a-sub-border);
+		transition: background-color var(--transition-normal);
 		transform: translateY(-50%);
 		opacity: 0.6;
 	}
 
 	.submenu-item-link {
 		display: block; /* 改为block布局以便绝对定位 */
-		padding: 0.75rem 0 0.75rem 0.75rem; /* 左侧留出指示器空间 */
-		margin-left: 1.5rem;
+		padding: 0.75rem 0 0.75rem 1rem; /* 左侧留出指示器空间 */
+		margin-left: 0.75rem;
 		text-decoration: none;
 		transition: all var(--transition-fast);
 		position: relative;
@@ -643,7 +634,7 @@ const currentMainMenu = menuTree.find((item) =>
 		left: -0.75rem; /* 对齐到左侧边框的位置 */
 		top: 50%;
 		transform: translateY(-50%);
-		width: 1px; /* 与边框线宽度一致 */
+		width: 2px; /* 稍微粗一点的指示器 */
 		height: 1.5rem; /* 适当的高度 */
 		background-color: var(--a-sub-border-active);
 		transition: all var(--transition-fast);
