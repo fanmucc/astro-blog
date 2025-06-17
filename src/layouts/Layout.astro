@@ -925,24 +925,30 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 		transform: translateY(-1px) scale(1.05);
 	}
 
-	/* 响应式设计 */
+	/* 移动端适配 */
 	@media (max-width: 768px) {
 		.content-container {
 			padding: 1rem;
 		}
 
-		/* 移动端主内容区域适配 */
+		/* 移动端主内容区域 - 占据全宽 */
 		.main-content {
-			margin-left: 14rem; /* 适配移动端侧边栏宽度 */
+			margin-left: 0 !important; /* 移动端不预留侧边栏空间 */
+			width: 100%;
 		}
 
 		.main-content.full-width {
 			margin-left: 0;
 		}
 
-		/* 移动端隐藏滚动条但保持功能 */
+		/* 移动端优化滚动条 */
 		.main-content::-webkit-scrollbar {
 			width: 2px;
+		}
+
+		/* 移动端菜单激活时禁止主内容滚动 */
+		body.mobile-menu-active .main-content {
+			overflow: hidden;
 		}
 	}
 

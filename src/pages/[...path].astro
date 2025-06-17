@@ -659,24 +659,25 @@ const seoDescription = page.data.seoDescription || page.data.description;
 		/* 移动端适配 (768px以下) */
 		@media (max-width: 768px) {
 			.article-layout {
-				gap: 1rem;
+				gap: 0; /* 移动端不需要间距 */
+				flex-direction: column;
 			}
 
 			.blog-article {
 				padding: 1rem;
+				max-width: 100%; /* 占据全宽 */
 			}
 
 			/* 无目录时移动端样式 */
 			.article-layout.no-toc .blog-article {
-				padding: 1rem 1.5rem; /* 移动端减少内边距 */
+				padding: 1rem 1.5rem;
+				max-width: 100%;
 			}
 
-			.content-area {
-				/* padding: 1.5rem; */
-			}
-
+			/* 文章标题在移动端适配 */
 			.article-title {
-				font-size: 2rem;
+				font-size: 1.875rem; /* 稍微减小字体 */
+				line-height: 1.3;
 			}
 
 			.article-description {
@@ -686,11 +687,26 @@ const seoDescription = page.data.seoDescription || page.data.description;
 			.article-meta {
 				flex-direction: column;
 				gap: 0.75rem;
+				align-items: flex-start;
 			}
 
-			/* 移动端隐藏目录 */
+			/* 移动端完全隐藏目录 */
 			.article-toc-sidebar {
-				display: none;
+				display: none !important;
+			}
+
+			/* 文章头部适配 */
+			.article-header {
+				margin-bottom: 2rem;
+				padding-bottom: 1.5rem;
+			}
+
+			/* 优化触摸体验 */
+			.toc-link,
+			.tag-item {
+				min-height: 44px; /* 确保触摸目标足够大 */
+				display: flex;
+				align-items: center;
 			}
 		}
 

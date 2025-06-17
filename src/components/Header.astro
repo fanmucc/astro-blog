@@ -83,10 +83,25 @@ const {
 				</a>
 			</div>
 
-			<!-- 右侧：搜索 + 主题切换 + 快捷链接 -->
+			<!-- 右侧：移动端菜单 + 搜索 + 主题切换 + 快捷链接 -->
 			<div class='header-actions'>
+				<!-- 移动端汉堡菜单按钮 -->
+				<button
+					id='mobile-menu-toggle'
+					class='mobile-menu-toggle show-mobile'
+					aria-label='切换菜单'
+					title='切换菜单'
+				>
+					<svg class='menu-icon' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+						<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 12h16M4 18h16'></path>
+					</svg>
+					<svg class='close-icon' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+						<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path>
+					</svg>
+				</button>
+
 				<!-- 快捷外部链接 -->
-				<div class='external-links'>
+				<div class='external-links hide-mobile'>
 					<button
 						onclick="window.open('/github', '_blank')"
 						class='action-btn'
@@ -195,12 +210,18 @@ const {
 			// 检查是否偏好减少动画
 			if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
 			
+			// 移动端默认使用简化动画
+			if (window.innerWidth <= 768) return false;
+			
 			// 检查设备内存（如果可用）
 			const nav = navigator as any;
 			if (nav.deviceMemory && nav.deviceMemory < 4) return false;
 			
 			// 检查硬件并发（CPU 核心数）
 			if (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) return false;
+			
+			// 检查是否为触摸设备（通常性能较低）
+			if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return false;
 			
 			return true;
 		})();
@@ -385,11 +406,69 @@ const {
 		themeToggle.addEventListener('click', () => toggleTheme());
 	}
 
+	// 移动端菜单切换功能
+	function initMobileMenu() {
+		const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+		const sidebar = document.querySelector('.sidebar');
+		const body = document.body;
+		
+		if (!mobileMenuToggle || !sidebar) return;
+
+		let isMenuOpen = false;
+
+		function toggleMobileMenu() {
+			isMenuOpen = !isMenuOpen;
+			
+			if (isMenuOpen) {
+				sidebar!.classList.add('mobile-menu-open');
+				body.classList.add('mobile-menu-active');
+				mobileMenuToggle!.classList.add('menu-open');
+				mobileMenuToggle!.setAttribute('aria-expanded', 'true');
+			} else {
+				sidebar!.classList.remove('mobile-menu-open');
+				body.classList.remove('mobile-menu-active');
+				mobileMenuToggle!.classList.remove('menu-open');
+				mobileMenuToggle!.setAttribute('aria-expanded', 'false');
+			}
+		}
+
+		// 点击汉堡菜单按钮
+		mobileMenuToggle!.addEventListener('click', toggleMobileMenu);
+
+		// 点击遮罩层关闭菜单
+		document.addEventListener('click', (e) => {
+			const target = e.target as Node;
+			if (isMenuOpen && sidebar && mobileMenuToggle && !sidebar.contains(target) && !mobileMenuToggle.contains(target)) {
+				toggleMobileMenu();
+			}
+		});
+
+		// ESC 键关闭菜单
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && isMenuOpen) {
+				toggleMobileMenu();
+			}
+		});
+
+		// 窗口大小变化时自动关闭移动端菜单
+		window.addEventListener('resize', () => {
+			if (window.innerWidth > 768 && isMenuOpen) {
+				toggleMobileMenu();
+			}
+		});
+	}
+
 	// 页面加载时初始化
-	document.addEventListener('DOMContentLoaded', initThemeToggle);
+	document.addEventListener('DOMContentLoaded', () => {
+		initThemeToggle();
+		initMobileMenu();
+	});
 	
 	// 支持 Astro View Transitions
-	document.addEventListener('astro:after-swap', initThemeToggle);
+	document.addEventListener('astro:after-swap', () => {
+		initThemeToggle();
+		initMobileMenu();
+	});
 </script>
 
 <style>
@@ -645,6 +724,80 @@ const {
 	.dark .theme-icon-moon {
 		opacity: 1;
 		transform: translate(-50%, -50%) rotate(0deg) scale(1);
+	}
+
+	/* 移动端汉堡菜单 */
+	.mobile-menu-toggle {
+		position: relative;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0.5rem;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		color: var(--g-text-secondary);
+		transition: all var(--transition-fast);
+		border-radius: 0.5rem;
+	}
+
+	.mobile-menu-toggle:hover {
+		background-color: var(--a-main-item-bg-hover);
+		color: var(--h-nav-text-hover);
+	}
+
+	.mobile-menu-toggle:active {
+		transform: scale(0.95);
+	}
+
+	.menu-icon,
+	.close-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 1.5rem;
+		height: 1.5rem;
+		transition: all var(--transition-fast);
+	}
+
+	.menu-icon {
+		opacity: 1;
+		transform: translate(-50%, -50%) rotate(0deg) scale(1);
+	}
+
+	.close-icon {
+		opacity: 0;
+		transform: translate(-50%, -50%) rotate(90deg) scale(0);
+	}
+
+	.mobile-menu-toggle.menu-open .menu-icon {
+		opacity: 0;
+		transform: translate(-50%, -50%) rotate(-90deg) scale(0);
+	}
+
+	.mobile-menu-toggle.menu-open .close-icon {
+		opacity: 1;
+		transform: translate(-50%, -50%) rotate(0deg) scale(1);
+	}
+
+	/* 移动端菜单遮罩 */
+	body.mobile-menu-active::before {
+		content: '';
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 30;
+		opacity: 0;
+		animation: fadeIn 0.3s ease-out forwards;
+	}
+
+	@keyframes fadeIn {
+		to {
+			opacity: 1;
+		}
 	}
 
 	/* 响应式设计 */

@@ -506,9 +506,13 @@
 	.article-content h2 {
 		font-size: 1.5rem !important;
 		margin: 1.8rem 0 1rem 0 !important;
+		padding-left: 0.75rem; /* 移动端减少左边距 */
+		border-left-width: 3px; /* 减小边框宽度 */
 	}
 	.article-content h3 {
 		font-size: 1.3rem !important;
+		padding-left: 0.5rem;
+		border-left-width: 2px;
 	}
 	.article-content h4 {
 		font-size: 1.2rem !important;
@@ -520,20 +524,56 @@
 		font-size: 1rem !important;
 	}
 
+	/* 移动端列表样式优化 */
 	.article-content ul,
 	.article-content ol {
-		margin-left: 1rem;
-		padding-left: 0.5rem;
+		margin-left: 0.5rem;
+		padding-left: 1rem;
 	}
 
+	/* 移动端引用块优化 */
 	.article-content blockquote {
 		padding: 0.8rem 1rem;
 		margin: 1rem 0;
+		border-left-width: 3px; /* 减小左边框 */
+		font-size: 0.95rem;
 	}
 
+	/* 移动端代码块优化 */
 	.article-content pre {
-		padding: 1rem;
+		padding: 0.75rem;
 		font-size: 0.8rem;
+		margin: 1rem -0.5rem; /* 负边距使代码块延伸到边缘 */
+		border-radius: 0.5rem;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* 移动端内联代码优化 */
+	.article-content code {
+		font-size: 0.85rem;
+		padding: 2px 4px;
+		word-break: break-word; /* 允许长代码换行 */
+	}
+
+	/* 移动端表格优化 */
+	.article-content table {
+		font-size: 0.875rem;
+		margin: 1rem -0.5rem;
+		width: calc(100% + 1rem);
+	}
+
+	.article-content th,
+	.article-content td {
+		padding: 0.5rem 0.75rem;
+	}
+
+	/* 移动端图片优化 */
+	.article-content img {
+		margin: 1rem -0.5rem; /* 图片延伸到边缘 */
+		width: calc(100% + 1rem);
+		max-width: calc(100% + 1rem);
+		border-radius: 0.5rem;
 	}
 }
 
