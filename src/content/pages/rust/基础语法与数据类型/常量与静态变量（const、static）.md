@@ -9,6 +9,7 @@ author: "Fanmu"
 tags: ["Rust", "基础语法与数据类型"]
 showInMenu: true
 menuLabel: "常量与静态变量（const、static）"
+showMdMenu: true
 ---
 
 # 常量与静态变量（const、static）

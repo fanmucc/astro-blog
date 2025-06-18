@@ -171,22 +171,80 @@ const seoDescription = page.data.seoDescription || page.data.description;
 
 	<!-- 文章特定脚本 -->
 	<script define:vars={{ currentPath, showMdMenu }}>
+		// 检查当前页面是否应该显示目录
+		function checkShouldShowMdMenu() {
+			// 检查是否存在目录侧边栏元素
+			const tocSidebar = document.querySelector('.article-toc-sidebar');
+			console.log('🎯 [TOC] 检查目录侧边栏元素:', tocSidebar ? '✅ 存在' : '❌ 不存在');
+			
+			// 如果目录侧边栏存在，说明服务端渲染时认为应该显示目录
+			if (tocSidebar) {
+				return true;
+			}
+			
+			// 检查文章布局是否有 no-toc 类
+			const articleLayout = document.querySelector('.article-layout');
+			const hasNoTocClass = articleLayout && articleLayout.classList.contains('no-toc');
+			console.log('🎯 [TOC] 文章布局 no-toc 类:', hasNoTocClass ? '✅ 有' : '❌ 没有');
+			
+			// 如果没有 no-toc 类，说明应该显示目录
+			return !hasNoTocClass;
+		}
+
 		// 生成目录的函数
 		function generateTOC() {
+			console.log('🎯 [TOC] generateTOC 开始执行');
+			console.log('🎯 [TOC] 初始 showMdMenu:', showMdMenu);
+			console.log('🎯 [TOC] 当前路径:', window.location.pathname);
+			
+			// 动态检查当前页面是否应该显示目录
+			const shouldShowMdMenu = checkShouldShowMdMenu();
+			console.log('🎯 [TOC] 动态检查 shouldShowMdMenu:', shouldShowMdMenu);
+			
 			// 如果不显示目录，不生成目录
-			if (!showMdMenu) return;
+			if (!shouldShowMdMenu) {
+				console.log('🎯 [TOC] 不应该显示目录，跳过生成');
+				return;
+			}
 			
 			const article = document.querySelector(".article-content");
 			const nav = document.getElementById("article-nav");
-			if (!article || !nav) return;
+			
+			console.log('🎯 [TOC] DOM 元素检查:');
+			console.log('🎯 [TOC] article:', article ? '✅ 找到' : '❌ 未找到');
+			console.log('🎯 [TOC] nav:', nav ? '✅ 找到' : '❌ 未找到');
+			
+			// 增加更详细的检查和等待逻辑
+			if (!article || !nav) {
+				console.log('🎯 [TOC] DOM 还没准备好，100ms 后重试');
+				// 如果DOM还没准备好，等待一下再试
+				setTimeout(generateTOC, 100);
+				return;
+			}
+
+			// 检查文章内容是否已经渲染
+			const headings = article.querySelectorAll("h1, h2, h3, h4, h5, h6");
+			console.log('🎯 [TOC] 找到标题数量:', headings.length);
+			
+			if (headings.length === 0) {
+				console.log('🎯 [TOC] 没有找到标题，可能内容还没渲染完成，150ms 后重试');
+				// 如果没有标题，可能内容还没渲染完成，再等一下
+				setTimeout(generateTOC, 150);
+				return;
+			}
+
+			// 打印所有找到的标题
+			headings.forEach((heading, index) => {
+				console.log(`🎯 [TOC] 标题 ${index + 1}: ${heading.tagName} - "${heading.textContent}"`);
+			});
 
 			// 清空现有目录
 			nav.innerHTML =
 				'<div class="toc-header">目录</div><ul class="toc-list"></ul>';
 			const tocList = nav.querySelector(".toc-list");
+			console.log('🎯 [TOC] 清空并重建目录结构');
 
-			// 获取所有标题
-			const headings = article.querySelectorAll("h1, h2, h3, h4, h5, h6");
+			// 获取所有标题并生成目录
 			headings.forEach((heading, index) => {
 				// 为每个标题添加 id
 				const id = `heading-${index}`;
@@ -203,38 +261,82 @@ const seoDescription = page.data.seoDescription || page.data.description;
 				a.textContent = heading.textContent;
 				li.appendChild(a);
 				tocList.appendChild(li);
+				
+				console.log(`🎯 [TOC] 创建目录项: ${heading.textContent} -> ${currentPath}#${id}`);
 			});
+
+			console.log('🎯 [TOC] 目录生成完成，共生成', headings.length, '个目录项');
+			
+			// 目录生成完成后，触发一次高亮更新
+			setTimeout(updateTOCHighlight, 50);
 		}
 
 		// 监听 Astro 的页面切换事件
 		document.addEventListener("astro:page-load", () => {
-			generateTOC();
-			setTimeout(updateTOCHighlight, 100); // 延迟更新确保DOM已渲染
+			console.log('🚀 [Event] astro:page-load 事件触发');
+			// 增加延迟确保内容完全渲染
+			setTimeout(() => {
+				console.log('🚀 [Event] astro:page-load 延迟200ms后执行TOC生成');
+				generateTOC();
+				updateTOCHighlight();
+			}, 200);
+		});
+
+		// 监听 Astro 的页面内容交换完成事件
+		document.addEventListener("astro:after-swap", () => {
+			console.log('🚀 [Event] astro:after-swap 事件触发');
+			// 页面内容交换后重新生成TOC
+			setTimeout(() => {
+				console.log('🚀 [Event] astro:after-swap 延迟300ms后执行TOC生成');
+				generateTOC();
+				updateTOCHighlight();
+			}, 300);
 		});
 
 		// 初始加载时生成目录
 		document.addEventListener("DOMContentLoaded", () => {
-			generateTOC();
-			setTimeout(updateTOCHighlight, 100); // 延迟更新确保DOM已渲染
-		});
-
-		// 监听客户端路由完成事件
-		window.addEventListener("clientRouteComplete", () => {
+			console.log('🚀 [Event] DOMContentLoaded 事件触发');
 			setTimeout(() => {
+				console.log('🚀 [Event] DOMContentLoaded 延迟100ms后执行TOC生成');
 				generateTOC();
 				updateTOCHighlight();
 			}, 100);
 		});
 
+		// 监听客户端路由完成事件
+		window.addEventListener("clientRouteComplete", () => {
+			console.log('🚀 [Event] clientRouteComplete 事件触发');
+			setTimeout(() => {
+				console.log('🚀 [Event] clientRouteComplete 延迟250ms后执行TOC生成');
+				generateTOC();
+				updateTOCHighlight();
+			}, 250);
+		});
+
 		// 监听锚点滚动完成事件
 		window.addEventListener("anchorScrollComplete", () => {
+			console.log('🚀 [Event] anchorScrollComplete 事件触发');
 			setTimeout(updateTOCHighlight, 100);
+		});
+
+		// 添加页面可见性变化监听，确保页面激活时TOC正确
+		document.addEventListener("visibilitychange", () => {
+			console.log('🚀 [Event] visibilitychange 事件触发, hidden:', document.hidden);
+			if (!document.hidden) {
+				setTimeout(() => {
+					console.log('🚀 [Event] visibilitychange 页面可见，延迟100ms后执行TOC生成');
+					generateTOC();
+					updateTOCHighlight();
+				}, 100);
+			}
 		});
 
 		// 监听滚动事件，更新当前活动目录项
 		function updateTOCHighlight() {
+			// 动态检查是否应该显示目录
+			const shouldShowMdMenu = checkShouldShowMdMenu();
 			// 如果不显示目录，不更新目录高亮
-			if (!showMdMenu) return;
+			if (!shouldShowMdMenu) return;
 			
 			const headings = document.querySelectorAll(
 				".article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6"

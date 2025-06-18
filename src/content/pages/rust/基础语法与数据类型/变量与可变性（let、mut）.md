@@ -9,6 +9,7 @@ author: "Fanmu"
 tags: ["Rust", "基础语法与数据类型"]
 showInMenu: true
 menuLabel: "变量与可变性（let、mut）"
+showMdMenu: true
 ---
 
 # 变量与可变性（let、mut）
