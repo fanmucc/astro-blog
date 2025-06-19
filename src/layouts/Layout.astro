@@ -833,6 +833,211 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 
 		<!-- 菜单数据传递给客户端 -->
 		<script type="application/json" data-menu-tree set:html={JSON.stringify(menuTree)}></script>
+		
+		<!-- Markdown 增强脚本 -->
+		<script>
+			// 直接内联 Markdown 增强脚本以确保正确加载
+			// 主题映射配置
+			const THEME_PATTERNS = [
+				{
+					patterns: ['tip:', 'tips:', '提示：', '💡'],
+					theme: 'info',
+					icon: '💡',
+					label: '提示'
+				},
+				{
+					patterns: ['success:', 'ok:', '成功：', '✅'],
+					theme: 'success', 
+					icon: '✅',
+					label: '成功'
+				},
+				{
+					patterns: ['warning:', 'warn:', 'caution:', '警告：', '注意：', '⚠️'],
+					theme: 'warning',
+					icon: '⚠️', 
+					label: '警告'
+				},
+				{
+					patterns: ['error:', 'danger:', 'fail:', '错误：', '失败：', '❌'],
+					theme: 'error',
+					icon: '❌',
+					label: '错误'
+				}
+			];
+
+			/**
+			 * 检测文本是否匹配主题模式
+			 */
+			function detectTheme(text: string) {
+				const trimmedText = text.trim();
+				const lowerText = trimmedText.toLowerCase();
+				
+				for (const themeConfig of THEME_PATTERNS) {
+					for (const pattern of themeConfig.patterns) {
+						const lowerPattern = pattern.toLowerCase();
+						if (lowerText.startsWith(lowerPattern)) {
+							// 确保模式后面是空格、冒号或文本结尾
+							const afterPattern = lowerText.slice(lowerPattern.length);
+							if (afterPattern === '' || afterPattern.startsWith(' ') || afterPattern.startsWith(':')) {
+								return {
+									...themeConfig,
+									matchedPattern: pattern,
+									remainingText: trimmedText.slice(pattern.length).replace(/^[:\s]+/, '').trim()
+								};
+							}
+						}
+					}
+				}
+				
+				return null;
+			}
+
+			/**
+			 * 创建主题化的 blockquote 元素
+			 */
+			function createThemedBlockquote(themeInfo: any, content: string) {
+				const blockquote = document.createElement('blockquote');
+				blockquote.setAttribute('data-theme', themeInfo.theme);
+				
+				// 创建标题部分
+				const title = document.createElement('strong');
+				title.textContent = `${themeInfo.icon} ${themeInfo.label}：`;
+				
+				// 创建内容段落
+				const paragraph = document.createElement('p');
+				paragraph.appendChild(title);
+				
+				// 如果有剩余文本，添加到段落中
+				if (themeInfo.remainingText) {
+					paragraph.appendChild(document.createTextNode(' ' + themeInfo.remainingText));
+				}
+				
+				blockquote.appendChild(paragraph);
+				
+				return blockquote;
+			}
+
+			/**
+			 * 处理已经渲染的 strong 元素
+			 */
+			function processStrongElements(container: HTMLElement) {
+				const strongElements = container.querySelectorAll('strong');
+				const replacements: any[] = [];
+				
+				strongElements.forEach(strongEl => {
+					const text = strongEl.textContent;
+					const themeInfo = detectTheme(text || '');
+					
+					if (themeInfo) {
+						console.log('🎯 找到匹配的 strong 元素:', text, '主题:', themeInfo.theme);
+						
+						// 检查是否为独立的提示框（整个段落只有这个 strong 元素）
+						const parent = strongEl.parentNode as HTMLElement;
+						const isStandaloneAlert = (parent as HTMLElement).tagName === 'P' && 
+							(parent as HTMLElement).children.length === 1 && 
+							(parent as HTMLElement).textContent?.trim() === strongEl.textContent?.trim();
+						
+						replacements.push({
+							element: strongEl,
+							themeInfo: themeInfo,
+							isStandalone: isStandaloneAlert
+						});
+					}
+				});
+				
+				// 执行替换
+				replacements.forEach(replacement => {
+					const { element, themeInfo, isStandalone } = replacement;
+					
+					if (isStandalone) {
+						// 如果是独立的提示框，替换整个段落为 blockquote
+						const blockquote = createThemedBlockquote(themeInfo, themeInfo.remainingText);
+						const parent = element.parentNode;
+						parent.parentNode.replaceChild(blockquote, parent);
+					} else {
+						// 如果是混合内容，只将 strong 元素转换为主题化的 span
+						const themedSpan = createThemedSpan(themeInfo, themeInfo.remainingText);
+						element.parentNode.replaceChild(themedSpan, element);
+					}
+				});
+				
+				return replacements.length;
+			}
+			
+			/**
+			 * 创建主题化的 span 元素（用于内联显示）
+			 */
+			function createThemedSpan(themeInfo: any, content: string) {
+				const span = document.createElement('span');
+				span.setAttribute('data-theme', themeInfo.theme);
+				span.className = 'inline-alert';
+				
+				// 添加图标和内容
+				span.textContent = `${themeInfo.icon} ${themeInfo.label}${content ? ': ' + content : ''}`;
+				
+				return span;
+			}
+
+			/**
+			 * 遍历并处理所有文本节点
+			 */
+			function processNode(node: Node) {
+				if (node.nodeType === Node.TEXT_NODE) {
+					// 移除未定义的 processTextNode 调用
+					// processTextNode(node);
+				} else if (node.nodeType === Node.ELEMENT_NODE) {
+					// 避免处理已经是 blockquote 的元素
+					const element = node as Element;
+					if (element.tagName !== 'BLOCKQUOTE' && element.tagName !== 'CODE' && element.tagName !== 'PRE') {
+						// 转换为数组以避免在遍历时修改集合
+						const childNodes = Array.from(node.childNodes);
+						childNodes.forEach(child => processNode(child));
+					}
+				}
+			}
+
+			/**
+			 * 处理页面中的 Markdown 内容
+			 */
+			function processMarkdown() {
+				console.log('🔍 开始处理 Markdown 内容...');
+				
+				// 查找文章内容容器
+				const articleContainer = document.querySelector('.article-content') as HTMLElement;
+				
+				if (articleContainer) {
+					console.log('✅ 找到文章容器:', articleContainer);
+					console.log('📝 容器内容预览:', articleContainer.textContent ? articleContainer.textContent.substring(0, 200) : '无内容');
+					
+					// 处理已渲染的 strong 元素
+					const processedCount = processStrongElements(articleContainer);
+					console.log(`✅ Markdown 主题化处理完成，处理了 ${processedCount} 个元素`);
+				} else {
+					console.warn('❌ 未找到 .article-content 容器');
+					console.log('🔍 当前页面所有容器:', document.querySelectorAll('[class*="content"], [class*="article"]'));
+				}
+			}
+
+			/**
+			 * 初始化 Markdown 增强功能
+			 */
+			function initMarkdownEnhancer() {
+				// 等待 DOM 加载完成
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', processMarkdown);
+				} else {
+					processMarkdown();
+				}
+			}
+
+			// 自动初始化
+			initMarkdownEnhancer();
+
+			// 监听客户端路由完成事件，重新处理新页面内容
+			window.addEventListener('clientRouteComplete', () => {
+				setTimeout(processMarkdown, 100);
+			});
+		</script>
 	</body>
 </html>
 

@@ -291,8 +291,10 @@
 	content: "·";
 	position: absolute;
 	left: 0.5rem;
-	top: 50%;
-	transform: translateY(-50%);
+	top: 0;
+	height: 1.7rem;
+	display: flex;
+	align-items: center;
 	color: var(--md-primary);
 	font-size: 1.5rem;
 	font-weight: bold;
@@ -302,7 +304,7 @@
 
 .article-content ul li:hover::before {
 	color: var(--md-primary-dark);
-	transform: translateY(-50%) scale(1.3);
+	transform: scale(1.3);
 }
 
 /* 有序列表样式 - 使用自定义数字 */
@@ -314,37 +316,30 @@
 .article-content ol li {
 	margin-bottom: 0.8rem;
 	position: relative;
-	padding-left: 2.2rem;
+	padding-left: 1.8rem;
 	line-height: 1.7;
 	counter-increment: custom-counter;
 	transition: var(--md-transition);
 }
 
 .article-content ol li::before {
-	content: counter(custom-counter);
+	content: counter(custom-counter) ".";
 	position: absolute;
-	left: 0;
+	left: 0.5rem;
 	top: 0;
-	color: var(--md-primary);
-	font-weight: 700;
-	font-size: 0.9rem;
-	background-color: var(--md-bg-accent);
-	border: 2px solid var(--md-primary);
-	border-radius: 50%;
-	width: 1.8rem;
-	height: 1.8rem;
+	height: 1.7rem;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	color: var(--md-primary);
+	font-weight: 700;
+	font-size: 1rem;
 	line-height: 1;
 	transition: var(--md-transition);
 }
 
 .article-content ol li:hover::before {
-	background-color: var(--md-primary);
-	color: white;
-	transform: scale(1.1);
-	box-shadow: 0 2px 8px rgba(var(--color-primary), 0.3);
+	color: var(--md-primary-dark);
+	transform: scale(1.3);
 }
 
 /* 通用列表项样式 */
@@ -359,7 +354,7 @@
 }
 
 .article-content ol li:hover {
-	padding-left: calc(2.2rem + 2px);
+	padding-left: calc(1.8rem + 2px);
 }
 
 /* 嵌套列表样式 */
@@ -384,24 +379,136 @@
 
 /* ============== 引用块样式 ============== */
 .article-content blockquote {
-	padding: 0.1rem 0.5rem;
-	margin: 1.5rem 0;
+	padding: 0.75rem 1rem;
+	margin: 1rem 0;
 	border-left: 4px solid var(--md-quote-border);
 	background-color: var(--md-quote-bg);
-	border-radius: 0 8px 8px 0;
-	font-style: italic;
+	border-radius: 0 6px 6px 0;
+	font-style: normal;
 	transition: var(--md-transition);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .article-content blockquote:hover {
-	/* border-left-width: 6px; */
 	background-color: var(--md-bg-hover);
-	/* transform: translateX(4px); */
+	transform: translateX(2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .article-content blockquote p {
-	margin: 0.5rem 0;
+	margin: 0.25rem 0;
 	color: var(--md-text);
+}
+
+/* 引用块主题样式 */
+.article-content blockquote[data-theme="success"] {
+	border-left-color: #16a34a;
+	background-color: rgba(34, 197, 94, 0.08);
+	border: 1px solid rgba(34, 197, 94, 0.2);
+	border-left: 4px solid #16a34a;
+}
+
+.article-content blockquote[data-theme="success"]:hover {
+	background-color: rgba(34, 197, 94, 0.12);
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.article-content blockquote[data-theme="error"],
+.article-content blockquote[data-theme="danger"] {
+	border-left-color: #dc2626;
+	background-color: rgba(239, 68, 68, 0.08);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	border-left: 4px solid #dc2626;
+}
+
+.article-content blockquote[data-theme="error"]:hover,
+.article-content blockquote[data-theme="danger"]:hover {
+	background-color: rgba(239, 68, 68, 0.12);
+	border-color: rgba(239, 68, 68, 0.3);
+}
+
+.article-content blockquote[data-theme="warning"] {
+	border-left-color: #d97706;
+	background-color: rgba(245, 158, 11, 0.08);
+	border: 1px solid rgba(245, 158, 11, 0.2);
+	border-left: 4px solid #d97706;
+}
+
+.article-content blockquote[data-theme="warning"]:hover {
+	background-color: rgba(245, 158, 11, 0.12);
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.article-content blockquote[data-theme="info"] {
+	border-left-color: #2563eb;
+	background-color: rgba(59, 130, 246, 0.08);
+	border: 1px solid rgba(59, 130, 246, 0.2);
+	border-left: 4px solid #2563eb;
+}
+
+.article-content blockquote[data-theme="info"]:hover {
+	background-color: rgba(59, 130, 246, 0.12);
+	border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 基于内容前缀的自动主题识别 */
+.article-content blockquote:has-text("💡"),
+.article-content blockquote:has-text("提示"),
+.article-content blockquote:has-text("tip") {
+	border-left-color: #2563eb;
+	background-color: rgba(59, 130, 246, 0.08);
+	border: 1px solid rgba(59, 130, 246, 0.2);
+	border-left: 4px solid #2563eb;
+}
+
+.article-content blockquote:has-text("✅"),
+.article-content blockquote:has-text("成功"),
+.article-content blockquote:has-text("success") {
+	border-left-color: #16a34a;
+	background-color: rgba(34, 197, 94, 0.08);
+	border: 1px solid rgba(34, 197, 94, 0.2);
+	border-left: 4px solid #16a34a;
+}
+
+.article-content blockquote:has-text("❌"),
+.article-content blockquote:has-text("错误"),
+.article-content blockquote:has-text("error") {
+	border-left-color: #dc2626;
+	background-color: rgba(239, 68, 68, 0.08);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	border-left: 4px solid #dc2626;
+}
+
+.article-content blockquote:has-text("⚠️"),
+.article-content blockquote:has-text("警告"),
+.article-content blockquote:has-text("注意"),
+.article-content blockquote:has-text("warning") {
+	border-left-color: #d97706;
+	background-color: rgba(245, 158, 11, 0.08);
+	border: 1px solid rgba(245, 158, 11, 0.2);
+	border-left: 4px solid #d97706;
+}
+
+/* 暗色模式下的引用块主题 */
+.dark .article-content blockquote[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.12);
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.dark .article-content blockquote[data-theme="error"],
+.dark .article-content blockquote[data-theme="danger"] {
+	background-color: rgba(239, 68, 68, 0.12);
+	border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark .article-content blockquote[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.12);
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dark .article-content blockquote[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.12);
+	border-color: rgba(59, 130, 246, 0.3);
 }
 
 /* ============== 代码样式 ============== */
@@ -409,7 +516,7 @@
 	background-color: var(--md-code-bg);
 	color: var(--md-code-text);
 	font-family: "Fira Code", Consolas, "Lucida Console", "Courier", monospace;
-	font-size: 0.9rem;
+	font-size: 0.9em;
 	font-weight: 550;
 	margin: 0 2px;
 	padding: 3px 6px;
@@ -422,6 +529,104 @@
 	background-color: var(--md-bg-hover);
 	border-color: var(--md-primary);
 	transform: scale(1.02);
+}
+
+/* 代码颜色主题 - 使用 data-theme 属性 */
+.article-content code[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.1);
+	color: #16a34a;
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.article-content code[data-theme="success"]:hover {
+	background-color: rgba(34, 197, 94, 0.15);
+	border-color: #16a34a;
+}
+
+.article-content code[data-theme="error"],
+.article-content code[data-theme="danger"] {
+	background-color: rgba(239, 68, 68, 0.1);
+	color: #dc2626;
+	border-color: rgba(239, 68, 68, 0.3);
+}
+
+.article-content code[data-theme="error"]:hover,
+.article-content code[data-theme="danger"]:hover {
+	background-color: rgba(239, 68, 68, 0.15);
+	border-color: #dc2626;
+}
+
+.article-content code[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.1);
+	color: #d97706;
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.article-content code[data-theme="warning"]:hover {
+	background-color: rgba(245, 158, 11, 0.15);
+	border-color: #d97706;
+}
+
+.article-content code[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.1);
+	color: #2563eb;
+	border-color: rgba(59, 130, 246, 0.3);
+}
+
+.article-content code[data-theme="info"]:hover {
+	background-color: rgba(59, 130, 246, 0.15);
+	border-color: #2563eb;
+}
+
+/* 基于内容前缀的主题样式 */
+.article-content code:has-text("✓") {
+	background-color: rgba(34, 197, 94, 0.1);
+	color: #16a34a;
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.article-content code:has-text("✗") {
+	background-color: rgba(239, 68, 68, 0.1);
+	color: #dc2626;
+	border-color: rgba(239, 68, 68, 0.3);
+}
+
+.article-content code:has-text("⚠") {
+	background-color: rgba(245, 158, 11, 0.1);
+	color: #d97706;
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.article-content code:has-text("ℹ") {
+	background-color: rgba(59, 130, 246, 0.1);
+	color: #2563eb;
+	border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 暗色模式下的代码主题 */
+.dark .article-content code[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.15);
+	color: #4ade80;
+	border-color: rgba(34, 197, 94, 0.4);
+}
+
+.dark .article-content code[data-theme="error"],
+.dark .article-content code[data-theme="danger"] {
+	background-color: rgba(239, 68, 68, 0.15);
+	color: #f87171;
+	border-color: rgba(239, 68, 68, 0.4);
+}
+
+.dark .article-content code[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.15);
+	color: #fbbf24;
+	border-color: rgba(245, 158, 11, 0.4);
+}
+
+.dark .article-content code[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.15);
+	color: #60a5fa;
+	border-color: rgba(59, 130, 246, 0.4);
 }
 
 /* ============== 代码块样式 ============== */
@@ -553,6 +758,217 @@
 .article-content strong:hover {
 	color: var(--md-primary);
 	text-shadow: 0 0 2px rgba(var(--color-primary), 0.3);
+}
+
+/* 主题化的 strong 文本样式 - 使用类名方式 */
+.article-content strong.tip,
+.article-content strong.info {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(59, 130, 246, 0.1);
+	color: #2563eb;
+	border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.article-content strong.tip::before,
+.article-content strong.info::before,
+.article-content strong[data-theme="info"]::before {
+	content: "💡";
+	position: absolute;
+	left: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 14px;
+}
+
+.article-content strong.success {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(34, 197, 94, 0.1);
+	color: #16a34a;
+	border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.article-content strong.success::before,
+.article-content strong[data-theme="success"]::before {
+	content: "✅";
+	position: absolute;
+	left: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 14px;
+}
+
+.article-content strong.warning,
+.article-content strong.warn {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(245, 158, 11, 0.1);
+	color: #d97706;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.article-content strong.warning::before,
+.article-content strong.warn::before,
+.article-content strong[data-theme="warning"]::before {
+	content: "⚠️";
+	position: absolute;
+	left: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 14px;
+}
+
+.article-content strong.error,
+.article-content strong.danger {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(239, 68, 68, 0.1);
+	color: #dc2626;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.article-content strong.error::before,
+.article-content strong.danger::before,
+.article-content strong[data-theme="error"]::before {
+	content: "❌";
+	position: absolute;
+	left: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 14px;
+}
+
+/* data-theme 属性支持 */
+.article-content strong[data-theme="info"] {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(59, 130, 246, 0.1);
+	color: #2563eb;
+	border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.article-content strong[data-theme="success"] {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(34, 197, 94, 0.1);
+	color: #16a34a;
+	border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.article-content strong[data-theme="warning"] {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(245, 158, 11, 0.1);
+	color: #d97706;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.article-content strong[data-theme="error"] {
+	position: relative;
+	padding: 4px 8px 4px 28px;
+	border-radius: 6px;
+	background-color: rgba(239, 68, 68, 0.1);
+	color: #dc2626;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 暗色模式下的主题化 strong 文本 */
+.dark .article-content strong.tip,
+.dark .article-content strong.info,
+.dark .article-content strong[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.15);
+	color: #60a5fa;
+	border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 内联提示框样式 */
+.article-content .inline-alert {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 0.9em;
+	font-weight: 600;
+	transition: var(--md-transition);
+}
+
+.article-content .inline-alert[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.1);
+	color: #2563eb;
+	border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.article-content .inline-alert[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.1);
+	color: #16a34a;
+	border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.article-content .inline-alert[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.1);
+	color: #d97706;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.article-content .inline-alert[data-theme="error"] {
+	background-color: rgba(239, 68, 68, 0.1);
+	color: #dc2626;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 暗色模式下的内联提示框 */
+.dark .article-content .inline-alert[data-theme="info"] {
+	background-color: rgba(59, 130, 246, 0.15);
+	color: #60a5fa;
+	border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .article-content .inline-alert[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.15);
+	color: #4ade80;
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.dark .article-content .inline-alert[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.15);
+	color: #fbbf24;
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dark .article-content .inline-alert[data-theme="error"] {
+	background-color: rgba(239, 68, 68, 0.15);
+	color: #f87171;
+	border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark .article-content strong.success,
+.dark .article-content strong[data-theme="success"] {
+	background-color: rgba(34, 197, 94, 0.15);
+	color: #4ade80;
+	border-color: rgba(34, 197, 94, 0.3);
+}
+
+.dark .article-content strong.warning,
+.dark .article-content strong.warn,
+.dark .article-content strong[data-theme="warning"] {
+	background-color: rgba(245, 158, 11, 0.15);
+	color: #fbbf24;
+	border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dark .article-content strong.error,
+.dark .article-content strong.danger,
+.dark .article-content strong[data-theme="error"] {
+	background-color: rgba(239, 68, 68, 0.15);
+	color: #f87171;
+	border-color: rgba(239, 68, 68, 0.3);
 }
 
 .article-content em {
