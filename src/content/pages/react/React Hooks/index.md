@@ -30,8 +30,8 @@ showMdMenu: false
 
 ### 3. 引用管理类
 
-- [ ] `useRef` - DOM 引用和可变值存储
-- [ ] `useImperativeHandle` - 自定义组件暴露的引用值
+- [x] [`useRef`](/react/react-hooks/useref) - DOM 引用和可变值存储
+- [x] [`useImperativeHandle`](/react/react-hooks/useimperativehandle) - 自定义组件暴露的引用值
 
 ## 第二部分：性能优化与高级 Hooks 4. 性能优化类
 
@@ -46,7 +46,7 @@ showMdMenu: false
 
 ### 6. 工具类
 
-- [ ] `useId` - 生成唯一 ID
+- [x] [`useId`](/react/react-hooks/useid) - 生成唯一 ID
 - [ ] `useDebugValue` - 在 React DevTools 中显示调试信息
 
 ### 7. 表单与操作类（React 19 新增）

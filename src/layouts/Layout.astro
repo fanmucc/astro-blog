@@ -840,25 +840,25 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 			// 主题映射配置
 			const THEME_PATTERNS = [
 				{
-					patterns: ['tip:', 'tips:', '提示：', '💡'],
+					patterns: ['tip:', 'tips:', 'tip:info', '提示：', '💡'],
 					theme: 'info',
 					icon: '💡',
 					label: '提示'
 				},
 				{
-					patterns: ['success:', 'ok:', '成功：', '✅'],
+					patterns: ['tip:success', 'success:', 'ok:', '成功：', '✅'],
 					theme: 'success', 
 					icon: '✅',
 					label: '成功'
 				},
 				{
-					patterns: ['warning:', 'warn:', 'caution:', '警告：', '注意：', '⚠️'],
+					patterns: ['tip:warning', 'tip:warn', 'warning:', 'warn:', 'caution:', '警告：', '注意：', '⚠️'],
 					theme: 'warning',
 					icon: '⚠️', 
 					label: '警告'
 				},
 				{
-					patterns: ['error:', 'danger:', 'fail:', '错误：', '失败：', '❌'],
+					patterns: ['tip:error', 'tip:danger', 'error:', 'danger:', 'fail:', '错误：', '失败：', '❌'],
 					theme: 'error',
 					icon: '❌',
 					label: '错误'
@@ -872,19 +872,28 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 				const trimmedText = text.trim();
 				const lowerText = trimmedText.toLowerCase();
 				
-				for (const themeConfig of THEME_PATTERNS) {
-					for (const pattern of themeConfig.patterns) {
-						const lowerPattern = pattern.toLowerCase();
-						if (lowerText.startsWith(lowerPattern)) {
-							// 确保模式后面是空格、冒号或文本结尾
-							const afterPattern = lowerText.slice(lowerPattern.length);
-							if (afterPattern === '' || afterPattern.startsWith(' ') || afterPattern.startsWith(':')) {
-								return {
-									...themeConfig,
-									matchedPattern: pattern,
-									remainingText: trimmedText.slice(pattern.length).replace(/^[:\s]+/, '').trim()
-								};
-							}
+				// 按模式长度排序，优先匹配更长更具体的模式（如 tip:error 优先于 tip:）
+				const sortedPatterns = THEME_PATTERNS.flatMap(config => 
+					config.patterns.map(pattern => ({
+						...config,
+						pattern: pattern,
+						length: pattern.length
+					}))
+				).sort((a, b) => b.length - a.length);
+				
+				for (const themeConfig of sortedPatterns) {
+					const lowerPattern = themeConfig.pattern.toLowerCase();
+					if (lowerText.startsWith(lowerPattern)) {
+						// 确保模式后面是空格或文本结尾（移除冒号检查，因为模式本身可能包含冒号）
+						const afterPattern = lowerText.slice(lowerPattern.length);
+						if (afterPattern === '' || afterPattern.startsWith(' ')) {
+							return {
+								theme: themeConfig.theme,
+								icon: themeConfig.icon,
+								label: themeConfig.label,
+								matchedPattern: themeConfig.pattern,
+								remainingText: trimmedText.slice(themeConfig.pattern.length).trim()
+							};
 						}
 					}
 				}
@@ -907,9 +916,10 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 				const paragraph = document.createElement('p');
 				paragraph.appendChild(title);
 				
-				// 如果有剩余文本，添加到段落中
-				if (themeInfo.remainingText) {
-					paragraph.appendChild(document.createTextNode(' ' + themeInfo.remainingText));
+				// 添加内容文本（优先使用传入的 content 参数）
+				const contentText = content || themeInfo.remainingText || '';
+				if (contentText) {
+					paragraph.appendChild(document.createTextNode(' ' + contentText));
 				}
 				
 				blockquote.appendChild(paragraph);
@@ -972,8 +982,11 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 				span.setAttribute('data-theme', themeInfo.theme);
 				span.className = 'inline-alert';
 				
+				// 优先使用传入的 content 参数，如果没有则使用 themeInfo.remainingText
+				const actualContent = content || themeInfo.remainingText || '';
+				
 				// 添加图标和内容
-				span.textContent = `${themeInfo.icon} ${themeInfo.label}${content ? ': ' + content : ''}`;
+				span.textContent = `${themeInfo.icon} ${themeInfo.label}${actualContent ? ': ' + actualContent : ''}`;
 				
 				return span;
 			}
@@ -997,6 +1010,131 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 			}
 
 			/**
+			 * 处理文本节点中的提示框模式
+			 */
+			function processTextNodes(container: HTMLElement) {
+				const walker = document.createTreeWalker(
+					container,
+					NodeFilter.SHOW_TEXT,
+					{
+						acceptNode: function(node) {
+							// 跳过已经处理过的节点和特定标签内的文本
+							const parent = node.parentNode as Element;
+							if (!parent || parent.tagName === 'CODE' || parent.tagName === 'PRE' || 
+								parent.tagName === 'BLOCKQUOTE' || parent.classList.contains('inline-alert')) {
+								return NodeFilter.FILTER_REJECT;
+							}
+							return NodeFilter.FILTER_ACCEPT;
+						}
+					}
+				);
+				
+				const textNodes: Text[] = [];
+				let node;
+				while (node = walker.nextNode()) {
+					textNodes.push(node as Text);
+				}
+				
+				let processedCount = 0;
+				textNodes.forEach(textNode => {
+					const text = textNode.textContent || '';
+					// 更灵活的正则，处理各种空格情况，包括 "** tip:warning content **" 这样的模式
+					const regex = /\*\*\s*(tip:(?:error|warning|success|info|warn|danger)|tip|tips|warning|error|success|danger|提示：|警告：|注意：|成功：|错误：|失败：)([^*]*?)\*\*/gi;
+					
+					if (regex.test(text)) {
+						processedCount += processTextNodeMatches(textNode, text);
+					}
+				});
+				
+				return processedCount;
+			}
+			
+			/**
+			 * 处理文本节点中的匹配项
+			 */
+			function processTextNodeMatches(textNode: Text, text: string): number {
+				// 更灵活的正则，处理各种空格情况，包括 "** tip:warning content **" 这样的模式
+				const regex = /\*\*\s*(tip:(?:error|warning|success|info|warn|danger)|tip|tips|warning|error|success|danger|提示：|警告：|注意：|成功：|错误：|失败：)([^*]*?)\*\*/gi;
+				const matches = [];
+				let match;
+				
+				// 重置 regex 的 lastIndex，确保每次都从头开始匹配
+				regex.lastIndex = 0;
+				
+				while ((match = regex.exec(text)) !== null) {
+					const fullMatch = match[0];
+					const keyword = match[1].trim();
+					const content = match[2]; // 保持原始内容，包含空格
+					const themeInfo = detectTheme(keyword);
+					
+					console.log('🎯 文本节点匹配:', {
+						fullMatch,
+						keyword,
+						content,
+						themeInfo: themeInfo?.theme
+					});
+					
+					if (themeInfo) {
+						// 内容处理：去除前后空格但保留中间内容
+						const actualContent = content.trim();
+						
+						matches.push({
+							start: match.index,
+							end: match.index + fullMatch.length,
+							themeInfo: themeInfo,
+							content: actualContent,
+							fullMatch: fullMatch
+						});
+					}
+				}
+				
+				if (matches.length > 0) {
+					const parent = textNode.parentNode;
+					const fragment = document.createDocumentFragment();
+					let lastIndex = 0;
+					
+					matches.forEach(matchItem => {
+						// 添加匹配前的文本
+						if (matchItem.start > lastIndex) {
+							const beforeText = text.slice(lastIndex, matchItem.start);
+							if (beforeText) {
+								fragment.appendChild(document.createTextNode(beforeText));
+							}
+						}
+						
+						// 检查是否为独立的提示框
+						const isStandalone = text.trim() === matchItem.fullMatch.trim();
+						
+						if (isStandalone) {
+							// 创建 blockquote
+							const blockquote = createThemedBlockquote(matchItem.themeInfo, matchItem.content);
+							fragment.appendChild(blockquote);
+						} else {
+							// 创建内联 span
+							const span = createThemedSpan(matchItem.themeInfo, matchItem.content);
+							fragment.appendChild(span);
+						}
+						
+						lastIndex = matchItem.end;
+					});
+					
+					// 添加剩余文本
+					if (lastIndex < text.length) {
+						const afterText = text.slice(lastIndex);
+						if (afterText) {
+							fragment.appendChild(document.createTextNode(afterText));
+						}
+					}
+					
+					// 替换原始文本节点
+					parent?.replaceChild(fragment, textNode);
+					return matches.length;
+				}
+				
+				return 0;
+			}
+
+			/**
 			 * 处理页面中的 Markdown 内容
 			 */
 			function processMarkdown() {
@@ -1010,8 +1148,12 @@ const menuTree = showSidebar ? await buildMenuTree() : [];
 					console.log('📝 容器内容预览:', articleContainer.textContent ? articleContainer.textContent.substring(0, 200) : '无内容');
 					
 					// 处理已渲染的 strong 元素
-					const processedCount = processStrongElements(articleContainer);
-					console.log(`✅ Markdown 主题化处理完成，处理了 ${processedCount} 个元素`);
+					const strongCount = processStrongElements(articleContainer);
+					
+					// 处理文本节点中的模式
+					const textCount = processTextNodes(articleContainer);
+					
+					console.log(`✅ Markdown 主题化处理完成，处理了 ${strongCount + textCount} 个元素 (strong: ${strongCount}, text: ${textCount})`);
 				} else {
 					console.warn('❌ 未找到 .article-content 容器');
 					console.log('🔍 当前页面所有容器:', document.querySelectorAll('[class*="content"], [class*="article"]'));

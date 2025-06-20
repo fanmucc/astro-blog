@@ -13,7 +13,7 @@ menuLabel: "useLayoutEffect与useInsertionEffect"
 
 # useLayoutEffect 与 useInsertionEffect
 
-** error: useInsertionEffect 是为 CSS-in-JS 库的作者特意打造的。除非你正在使用 CSS-in-JS 库并且需要注入样式，否则你应该使用 useEffect 或者 useLayoutEffect。**
+** tip:warning useInsertionEffect 是为 CSS-in-JS 库的作者特意打造的。除非你正在使用 CSS-in-JS 库并且需要注入样式，否则你应该使用 useEffect 或者 useLayoutEffect。**
 
 `useLayoutEffect` 和 `useInsertionEffect` 都是 React Hooks，但它们在执行时机和用途上有重要区别
 
