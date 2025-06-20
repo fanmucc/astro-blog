@@ -19,14 +19,14 @@ showMdMenu: false
 ### 1. 状态管理类
 
 - [x] [`useState`](/react/react-hooks/usestate) - 最基础的状态管理
-- [ ] `useReducer` - 复杂状态逻辑管理
-- [ ] `useContext` - 跨组件状态共享
+- [x] [`useReducer`](/react/react-hooks/usereduce与usecontext) - 复杂状态逻辑管理
+- [x] [`useContext`](/react/react-hooks/usereduce与usecontext) - 跨组件状态共享
 
 ### 2. 副作用处理类
 
 - [x] [`useEffect`](/react/react-hooks/useeffect) - 处理副作用和生命周期
-- [ ] `useLayoutEffect` - 同步副作用（DOM 更新后，浏览器绘制前）
-- [ ] `useInsertionEffect` - 在 DOM 修改前执行（主要用于 CSS-in-JS）
+- [x] [`useLayoutEffect`](/react/react-hooks/uselayouteffect与useinsertioneffect) - 同步副作用（DOM 更新后，浏览器绘制前）
+- [x] [`useInsertionEffect`](/react/react-hooks/uselayouteffect与useinsertioneffect) - 在 DOM 修改前执行（主要用于 CSS-in-JS）
 
 ### 3. 引用管理类
 
@@ -35,8 +35,8 @@ showMdMenu: false
 
 ## 第二部分：性能优化与高级 Hooks 4. 性能优化类
 
-- [ ] `useMemo` - 缓存计算结果
-- [ ] `useCallback` - 缓存函数引用
+- [x] [`useMemo`](/react/react-hooks/usememo与usecallback) - 缓存计算结果
+- [x] [`useCallback`](/react/react-hooks/usememo与usecallback) - 缓存函数引用
 - [ ] `useTransition` - 标记非紧急状态更新
 - [ ] `useDeferredValue` - 延迟更新值
 
